@@ -42,17 +42,27 @@ git push -u origin main
 
 ### 2. Set up NPM Token for GitHub Actions
 
-1. Go to https://www.npmjs.com/settings/YOUR_USERNAME/tokens
-2. Click "Generate New Token" → "Classic Token"
-3. Name it: `GITHUB_ACTIONS_XIVDYETOOLS_CORE`
-4. Select "Automation" token type
-5. Click "Generate Token" and copy it
+> **Note**: NPM is deprecating "Automation" tokens in favor of "Granular Access Tokens" which provide better security through scoped permissions and expiration dates. Use Granular Access Tokens for new projects.
 
-6. Go to https://github.com/FlashGalatine/xivdyetools-core/settings/secrets/actions
-7. Click "New repository secret"
-8. Name: `NPM_TOKEN`
-9. Value: Paste the token from step 5
-10. Click "Add secret"
+1. Go to https://www.npmjs.com/settings/YOUR_USERNAME/tokens
+2. Click "Generate New Token" → **"Granular Access Token"** (recommended)
+3. Configure the token:
+   - **Token name**: `GITHUB_ACTIONS_XIVDYETOOLS_CORE`
+   - **Expiration**: Choose your preference (e.g., 1 year, or "No expiration" for simplicity)
+   - **Packages and scopes**:
+     - Select "Only select packages and scopes"
+     - Click "Select packages"
+     - Choose `xivdyetools-core`
+     - Permissions: Set to **"Read and write"**
+   - **Organizations**: No organization access needed (leave empty)
+   - **IP Allowlist**: Leave empty (GitHub Actions IPs vary)
+4. Click "Generate Token" and **copy it immediately** (you won't see it again!)
+
+5. Go to https://github.com/FlashGalatine/xivdyetools-core/settings/secrets/actions
+6. Click "New repository secret"
+7. Name: `NPM_TOKEN`
+8. Value: Paste the token from step 4
+9. Click "Add secret"
 
 ### 3. Configure Repository Settings
 
