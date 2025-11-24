@@ -317,7 +317,7 @@ Works in all modern browsers with ES6 module support:
 
 ## License
 
-MIT © 2024 Flash Galatine
+MIT © 2025 Flash Galatine
 
 See [LICENSE](./LICENSE) for full details.
 
