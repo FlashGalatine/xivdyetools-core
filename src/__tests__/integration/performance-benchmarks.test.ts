@@ -70,7 +70,7 @@ describe('Performance Benchmarks - Core Library', () => {
     });
 
     describe('Dye Matching Performance', () => {
-        it('should find closest dye quickly (target: < 5ms)', () => {
+        it('should find closest dye quickly with k-d tree (target: < 2ms)', () => {
             const testColors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF'];
             const iterations = 100;
 
@@ -82,10 +82,11 @@ describe('Performance Benchmarks - Core Library', () => {
             const duration = performance.now() - start;
             const avgTime = duration / iterations;
 
-            expect(avgTime).toBeLessThan(5); // < 5ms per match
+            // Per P-7: k-d tree should be faster than linear search
+            expect(avgTime).toBeLessThan(2); // < 2ms per match with k-d tree
         });
 
-        it('should handle batch matching efficiently', () => {
+        it('should handle batch matching efficiently with k-d tree', () => {
             const testColors = Array.from({ length: 50 }, () => {
                 const r = Math.floor(Math.random() * 256);
                 const g = Math.floor(Math.random() * 256);
@@ -100,7 +101,23 @@ describe('Performance Benchmarks - Core Library', () => {
             const duration = performance.now() - start;
             const avgTime = duration / testColors.length;
 
-            expect(avgTime).toBeLessThan(10); // < 10ms per match in batch
+            // Per P-7: k-d tree should provide significant speedup
+            expect(avgTime).toBeLessThan(5); // < 5ms per match in batch with k-d tree
+        });
+
+        it('should find dyes within distance efficiently with k-d tree', () => {
+            const testColor = '#FF5733';
+            const iterations = 50;
+
+            const start = performance.now();
+            for (let i = 0; i < iterations; i++) {
+                dyeService.findDyesWithinDistance(testColor, 50, 10);
+            }
+            const duration = performance.now() - start;
+            const avgTime = duration / iterations;
+
+            // Per P-7: k-d tree range queries should be fast
+            expect(avgTime).toBeLessThan(5); // < 5ms per range query
         });
     });
 

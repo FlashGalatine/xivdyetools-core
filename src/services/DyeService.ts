@@ -25,6 +25,7 @@
 import type { Dye } from '../types/index.js';
 import { ErrorCode, AppError } from '../types/index.js';
 import { ColorService } from './ColorService.js';
+import { KDTree, type Point3D } from '../utils/kd-tree.js';
 
 // ============================================================================
 // Dye Service Class
@@ -49,6 +50,8 @@ export class DyeService {
   // Per P-2: Hue-indexed map for fast harmony lookups (70-90% speedup)
   // Maps hue bucket (0-35 for 10° buckets) to array of dyes in that range
   private dyesByHueBucket: Map<number, Dye[]> = new Map();
+  // Per P-7: k-d tree for fast nearest neighbor search in RGB space
+  private kdTree: KDTree | null = null;
   private isLoaded: boolean = false;
   private lastLoaded: number = 0;
   
@@ -95,6 +98,9 @@ export class DyeService {
       // Per P-2: Build hue-indexed map for harmony lookups
       this.dyesByHueBucket.clear();
       
+      // Per P-7: Build k-d tree for RGB color space
+      const kdTreePoints: Point3D[] = [];
+      
       for (const dye of this.dyes) {
         this.dyesByIdMap.set(dye.id, dye);
         if (dye.itemID) {
@@ -107,7 +113,20 @@ export class DyeService {
           this.dyesByHueBucket.set(hueBucket, []);
         }
         this.dyesByHueBucket.get(hueBucket)!.push(dye);
+        
+        // Per P-7: Add to k-d tree (exclude Facewear dyes from tree)
+        if (dye.category !== 'Facewear') {
+          kdTreePoints.push({
+            x: dye.rgb.r,
+            y: dye.rgb.g,
+            z: dye.rgb.b,
+            data: dye,
+          });
+        }
       }
+
+      // Per P-7: Build k-d tree
+      this.kdTree = new KDTree(kdTreePoints);
 
       this.isLoaded = true;
       this.lastLoaded = Date.now();
@@ -251,74 +270,116 @@ export class DyeService {
 
   /**
    * Find closest dye to a given hex color
+   * Per P-7: Uses k-d tree for O(log n) average case vs O(n) linear search
    */
   findClosestDye(hex: string, excludeIds: number[] = []): Dye | null {
     this.ensureLoaded();
 
-    let closest: Dye | null = null;
-    let minDistance = Infinity;
+    try {
+      const targetRgb = ColorService.hexToRgb(hex);
+      const targetPoint: Point3D = {
+        x: targetRgb.r,
+        y: targetRgb.g,
+        z: targetRgb.b,
+      };
 
-    const excludeSet = new Set(excludeIds);
+      // Per P-7: Use k-d tree if available
+      if (this.kdTree && !this.kdTree.isEmpty()) {
+        const excludeSet = new Set(excludeIds);
+        const nearest = this.kdTree.nearestNeighbor(targetPoint, (data) => {
+          const dye = data as Dye;
+          return excludeSet.has(dye.id);
+        });
 
-    for (const dye of this.dyes) {
-      if (excludeSet.has(dye.id)) {
-        continue;
-      }
-
-      // Exclude Facewear dyes from results
-      if (dye.category === 'Facewear') {
-        continue;
-      }
-
-      try {
-        const distance = ColorService.getColorDistance(hex, dye.hex);
-
-        if (distance < minDistance) {
-          minDistance = distance;
-          closest = dye;
+        if (nearest && nearest.data) {
+          return nearest.data as Dye;
         }
-      } catch {
-        // Skip invalid colors
-        continue;
       }
-    }
 
-    return closest;
+      // Fallback to linear search (shouldn't happen if k-d tree is built)
+      let closest: Dye | null = null;
+      let minDistance = Infinity;
+      const excludeSet = new Set(excludeIds);
+
+      for (const dye of this.dyes) {
+        if (excludeSet.has(dye.id) || dye.category === 'Facewear') {
+          continue;
+        }
+
+        try {
+          const distance = ColorService.getColorDistance(hex, dye.hex);
+          if (distance < minDistance) {
+            minDistance = distance;
+            closest = dye;
+          }
+        } catch {
+          continue;
+        }
+      }
+
+      return closest;
+    } catch {
+      return null;
+    }
   }
 
   /**
    * Find dyes within a color distance threshold
+   * Per P-7: Uses k-d tree for efficient range queries
    */
   findDyesWithinDistance(hex: string, maxDistance: number, limit?: number): Dye[] {
     this.ensureLoaded();
-    const results: Array<{ dye: Dye; distance: number }> = [];
 
-    for (const dye of this.dyes) {
-      try {
-        // Exclude Facewear dyes from recommendations
-        if (dye.category === 'Facewear') {
+    try {
+      const targetRgb = ColorService.hexToRgb(hex);
+      const targetPoint: Point3D = {
+        x: targetRgb.r,
+        y: targetRgb.g,
+        z: targetRgb.b,
+      };
+
+      // Per P-7: Use k-d tree if available
+      if (this.kdTree && !this.kdTree.isEmpty()) {
+        const kdResults = this.kdTree.pointsWithinDistance(targetPoint, maxDistance);
+        
+        // Convert to Dye array and apply limit
+        const dyes = kdResults.map((item) => item.point.data as Dye);
+        
+        if (limit && limit > 0) {
+          return dyes.slice(0, limit);
+        }
+        
+        return dyes;
+      }
+
+      // Fallback to linear search
+      const results: Array<{ dye: Dye; distance: number }> = [];
+
+      for (const dye of this.dyes) {
+        try {
+          if (dye.category === 'Facewear') {
+            continue;
+          }
+
+          const distance = ColorService.getColorDistance(hex, dye.hex);
+          if (distance <= maxDistance) {
+            results.push({ dye, distance });
+          }
+        } catch {
           continue;
         }
-
-        const distance = ColorService.getColorDistance(hex, dye.hex);
-
-        if (distance <= maxDistance) {
-          results.push({ dye, distance });
-        }
-      } catch {
-        // Skip invalid colors
-        continue;
       }
+
+      results.sort((a, b) => a.distance - b.distance);
+
+      if (limit) {
+        results.splice(limit);
+      }
+
+      return results.map((item) => item.dye);
+    } catch {
+      return [];
     }
-
-    // Sort by distance ascending
-    results.sort((a, b) => a.distance - b.distance);
-
-    if (limit) {
-      results.splice(limit);
-    }
-
-    return results.map((item) => item.dye);
   }
 
   /**
