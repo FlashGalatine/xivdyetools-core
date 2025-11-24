@@ -40,11 +40,12 @@ export type HexColor = string & { readonly __brand: 'HexColor' };
 /**
  * Helper to create branded HexColor type with validation
  * Per R-1: Validates hex format before creating branded type
+ * @throws {Error} If hex format is invalid
  */
-export function createHexColor(hex: string): HexColor | null {
+export function createHexColor(hex: string): HexColor {
     // Basic validation - must be #RRGGBB or #RGB format
     if (!/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(hex)) {
-        return null;
+        throw new Error(`Invalid hex color format: ${hex}. Expected #RRGGBB or #RGB format.`);
     }
     // Normalize to uppercase #RRGGBB
     const normalized = hex.length === 4

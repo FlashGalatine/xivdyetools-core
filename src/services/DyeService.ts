@@ -31,8 +31,15 @@ import { ColorService } from './ColorService.js';
 export class DyeService {
   private dyes: Dye[] = [];
   private dyesByIdMap: Map<number, Dye> = new Map();
+  // Per P-2: Hue-indexed map for fast harmony lookups (70-90% speedup)
+  // Maps hue bucket (0-35 for 10° buckets) to array of dyes in that range
+  private dyesByHueBucket: Map<number, Dye[]> = new Map();
   private isLoaded: boolean = false;
   private lastLoaded: number = 0;
+  
+  // Per P-2: Hue bucket size (10 degrees per bucket for 36 buckets total)
+  private static readonly HUE_BUCKET_SIZE = 10;
+  private static readonly HUE_BUCKET_COUNT = 36; // 360 / 10
 
   /**
    * Initialize the dye database
@@ -70,11 +77,21 @@ export class DyeService {
 
       // Build ID map for fast lookups
       this.dyesByIdMap.clear();
+      // Per P-2: Build hue-indexed map for harmony lookups
+      this.dyesByHueBucket.clear();
+      
       for (const dye of this.dyes) {
         this.dyesByIdMap.set(dye.id, dye);
         if (dye.itemID) {
           this.dyesByIdMap.set(dye.itemID, dye);
         }
+        
+        // Per P-2: Index by hue bucket (10° buckets)
+        const hueBucket = this.getHueBucket(dye.hsv.h);
+        if (!this.dyesByHueBucket.has(hueBucket)) {
+          this.dyesByHueBucket.set(hueBucket, []);
+        }
+        this.dyesByHueBucket.get(hueBucket)!.push(dye);
       }
 
       this.isLoaded = true;
@@ -477,7 +494,40 @@ export class DyeService {
   }
 
   /**
+   * Get hue bucket index for a given hue (0-35 for 10° buckets)
+   * Per P-2: Maps hue to bucket for indexed lookups
+   */
+  private getHueBucket(hue: number): number {
+    // Normalize hue to 0-360 range
+    const normalizedHue = ((hue % 360) + 360) % 360;
+    return Math.floor(normalizedHue / DyeService.HUE_BUCKET_SIZE);
+  }
+
+  /**
+   * Get hue buckets to search for a target hue with tolerance
+   * Per P-2: Returns bucket indices that could contain matching dyes
+   */
+  private getHueBucketsToSearch(targetHue: number, tolerance: number): number[] {
+    const targetBucket = this.getHueBucket(targetHue);
+    const bucketsToSearch = new Set<number>();
+    
+    // Add target bucket
+    bucketsToSearch.add(targetBucket);
+    
+    // Add adjacent buckets based on tolerance
+    // Each bucket is 10°, so tolerance/10 buckets on each side
+    const bucketRange = Math.ceil(tolerance / DyeService.HUE_BUCKET_SIZE);
+    for (let i = -bucketRange; i <= bucketRange; i++) {
+      const bucket = (targetBucket + i + DyeService.HUE_BUCKET_COUNT) % DyeService.HUE_BUCKET_COUNT;
+      bucketsToSearch.add(bucket);
+    }
+    
+    return Array.from(bucketsToSearch);
+  }
+
+  /**
    * Find closest dye by hue difference with graceful fallback
+   * Per P-2: Uses hue-indexed map for 70-90% speedup
    */
   private findClosestDyeByHue(
     targetHue: number,
@@ -487,20 +537,27 @@ export class DyeService {
     let withinTolerance: { dye: Dye; diff: number } | null = null;
     let bestOverall: { dye: Dye; diff: number } | null = null;
 
-    for (const dye of this.dyes) {
-      if (usedIds.has(dye.id) || dye.category === 'Facewear') {
-        continue;
-      }
+    // Per P-2: Only search relevant hue buckets instead of all dyes
+    const bucketsToSearch = this.getHueBucketsToSearch(targetHue, tolerance);
+    
+    for (const bucket of bucketsToSearch) {
+      const dyesInBucket = this.dyesByHueBucket.get(bucket) || [];
+      
+      for (const dye of dyesInBucket) {
+        if (usedIds.has(dye.id) || dye.category === 'Facewear') {
+          continue;
+        }
 
-      const diff = Math.min(Math.abs(dye.hsv.h - targetHue), 360 - Math.abs(dye.hsv.h - targetHue));
+        const diff = Math.min(Math.abs(dye.hsv.h - targetHue), 360 - Math.abs(dye.hsv.h - targetHue));
 
-      if (!bestOverall || diff < bestOverall.diff) {
-        bestOverall = { dye, diff };
-      }
+        if (!bestOverall || diff < bestOverall.diff) {
+          bestOverall = { dye, diff };
+        }
 
-      if (diff <= tolerance) {
-        if (!withinTolerance || diff < withinTolerance.diff) {
-          withinTolerance = { dye, diff };
+        if (diff <= tolerance) {
+          if (!withinTolerance || diff < withinTolerance.diff) {
+            withinTolerance = { dye, diff };
+          }
         }
       }
     }
