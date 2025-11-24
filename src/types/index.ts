@@ -32,15 +32,73 @@ export interface HSV {
 
 /**
  * Hexadecimal color string (branded type for type safety)
+ * Per R-1: Branded types prevent type confusion
  * @example "#FF0000"
  */
 export type HexColor = string & { readonly __brand: 'HexColor' };
 
 /**
- * Helper to create branded HexColor type
+ * Helper to create branded HexColor type with validation
+ * Per R-1: Validates hex format before creating branded type
  */
-export function createHexColor(hex: string): HexColor {
-    return hex as HexColor;
+export function createHexColor(hex: string): HexColor | null {
+    // Basic validation - must be #RRGGBB or #RGB format
+    if (!/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(hex)) {
+        return null;
+    }
+    // Normalize to uppercase #RRGGBB
+    const normalized = hex.length === 4
+        ? `#${hex[1]}${hex[1]}${hex[2]}${hex[2]}${hex[3]}${hex[3]}`.toUpperCase()
+        : hex.toUpperCase();
+    return normalized as HexColor;
+}
+
+/**
+ * Dye ID (branded type for type safety)
+ * Per R-1: Prevents accidental mixing with other numbers
+ */
+export type DyeId = number & { readonly __brand: 'DyeId' };
+
+/**
+ * Helper to create branded DyeId type with validation
+ * Per R-1: Validates dye ID is in valid range (1-200)
+ */
+export function createDyeId(id: number): DyeId | null {
+    if (!Number.isInteger(id) || id < 1 || id > 200) {
+        return null;
+    }
+    return id as DyeId;
+}
+
+/**
+ * Hue value (0-360 degrees, branded type)
+ * Per R-1: Prevents mixing with other angle values
+ */
+export type Hue = number & { readonly __brand: 'Hue' };
+
+/**
+ * Helper to create branded Hue type with normalization
+ * Per R-1: Normalizes hue to 0-360 range
+ */
+export function createHue(hue: number): Hue {
+    // Normalize to 0-360 range
+    const normalized = ((hue % 360) + 360) % 360;
+    return normalized as Hue;
+}
+
+/**
+ * Saturation value (0-100 percent, branded type)
+ * Per R-1: Prevents mixing with other percentage values
+ */
+export type Saturation = number & { readonly __brand: 'Saturation' };
+
+/**
+ * Helper to create branded Saturation type with clamping
+ * Per R-1: Clamps saturation to 0-100 range
+ */
+export function createSaturation(saturation: number): Saturation {
+    const clamped = Math.max(0, Math.min(100, saturation));
+    return clamped as Saturation;
 }
 
 // ============================================================================
