@@ -6,8 +6,6 @@
  * vs O(n) for linear search, significant improvement for color matching
  */
 
-import type { RGB } from '../types/index.js';
-
 /**
  * Point in 3D space (RGB color)
  */
