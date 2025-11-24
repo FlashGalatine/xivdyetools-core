@@ -98,5 +98,5 @@ Based on integration tests:
 ---
 
 **Related:** P-7: k-d Tree Implementation  
-**Last Updated:** December 2024
+**Last Updated:** November 2025
 
