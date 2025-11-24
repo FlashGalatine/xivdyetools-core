@@ -1,10 +1,25 @@
 /**
  * @xivdyetools/core - Dye Service
  *
- * FFXIV dye database management and search
- * Environment-agnostic (Node.js + Browser)
+ * FFXIV dye database management and search.
+ * Provides access to the complete FFXIV dye database with search,
+ * matching, and color harmony generation capabilities.
+ *
+ * Environment-agnostic (Node.js + Browser).
  *
  * @module services/DyeService
+ * @example
+ * ```typescript
+ * import { DyeService, dyeDatabase } from '@xivdyetools/core';
+ *
+ * const dyeService = new DyeService(dyeDatabase);
+ *
+ * // Find closest dye to a color
+ * const closestDye = dyeService.findClosestDye('#FF0000');
+ *
+ * // Generate color harmonies
+ * const harmonies = dyeService.findTriadicDyes('#FF0000');
+ * ```
  */
 
 import type { Dye } from '../types/index.js';

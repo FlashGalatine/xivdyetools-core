@@ -1,9 +1,26 @@
 /**
  * @xivdyetools/core - Color Service
  *
- * Color conversion algorithms and colorblindness simulation
+ * Color conversion algorithms and colorblindness simulation.
+ * Provides utilities for converting between RGB, HSV, and hex color formats,
+ * calculating color distances, and simulating color vision deficiencies.
  *
  * @module services/ColorService
+ * @example
+ * ```typescript
+ * import { ColorService } from '@xivdyetools/core';
+ *
+ * // Convert hex to RGB
+ * const rgb = ColorService.hexToRgb('#FF0000');
+ * // { r: 255, g: 0, b: 0 }
+ *
+ * // Convert RGB to HSV
+ * const hsv = ColorService.rgbToHsv(rgb);
+ * // { h: 0, s: 100, v: 100 }
+ *
+ * // Calculate color distance
+ * const distance = ColorService.getColorDistance('#FF0000', '#00FF00');
+ * ```
  */
 
 import type { RGB, HSV, HexColor, VisionType } from '../types/index.js';
