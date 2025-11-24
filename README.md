@@ -317,9 +317,13 @@ Works in all modern browsers with ES6 module support:
 
 ## License
 
-MIT © Flash Galatine
+MIT © 2024 Flash Galatine
 
 See [LICENSE](./LICENSE) for full details.
+
+## Legal Notice
+
+**This is a fan-made tool and is not affiliated with or endorsed by Square Enix Co., Ltd. FINAL FANTASY is a registered trademark of Square Enix Holdings Co., Ltd.**
 
 ## Related Projects
 
