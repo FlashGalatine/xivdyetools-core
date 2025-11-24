@@ -81,3 +81,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Initial stable release with core color algorithms and dye database functionality.
 
+
+
