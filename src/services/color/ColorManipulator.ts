@@ -59,6 +59,3 @@ export class ColorManipulator {
     return ColorConverter.hsvToHex(hsv.h, 0, hsv.v);
   }
 }
-
-
-

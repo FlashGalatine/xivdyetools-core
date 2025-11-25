@@ -138,6 +138,3 @@ export class ColorblindnessSimulator {
     return ColorConverter.rgbToHex(simulated.r, simulated.g, simulated.b);
   }
 }
-
-
-

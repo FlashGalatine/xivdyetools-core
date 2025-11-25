@@ -201,7 +201,8 @@ export class DyeDatabase {
     // Each bucket is 10°, so tolerance/10 buckets on each side
     const bucketRange = Math.ceil(tolerance / DyeDatabase.HUE_BUCKET_SIZE);
     for (let i = -bucketRange; i <= bucketRange; i++) {
-      const bucket = (targetBucket + i + DyeDatabase.HUE_BUCKET_COUNT) % DyeDatabase.HUE_BUCKET_COUNT;
+      const bucket =
+        (targetBucket + i + DyeDatabase.HUE_BUCKET_COUNT) % DyeDatabase.HUE_BUCKET_COUNT;
       bucketsToSearch.add(bucket);
     }
 
@@ -224,6 +225,3 @@ export class DyeDatabase {
     return this.dyes;
   }
 }
-
-
-
