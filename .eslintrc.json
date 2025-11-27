@@ -25,8 +25,12 @@
     "no-implied-eval": "error",
     "no-new-func": "error"
   },
-  "ignorePatterns": ["dist", "node_modules", "*.js", "**/*.test.ts", "**/__tests__/**"]
+  "ignorePatterns": ["dist", "node_modules", "scripts", "*.js", "**/*.test.ts", "**/__tests__/**"]
 }
+
+
+
+
 
 
 

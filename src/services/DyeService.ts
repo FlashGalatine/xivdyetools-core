@@ -25,10 +25,11 @@
  * ```
  */
 
-import type { Dye } from '../types/index.js';
+import type { Dye, LocalizedDye } from '../types/index.js';
 import { DyeDatabase } from './dye/DyeDatabase.js';
 import { DyeSearch } from './dye/DyeSearch.js';
 import { HarmonyGenerator } from './dye/HarmonyGenerator.js';
+import { LocalizationService } from './LocalizationService.js';
 
 /**
  * Service for managing FFXIV dye database (Facade)
@@ -251,5 +252,121 @@ export class DyeService {
    */
   findShadesDyes(hex: string): Dye[] {
     return this.harmony.findShadesDyes(hex);
+  }
+
+  // ============================================================================
+  // Localization Support (NEW)
+  // ============================================================================
+
+  /**
+   * Search dyes by name (searches both English + localized names)
+   * If no locale is loaded, falls back to English-only search
+   *
+   * @param query - Search query
+   * @returns Matching dyes
+   *
+   * @example
+   * ```typescript
+   * await LocalizationService.setLocale('ja');
+   * const results = dyeService.searchByLocalizedName('スノウ');
+   * // Finds "Snow White" (スノウホワイト)
+   * ```
+   */
+  searchByLocalizedName(query: string): Dye[] {
+    if (!LocalizationService.isLocaleLoaded()) {
+      return this.searchByName(query); // Fallback to English-only
+    }
+
+    const lowerQuery = query.toLowerCase().trim();
+    const dyes = this.database.getDyesInternal();
+
+    return dyes.filter((dye) => {
+      // Search English name
+      if (dye.name.toLowerCase().includes(lowerQuery)) {
+        return true;
+      }
+
+      // Search localized name
+      const localizedName = LocalizationService.getDyeName(dye.itemID);
+      if (localizedName?.toLowerCase().includes(lowerQuery)) {
+        return true;
+      }
+
+      return false;
+    });
+  }
+
+  /**
+   * Get dye by ID with localized name
+   * Returns Dye with localizedName property if locale loaded
+   *
+   * @param id - Dye ID
+   * @returns Localized dye or null if not found
+   *
+   * @example
+   * ```typescript
+   * const dye = dyeService.getLocalizedDyeById(5729);
+   * const displayName = dye.localizedName || dye.name;
+   * // "スノウホワイト" (ja) or "Snow White" (en)
+   * ```
+   */
+  getLocalizedDyeById(id: number): LocalizedDye | null {
+    const dye = this.getDyeById(id);
+    if (!dye) return null;
+
+    if (!LocalizationService.isLocaleLoaded()) {
+      return dye;
+    }
+
+    return {
+      ...dye,
+      localizedName: LocalizationService.getDyeName(dye.itemID) || undefined,
+    };
+  }
+
+  /**
+   * Get all dyes with localized names
+   * Returns array of dyes with localizedName property if locale loaded
+   *
+   * @returns Array of localized dyes
+   *
+   * @example
+   * ```typescript
+   * await LocalizationService.setLocale('ja');
+   * const dyes = dyeService.getAllLocalizedDyes();
+   * dyes.forEach(dye => {
+   *     console.log(dye.localizedName || dye.name);
+   * });
+   * ```
+   */
+  getAllLocalizedDyes(): LocalizedDye[] {
+    const dyes = this.getAllDyes();
+
+    if (!LocalizationService.isLocaleLoaded()) {
+      return dyes;
+    }
+
+    return dyes.map((dye) => ({
+      ...dye,
+      localizedName: LocalizationService.getDyeName(dye.itemID) || undefined,
+    }));
+  }
+
+  /**
+   * Get all non-metallic dyes (locale-aware)
+   * Excludes dyes based on metallic dye IDs from current locale
+   *
+   * @returns Array of non-metallic dyes
+   *
+   * @example
+   * ```typescript
+   * // Works in any locale - correctly excludes metallic dyes
+   * const nonMetallic = dyeService.getNonMetallicDyes();
+   * // Excludes: Metallic Silver, Metallic Brass, etc.
+   * ```
+   */
+  getNonMetallicDyes(): Dye[] {
+    const metallicIds = new Set(LocalizationService.getMetallicDyeIds());
+    return this.getAllDyes().filter((dye) => !metallicIds.has(dye.itemID));
   }
 }
