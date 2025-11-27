@@ -1,6 +1,6 @@
 {
     "name": "xivdyetools-core",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "description": "Core color algorithms and dye database for XIV Dye Tools",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -10,8 +10,9 @@
         "README.md"
     ],
     "scripts": {
-        "build": "npm run build:locales && tsc",
+        "build": "npm run build:locales && tsc && npm run copy:locales",
         "build:locales": "tsx scripts/build-locales.ts",
+        "copy:locales": "tsx scripts/copy-locales.ts",
         "prebuild": "npm run build:locales",
         "test": "vitest run",
         "test:watch": "vitest",

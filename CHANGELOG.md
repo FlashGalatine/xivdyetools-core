@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2025-11-27
+
+### Fixed
+- **Locale files missing from npm package**: Added `copy:locales` build step to copy locale JSON files to `dist/data/locales/`
+  - TypeScript's `tsc` only copies statically imported JSON files
+  - Dynamic imports (used for locale code-splitting) require manual copy
+  - Build now runs: `build:locales` → `tsc` → `copy:locales`
+
+---
+
 ## [1.1.1] - 2025-11-27
 
 ### Added
