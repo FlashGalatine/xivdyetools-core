@@ -18,10 +18,105 @@ import { LocaleLoader } from './localization/LocaleLoader.js';
 import { LocaleRegistry } from './localization/LocaleRegistry.js';
 import { TranslationProvider } from './localization/TranslationProvider.js';
 
+// ============================================================================
+// Pure Utility Functions (Extracted for testability)
+// ============================================================================
+
+/**
+ * List of supported locale codes
+ */
+export const SUPPORTED_LOCALES: readonly LocaleCode[] = ['en', 'ja', 'de', 'fr'] as const;
+
+/**
+ * Extract 2-letter locale code from longer locale strings
+ * Pure function - no side effects, easy to test
+ *
+ * @param locale - Locale string (e.g., 'en-US', 'ja', 'de-DE')
+ * @returns 2-letter locale code or null
+ *
+ * @example
+ * ```typescript
+ * extractLocaleCode('en-US') // 'en'
+ * extractLocaleCode('ja') // 'ja'
+ * extractLocaleCode('zh-CN') // null (not supported)
+ * ```
+ */
+export function extractLocaleCode(locale: string): LocaleCode | null {
+  const code = locale.split('-')[0].toLowerCase();
+  return SUPPORTED_LOCALES.includes(code as LocaleCode) ? (code as LocaleCode) : null;
+}
+
+/**
+ * Resolve locale from preference chain
+ * Pure function - determines locale based on priority without side effects
+ *
+ * Priority: explicit > guild > system > fallback
+ *
+ * @param preference - Locale preference with fallback chain
+ * @returns Resolved locale code
+ *
+ * @example
+ * ```typescript
+ * resolveLocaleFromPreference({
+ *     explicit: 'de',
+ *     guild: 'ja',
+ *     system: 'en-US',
+ *     fallback: 'en'
+ * }); // Returns 'de' (highest priority)
+ *
+ * resolveLocaleFromPreference({
+ *     explicit: null,
+ *     guild: 'ja-JP',
+ *     system: 'en',
+ *     fallback: 'en'
+ * }); // Returns 'ja' (extracted from guild)
+ * ```
+ */
+export function resolveLocaleFromPreference(preference: LocalePreference): LocaleCode {
+  // 1. Try explicit user selection (highest priority)
+  if (preference.explicit && SUPPORTED_LOCALES.includes(preference.explicit)) {
+    return preference.explicit;
+  }
+
+  // 2. Try guild/server preference
+  if (preference.guild) {
+    const guildLocale = extractLocaleCode(preference.guild);
+    if (guildLocale && SUPPORTED_LOCALES.includes(guildLocale)) {
+      return guildLocale;
+    }
+  }
+
+  // 3. Try user's system language
+  if (preference.system) {
+    const systemLocale = extractLocaleCode(preference.system);
+    if (systemLocale && SUPPORTED_LOCALES.includes(systemLocale)) {
+      return systemLocale;
+    }
+  }
+
+  // 4. Fallback
+  return preference.fallback;
+}
+
+// ============================================================================
+// LocalizationService Configuration
+// ============================================================================
+
+/**
+ * Configuration for LocalizationService dependencies
+ */
+export interface LocalizationServiceConfig {
+  loader?: LocaleLoader;
+  registry?: LocaleRegistry;
+  translator?: TranslationProvider;
+}
+
 /**
  * LocalizationService - Main entry point for localization features
  *
- * @example Basic usage
+ * Refactored for testability: Supports dependency injection of loader, registry, and translator
+ *
+ * @example Basic usage (static API)
  * ```typescript
  * import { LocalizationService } from 'xivdyetools-core';
  *
@@ -33,6 +128,13 @@ import { TranslationProvider } from './localization/TranslationProvider.js';
  *
  * // Get localized dye name
  * const dyeName = LocalizationService.getDyeName(5729); // "スノウホワイト"
+ * ```
+ *
+ * @example Instance-based usage for testing
+ * ```typescript
+ * const mockLoader = new MockLocaleLoader();
+ * const service = new LocalizationService({ loader: mockLoader });
+ * await service.setLocale('ja');
  * ```
  *
  * @example Discord bot locale resolution
@@ -47,14 +149,36 @@ import { TranslationProvider } from './localization/TranslationProvider.js';
  * ```
  */
 export class LocalizationService {
-  private static loader: LocaleLoader = new LocaleLoader();
-  private static registry: LocaleRegistry = new LocaleRegistry();
-  private static translator: TranslationProvider = new TranslationProvider(
-    LocalizationService.registry
-  );
+  // Instance dependencies (injectable for testing)
+  private readonly loader: LocaleLoader;
+  private readonly registry: LocaleRegistry;
+  private readonly translator: TranslationProvider;
 
-  private static currentLocale: LocaleCode = 'en';
-  private static isInitialized: boolean = false;
+  private currentLocale: LocaleCode = 'en';
+  private isInitialized: boolean = false;
+
+  // Default singleton instance for static API compatibility
+  private static defaultInstance: LocalizationService;
+
+  /**
+   * Constructor with optional dependency injection
+   * @param config Configuration with optional loader, registry, and translator
+   */
+  constructor(config: LocalizationServiceConfig = {}) {
+    this.loader = config.loader || new LocaleLoader();
+    this.registry = config.registry || new LocaleRegistry();
+    this.translator = config.translator || new TranslationProvider(this.registry);
+  }
+
+  /**
+   * Get the default singleton instance
+   */
+  private static getDefault(): LocalizationService {
+    if (!this.defaultInstance) {
+      this.defaultInstance = new LocalizationService();
+    }
+    return this.defaultInstance;
+  }
 
   /**
    * Set active locale (loads locale file if not cached)
@@ -64,11 +188,11 @@ export class LocalizationService {
    *
    * @example
    * ```typescript
-   * await LocalizationService.setLocale('ja');
-   * console.log(LocalizationService.getCurrentLocale()); // 'ja'
+   * await service.setLocale('ja');
+   * console.log(service.getCurrentLocale()); // 'ja'
    * ```
    */
-  static async setLocale(locale: LocaleCode): Promise<void> {
+  async setLocale(locale: LocaleCode): Promise<void> {
     // Check if already loaded
     if (this.registry.hasLocale(locale)) {
       this.currentLocale = locale;
@@ -84,7 +208,16 @@ export class LocalizationService {
   }
 
   /**
+   * Static method: Set locale using default instance
+   */
+  static async setLocale(locale: LocaleCode): Promise<void> {
+    return this.getDefault().setLocale(locale);
+  }
+
+  /**
    * Set locale from preference object with priority chain
+   * Uses pure function resolveLocaleFromPreference for resolution logic
+   *
    * Priority: explicit > guild > system > fallback
    *
    * @param preference - Locale preference with fallback chain
@@ -92,7 +225,7 @@ export class LocalizationService {
    * @example
    * ```typescript
    * // Discord bot usage
-   * await LocalizationService.setLocaleFromPreference({
+   * await service.setLocaleFromPreference({
    *     explicit: 'de',     // User selected German
    *     guild: 'ja',        // Server is Japanese
    *     system: 'en-US',    // User's system is English
@@ -101,55 +234,16 @@ export class LocalizationService {
    * // Sets locale to 'de' (highest priority)
    * ```
    */
-  static async setLocaleFromPreference(preference: LocalePreference): Promise<void> {
-    const supportedLocales: LocaleCode[] = ['en', 'ja', 'de', 'fr'];
-
-    // 1. Try explicit user selection (highest priority)
-    if (preference.explicit && supportedLocales.includes(preference.explicit)) {
-      await this.setLocale(preference.explicit);
-      return;
-    }
-
-    // 2. Try guild/server preference
-    if (preference.guild) {
-      const guildLocale = this.extractLocaleCode(preference.guild);
-      if (guildLocale && supportedLocales.includes(guildLocale)) {
-        await this.setLocale(guildLocale);
-        return;
-      }
-    }
-
-    // 3. Try user's system language
-    if (preference.system) {
-      const systemLocale = this.extractLocaleCode(preference.system);
-      if (systemLocale && supportedLocales.includes(systemLocale)) {
-        await this.setLocale(systemLocale);
-        return;
-      }
-    }
-
-    // 4. Fallback
-    await this.setLocale(preference.fallback);
+  async setLocaleFromPreference(preference: LocalePreference): Promise<void> {
+    const locale = resolveLocaleFromPreference(preference);
+    await this.setLocale(locale);
   }
 
   /**
-   * Extract 2-letter locale code from longer locale strings
-   *
-   * @param locale - Locale string (e.g., 'en-US', 'ja', 'de-DE')
-   * @returns 2-letter locale code or null
-   * @private
-   *
-   * @example
-   * ```typescript
-   * extractLocaleCode('en-US') // 'en'
-   * extractLocaleCode('ja') // 'ja'
-   * ```
+   * Static method: Set locale from preference using default instance
    */
-  private static extractLocaleCode(locale: string): LocaleCode | null {
-    const code = locale.split('-')[0].toLowerCase();
-    const supportedLocales: LocaleCode[] = ['en', 'ja', 'de', 'fr'];
-
-    return supportedLocales.includes(code as LocaleCode) ? (code as LocaleCode) : null;
+  static async setLocaleFromPreference(preference: LocalePreference): Promise<void> {
+    return this.getDefault().setLocaleFromPreference(preference);
   }
 
   /**
@@ -159,11 +253,18 @@ export class LocalizationService {
    *
    * @example
    * ```typescript
-   * console.log(LocalizationService.getCurrentLocale()); // 'ja'
+   * console.log(service.getCurrentLocale()); // 'ja'
    * ```
    */
-  static getCurrentLocale(): LocaleCode {
+  getCurrentLocale(): LocaleCode {
     return this.currentLocale;
+  }
+
+  /**
+   * Static method: Get current locale from default instance
+   */
+  static getCurrentLocale(): LocaleCode {
+    return this.getDefault().getCurrentLocale();
   }
 
   /**
@@ -173,13 +274,20 @@ export class LocalizationService {
    *
    * @example
    * ```typescript
-   * if (!LocalizationService.isLocaleLoaded()) {
-   *     await LocalizationService.setLocale('en');
+   * if (!service.isLocaleLoaded()) {
+   *     await service.setLocale('en');
    * }
    * ```
    */
-  static isLocaleLoaded(): boolean {
+  isLocaleLoaded(): boolean {
     return this.isInitialized;
+  }
+
+  /**
+   * Static method: Check if locale is loaded in default instance
+   */
+  static isLocaleLoaded(): boolean {
+    return this.getDefault().isLocaleLoaded();
   }
 
   /**
@@ -187,15 +295,16 @@ export class LocalizationService {
    *
    * @param key - Translation key
    * @returns Localized label
-   *
-   * @example
-   * ```typescript
-   * const label = LocalizationService.getLabel('dye');
-   * // Returns "カララント:" (ja) or "Dye" (en) or "Teinture" (fr)
-   * ```
+   */
+  getLabel(key: TranslationKey): string {
+    return this.translator.getLabel(key, this.currentLocale);
+  }
+
+  /**
+   * Static method: Get localized label using default instance
    */
   static getLabel(key: TranslationKey): string {
-    return this.translator.getLabel(key, this.currentLocale);
+    return this.getDefault().getLabel(key);
   }
 
   /**
@@ -203,15 +312,16 @@ export class LocalizationService {
    *
    * @param itemID - Dye item ID (5729-48227)
    * @returns Localized name or null if not found
-   *
-   * @example
-   * ```typescript
-   * const name = LocalizationService.getDyeName(5729);
-   * // Returns "スノウホワイト" (ja) or "Snow White" (en)
-   * ```
+   */
+  getDyeName(itemID: number): string | null {
+    return this.translator.getDyeName(itemID, this.currentLocale);
+  }
+
+  /**
+   * Static method: Get localized dye name using default instance
    */
   static getDyeName(itemID: number): string | null {
-    return this.translator.getDyeName(itemID, this.currentLocale);
+    return this.getDefault().getDyeName(itemID);
   }
 
   /**
@@ -219,15 +329,16 @@ export class LocalizationService {
    *
    * @param category - Category key (e.g., "Reds", "Blues")
    * @returns Localized category name
-   *
-   * @example
-   * ```typescript
-   * const category = LocalizationService.getCategory('Reds');
-   * // Returns "赤系" (ja) or "Reds" (en)
-   * ```
+   */
+  getCategory(category: string): string {
+    return this.translator.getCategory(category, this.currentLocale);
+  }
+
+  /**
+   * Static method: Get localized category using default instance
    */
   static getCategory(category: string): string {
-    return this.translator.getCategory(category, this.currentLocale);
+    return this.getDefault().getCategory(category);
   }
 
   /**
@@ -235,33 +346,32 @@ export class LocalizationService {
    *
    * @param acquisition - Acquisition key (e.g., "Dye Vendor", "Crafting")
    * @returns Localized acquisition method
-   *
-   * @example
-   * ```typescript
-   * const acq = LocalizationService.getAcquisition('Dye Vendor');
-   * // Returns "染料販売業者" (ja) or "Dye Vendor" (en)
-   * ```
+   */
+  getAcquisition(acquisition: string): string {
+    return this.translator.getAcquisition(acquisition, this.currentLocale);
+  }
+
+  /**
+   * Static method: Get localized acquisition using default instance
    */
   static getAcquisition(acquisition: string): string {
-    return this.translator.getAcquisition(acquisition, this.currentLocale);
+    return this.getDefault().getAcquisition(acquisition);
   }
 
   /**
    * Get all metallic dye IDs (for exclusion filtering)
    *
    * @returns Array of metallic dye item IDs
-   *
-   * @example
-   * ```typescript
-   * const metallicIds = LocalizationService.getMetallicDyeIds();
-   * // Returns [13116, 13117, 13717, ...]
-   *
-   * // Use for filtering
-   * const nonMetallic = dyes.filter(d => !metallicIds.includes(d.itemID));
-   * ```
+   */
+  getMetallicDyeIds(): number[] {
+    return this.translator.getMetallicDyeIds(this.currentLocale);
+  }
+
+  /**
+   * Static method: Get metallic dye IDs using default instance
    */
   static getMetallicDyeIds(): number[] {
-    return this.translator.getMetallicDyeIds(this.currentLocale);
+    return this.getDefault().getMetallicDyeIds();
   }
 
   /**
@@ -269,15 +379,16 @@ export class LocalizationService {
    *
    * @param key - Harmony type key
    * @returns Localized harmony type
-   *
-   * @example
-   * ```typescript
-   * const harmony = LocalizationService.getHarmonyType('triadic');
-   * // Returns "三色配色" (ja) or "Triadic" (en)
-   * ```
+   */
+  getHarmonyType(key: HarmonyTypeKey): string {
+    return this.translator.getHarmonyType(key, this.currentLocale);
+  }
+
+  /**
+   * Static method: Get localized harmony type using default instance
    */
   static getHarmonyType(key: HarmonyTypeKey): string {
-    return this.translator.getHarmonyType(key, this.currentLocale);
+    return this.getDefault().getHarmonyType(key);
   }
 
   /**
@@ -285,30 +396,32 @@ export class LocalizationService {
    *
    * @param key - Vision type key
    * @returns Localized vision type
-   *
-   * @example
-   * ```typescript
-   * const vision = LocalizationService.getVisionType('deuteranopia');
-   * // Returns "2型色覚（赤緑色盲）" (ja) or English description
-   * ```
+   */
+  getVisionType(key: VisionType): string {
+    return this.translator.getVisionType(key, this.currentLocale);
+  }
+
+  /**
+   * Static method: Get localized vision type using default instance
    */
   static getVisionType(key: VisionType): string {
-    return this.translator.getVisionType(key, this.currentLocale);
+    return this.getDefault().getVisionType(key);
   }
 
   /**
    * Get all available locale codes
    *
    * @returns Array of supported locale codes
-   *
-   * @example
-   * ```typescript
-   * const locales = LocalizationService.getAvailableLocales();
-   * // Returns ['en', 'ja', 'de', 'fr']
-   * ```
+   */
+  getAvailableLocales(): LocaleCode[] {
+    return [...SUPPORTED_LOCALES];
+  }
+
+  /**
+   * Static method: Get available locales
    */
   static getAvailableLocales(): LocaleCode[] {
-    return ['en', 'ja', 'de', 'fr'];
+    return [...SUPPORTED_LOCALES];
   }
 
   /**
@@ -316,32 +429,32 @@ export class LocalizationService {
    * Useful for apps that need to switch locales without delay
    *
    * @param locales - Array of locale codes to preload
-   *
-   * @example
-   * ```typescript
-   * // Preload all locales during app init
-   * await LocalizationService.preloadLocales(['en', 'ja', 'de', 'fr']);
-   *
-   * // Now switching is instant (no loading delay)
-   * await LocalizationService.setLocale('ja'); // Instant
-   * ```
+   */
+  async preloadLocales(locales: LocaleCode[]): Promise<void> {
+    await Promise.all(locales.map((locale) => this.setLocale(locale)));
+  }
+
+  /**
+   * Static method: Preload locales using default instance
    */
   static async preloadLocales(locales: LocaleCode[]): Promise<void> {
-    await Promise.all(locales.map((locale) => this.setLocale(locale)));
+    return this.getDefault().preloadLocales(locales);
   }
 
   /**
    * Clear all loaded locales from cache
    * Useful for testing or memory management
-   *
-   * @example
-   * ```typescript
-   * LocalizationService.clear();
-   * ```
    */
-  static clear(): void {
+  clear(): void {
     this.registry.clear();
     this.currentLocale = 'en';
     this.isInitialized = false;
+  }
+
+  /**
+   * Static method: Clear cache of default instance
+   */
+  static clear(): void {
+    this.getDefault().clear();
   }
 }

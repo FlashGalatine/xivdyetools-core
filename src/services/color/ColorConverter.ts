@@ -57,21 +57,56 @@ class LRUCache<K, V> {
 }
 
 /**
+ * Configuration for ColorConverter caches
+ */
+export interface ColorConverterConfig {
+  cacheSize?: number;
+}
+
+/**
  * Color format converter with LRU caching
  * Per R-4: Single Responsibility - format conversions only
+ *
+ * Refactored for testability: Supports dependency injection of cache configuration
  */
 export class ColorConverter {
-  // Per P-1: LRU caches for color conversions (max 1000 entries each)
-  private static readonly hexToRgbCache = new LRUCache<string, RGB>(1000);
-  private static readonly rgbToHexCache = new LRUCache<string, HexColor>(1000);
-  private static readonly rgbToHsvCache = new LRUCache<string, HSV>(1000);
-  private static readonly hsvToRgbCache = new LRUCache<string, RGB>(1000);
-  private static readonly hexToHsvCache = new LRUCache<string, HSV>(1000);
+  // Instance caches (injectable for testing)
+  private readonly hexToRgbCache: LRUCache<string, RGB>;
+  private readonly rgbToHexCache: LRUCache<string, HexColor>;
+  private readonly rgbToHsvCache: LRUCache<string, HSV>;
+  private readonly hsvToRgbCache: LRUCache<string, RGB>;
+  private readonly hexToHsvCache: LRUCache<string, HSV>;
+
+  // Default singleton instance for static API compatibility
+  private static defaultInstance: ColorConverter;
+
+  /**
+   * Constructor with optional cache configuration
+   * @param config Configuration for cache sizes (default: 1000 entries per cache)
+   */
+  constructor(config: ColorConverterConfig = {}) {
+    const cacheSize = config.cacheSize ?? 1000;
+    this.hexToRgbCache = new LRUCache<string, RGB>(cacheSize);
+    this.rgbToHexCache = new LRUCache<string, HexColor>(cacheSize);
+    this.rgbToHsvCache = new LRUCache<string, HSV>(cacheSize);
+    this.hsvToRgbCache = new LRUCache<string, RGB>(cacheSize);
+    this.hexToHsvCache = new LRUCache<string, HSV>(cacheSize);
+  }
+
+  /**
+   * Get the default singleton instance
+   */
+  private static getDefault(): ColorConverter {
+    if (!this.defaultInstance) {
+      this.defaultInstance = new ColorConverter();
+    }
+    return this.defaultInstance;
+  }
 
   /**
    * Clear all caches (useful for testing or memory management)
    */
-  static clearCaches(): void {
+  clearCaches(): void {
     this.hexToRgbCache.clear();
     this.rgbToHexCache.clear();
     this.rgbToHsvCache.clear();
@@ -80,9 +115,16 @@ export class ColorConverter {
   }
 
   /**
+   * Static method: Clear all caches of the default instance
+   */
+  static clearCaches(): void {
+    this.getDefault().clearCaches();
+  }
+
+  /**
    * Get cache statistics (for monitoring)
    */
-  static getCacheStats(): {
+  getCacheStats(): {
     hexToRgb: number;
     rgbToHex: number;
     rgbToHsv: number;
@@ -99,11 +141,24 @@ export class ColorConverter {
   }
 
   /**
+   * Static method: Get cache statistics from default instance
+   */
+  static getCacheStats(): {
+    hexToRgb: number;
+    rgbToHex: number;
+    rgbToHsv: number;
+    hsvToRgb: number;
+    hexToHsv: number;
+  } {
+    return this.getDefault().getCacheStats();
+  }
+
+  /**
    * Convert hexadecimal color to RGB
    * Per P-1: Cached for performance
    * @example hexToRgb("#FF0000") -> { r: 255, g: 0, b: 0 }
    */
-  static hexToRgb(hex: string): RGB {
+  hexToRgb(hex: string): RGB {
     if (!isValidHexColor(hex)) {
       throw new AppError(
         ErrorCode.INVALID_HEX_COLOR,
@@ -115,7 +170,10 @@ export class ColorConverter {
     // Normalize hex for cache key
     let hexForCache = hex.toUpperCase().replace('#', '');
     if (hexForCache.length === 3) {
-      hexForCache = hexForCache.split('').map((c) => c + c).join('');
+      hexForCache = hexForCache
+        .split('')
+        .map((c) => c + c)
+        .join('');
     }
     const cacheKey = hexForCache;
 
@@ -145,11 +203,18 @@ export class ColorConverter {
   }
 
   /**
+   * Static method: Convert hex to RGB using default instance
+   */
+  static hexToRgb(hex: string): RGB {
+    return this.getDefault().hexToRgb(hex);
+  }
+
+  /**
    * Convert RGB to hexadecimal color
    * Per P-1: Cached for performance
    * @example rgbToHex(255, 0, 0) -> "#FF0000"
    */
-  static rgbToHex(r: number, g: number, b: number): HexColor {
+  rgbToHex(r: number, g: number, b: number): HexColor {
     if (!isValidRGB(r, g, b)) {
       throw new AppError(
         ErrorCode.INVALID_RGB_VALUE,
@@ -179,11 +244,18 @@ export class ColorConverter {
   }
 
   /**
+   * Static method: Convert RGB to hex using default instance
+   */
+  static rgbToHex(r: number, g: number, b: number): HexColor {
+    return this.getDefault().rgbToHex(r, g, b);
+  }
+
+  /**
    * Convert RGB to HSV
    * Per P-1: Cached for performance, optimized single-pass min/max
    * @example rgbToHsv(255, 0, 0) -> { h: 0, s: 100, v: 100 }
    */
-  static rgbToHsv(r: number, g: number, b: number): HSV {
+  rgbToHsv(r: number, g: number, b: number): HSV {
     if (!isValidRGB(r, g, b)) {
       throw new AppError(
         ErrorCode.INVALID_RGB_VALUE,
@@ -237,11 +309,18 @@ export class ColorConverter {
   }
 
   /**
+   * Static method: Convert RGB to HSV using default instance
+   */
+  static rgbToHsv(r: number, g: number, b: number): HSV {
+    return this.getDefault().rgbToHsv(r, g, b);
+  }
+
+  /**
    * Convert HSV to RGB
    * Per P-1: Cached for performance
    * @example hsvToRgb(0, 100, 100) -> { r: 255, g: 0, b: 0 }
    */
-  static hsvToRgb(h: number, s: number, v: number): RGB {
+  hsvToRgb(h: number, s: number, v: number): RGB {
     if (!isValidHSV(h, s, v)) {
       throw new AppError(
         ErrorCode.INVALID_RGB_VALUE,
@@ -301,14 +380,24 @@ export class ColorConverter {
   }
 
   /**
+   * Static method: Convert HSV to RGB using default instance
+   */
+  static hsvToRgb(h: number, s: number, v: number): RGB {
+    return this.getDefault().hsvToRgb(h, s, v);
+  }
+
+  /**
    * Convert hex to HSV
    * Per P-1: Cached for performance
    */
-  static hexToHsv(hex: string): HSV {
+  hexToHsv(hex: string): HSV {
     // Normalize hex for cache key
     let hexForCache = hex.toUpperCase().replace('#', '');
     if (hexForCache.length === 3) {
-      hexForCache = hexForCache.split('').map((c) => c + c).join('');
+      hexForCache = hexForCache
+        .split('')
+        .map((c) => c + c)
+        .join('');
     }
     const cacheKey = hexForCache;
 
@@ -326,26 +415,47 @@ export class ColorConverter {
   }
 
   /**
+   * Static method: Convert hex to HSV using default instance
+   */
+  static hexToHsv(hex: string): HSV {
+    return this.getDefault().hexToHsv(hex);
+  }
+
+  /**
    * Convert HSV to hex
    */
-  static hsvToHex(h: number, s: number, v: number): HexColor {
+  hsvToHex(h: number, s: number, v: number): HexColor {
     const rgb = this.hsvToRgb(h, s, v);
     return this.rgbToHex(rgb.r, rgb.g, rgb.b);
   }
 
   /**
+   * Static method: Convert HSV to hex using default instance
+   */
+  static hsvToHex(h: number, s: number, v: number): HexColor {
+    return this.getDefault().hsvToHex(h, s, v);
+  }
+
+  /**
    * Normalize a hex color to #RRGGBB format
    */
-  static normalizeHex(hex: string): HexColor {
+  normalizeHex(hex: string): HexColor {
     const rgb = this.hexToRgb(hex);
     return this.rgbToHex(rgb.r, rgb.g, rgb.b);
+  }
+
+  /**
+   * Static method: Normalize hex using default instance
+   */
+  static normalizeHex(hex: string): HexColor {
+    return this.getDefault().normalizeHex(hex);
   }
 
   /**
    * Calculate Euclidean distance between two RGB colors
    * Returns 0 for identical colors, ~441.67 for white vs black
    */
-  static getColorDistance(hex1: string, hex2: string): number {
+  getColorDistance(hex1: string, hex2: string): number {
     const rgb1 = this.hexToRgb(hex1);
     const rgb2 = this.hexToRgb(hex2);
 
@@ -355,5 +465,11 @@ export class ColorConverter {
 
     return Math.sqrt(dr * dr + dg * dg + db * db);
   }
-}
 
+  /**
+   * Static method: Calculate color distance using default instance
+   */
+  static getColorDistance(hex1: string, hex2: string): number {
+    return this.getDefault().getColorDistance(hex1, hex2);
+  }
+}

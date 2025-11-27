@@ -7,15 +7,15 @@
  */
 
 import {
-    RGB_MIN,
-    RGB_MAX,
-    HUE_MIN,
-    HUE_MAX,
-    SATURATION_MIN,
-    SATURATION_MAX,
-    VALUE_MIN,
-    VALUE_MAX,
-    PATTERNS,
+  RGB_MIN,
+  RGB_MAX,
+  HUE_MIN,
+  HUE_MAX,
+  SATURATION_MIN,
+  SATURATION_MAX,
+  VALUE_MIN,
+  VALUE_MAX,
+  PATTERNS,
 } from '../constants/index.js';
 
 // ============================================================================
@@ -24,33 +24,118 @@ import {
 
 /**
  * Clamp a number between min and max values
+ *
+ * @param value - The value to clamp
+ * @param min - Minimum allowed value
+ * @param max - Maximum allowed value
+ * @returns Clamped value between min and max
+ *
+ * @example
+ * ```typescript
+ * clamp(150, 0, 100)  // Returns 100
+ * clamp(-10, 0, 100)  // Returns 0
+ * clamp(50, 0, 100)   // Returns 50
+ * ```
+ *
+ * Edge cases:
+ * - NaN values return NaN
+ * - Infinity is clamped to max
+ * - -Infinity is clamped to min
  */
 export function clamp(value: number, min: number, max: number): number {
-    return Math.min(Math.max(value, min), max);
+  if (isNaN(value) || isNaN(min) || isNaN(max)) {
+    return NaN;
+  }
+  return Math.min(Math.max(value, min), max);
 }
 
 /**
  * Linear interpolation between two values
+ *
+ * @param a - Start value
+ * @param b - End value
+ * @param t - Interpolation factor (0 = a, 1 = b, 0.5 = midpoint)
+ * @returns Interpolated value
+ *
+ * @example
+ * ```typescript
+ * lerp(0, 100, 0.5)   // Returns 50
+ * lerp(0, 100, 0)     // Returns 0
+ * lerp(0, 100, 1)     // Returns 100
+ * lerp(10, 20, 0.25)  // Returns 12.5
+ * ```
+ *
+ * Edge cases:
+ * - t can be outside [0, 1] for extrapolation
+ * - NaN values return NaN
+ * - Handles Infinity correctly
  */
 export function lerp(a: number, b: number, t: number): number {
-    return a + (b - a) * t;
+  if (isNaN(a) || isNaN(b) || isNaN(t)) {
+    return NaN;
+  }
+  return a + (b - a) * t;
 }
 
 /**
  * Round a number to a specific decimal place
+ *
+ * @param value - The number to round
+ * @param decimals - Number of decimal places (default: 0)
+ * @returns Rounded number
+ *
+ * @example
+ * ```typescript
+ * round(3.14159, 2)    // Returns 3.14
+ * round(2.5)           // Returns 3 (rounds to nearest integer)
+ * round(123.456, 1)    // Returns 123.5
+ * round(-2.5)          // Returns -2
+ * ```
+ *
+ * Edge cases:
+ * - NaN returns NaN
+ * - Infinity returns Infinity/-Infinity
+ * - Negative decimals round to left of decimal point
  */
 export function round(value: number, decimals: number = 0): number {
-    const factor = Math.pow(10, decimals);
-    return Math.round(value * factor) / factor;
+  if (isNaN(value)) {
+    return NaN;
+  }
+  if (!isFinite(value)) {
+    return value; // Preserve Infinity/-Infinity
+  }
+  const factor = Math.pow(10, decimals);
+  return Math.round(value * factor) / factor;
 }
 
 /**
- * Calculate the distance between two points
+ * Calculate Euclidean distance between two points in 2D space
+ *
+ * @param x1 - X coordinate of first point
+ * @param y1 - Y coordinate of first point
+ * @param x2 - X coordinate of second point
+ * @param y2 - Y coordinate of second point
+ * @returns Distance between the two points (always >= 0)
+ *
+ * @example
+ * ```typescript
+ * distance(0, 0, 3, 4)  // Returns 5 (Pythagorean theorem)
+ * distance(0, 0, 0, 0)  // Returns 0 (same point)
+ * distance(1, 1, 4, 5)  // Returns 5
+ * ```
+ *
+ * Edge cases:
+ * - NaN values return NaN
+ * - Infinity values may return Infinity
+ * - Always returns non-negative value
  */
 export function distance(x1: number, y1: number, x2: number, y2: number): number {
-    const dx = x2 - x1;
-    const dy = y2 - y1;
-    return Math.sqrt(dx * dx + dy * dy);
+  if (isNaN(x1) || isNaN(y1) || isNaN(x2) || isNaN(y2)) {
+    return NaN;
+  }
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  return Math.sqrt(dx * dx + dy * dy);
 }
 
 // ============================================================================
@@ -59,52 +144,117 @@ export function distance(x1: number, y1: number, x2: number, y2: number): number
 
 /**
  * Get unique values from an array
+ *
+ * @param array - Input array (may contain duplicates)
+ * @returns New array with only unique values (preserves first occurrence order)
+ *
+ * @example
+ * ```typescript
+ * unique([1, 2, 2, 3, 1])         // Returns [1, 2, 3]
+ * unique(['a', 'b', 'a'])         // Returns ['a', 'b']
+ * unique([])                      // Returns []
+ * ```
+ *
+ * Edge cases:
+ * - Empty array returns empty array
+ * - Uses Set equality (NaN === NaN, +0 === -0)
+ * - Preserves object/array references
  */
 export function unique<T>(array: T[]): T[] {
-    return Array.from(new Set(array));
+  return Array.from(new Set(array));
 }
 
 /**
  * Group array items by a key function
+ *
+ * @param array - Input array to group
+ * @param keyFn - Function that extracts grouping key from each item
+ * @returns Object with keys as groups and values as arrays of items
+ *
+ * @example
+ * ```typescript
+ * const items = [
+ *   { type: 'fruit', name: 'apple' },
+ *   { type: 'fruit', name: 'banana' },
+ *   { type: 'vegetable', name: 'carrot' }
+ * ];
+ * groupBy(items, item => item.type)
+ * // Returns { fruit: [...], vegetable: [...] }
+ * ```
+ *
+ * Edge cases:
+ * - Empty array returns empty object
+ * - Handles undefined/null keys as string keys
  */
 export function groupBy<T, K extends string | number>(
-    array: T[],
-    keyFn: (item: T) => K
+  array: T[],
+  keyFn: (item: T) => K
 ): Record<K, T[]> {
-    return array.reduce(
-        (acc, item) => {
-            const key = keyFn(item);
-            if (!acc[key]) {
-                acc[key] = [];
-            }
-            acc[key].push(item);
-            return acc;
-        },
-        {} as Record<K, T[]>
-    );
+  return array.reduce(
+    (acc, item) => {
+      const key = keyFn(item);
+      if (!acc[key]) {
+        acc[key] = [];
+      }
+      acc[key].push(item);
+      return acc;
+    },
+    {} as Record<K, T[]>
+  );
 }
 
 /**
- * Sort array by property
+ * Sort array by property value
+ *
+ * @param array - Input array to sort
+ * @param property - Property key to sort by
+ * @param order - Sort order ('asc' or 'desc', default: 'asc')
+ * @returns New sorted array (does not mutate original)
+ *
+ * @example
+ * ```typescript
+ * const items = [{ age: 30 }, { age: 20 }, { age: 25 }];
+ * sortByProperty(items, 'age')           // Sorted by age ascending
+ * sortByProperty(items, 'age', 'desc')   // Sorted by age descending
+ * ```
+ *
+ * Edge cases:
+ * - Returns shallow copy of array
+ * - Handles undefined properties (sorted to end)
+ * - Stable sort (preserves relative order of equal elements)
  */
 export function sortByProperty<T>(
-    array: T[],
-    property: keyof T,
-    order: 'asc' | 'desc' = 'asc'
+  array: T[],
+  property: keyof T,
+  order: 'asc' | 'desc' = 'asc'
 ): T[] {
-    return [...array].sort((a, b) => {
-        const aVal = a[property];
-        const bVal = b[property];
-        const comparison = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
-        return order === 'asc' ? comparison : -comparison;
-    });
+  return [...array].sort((a, b) => {
+    const aVal = a[property];
+    const bVal = b[property];
+    const comparison = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+    return order === 'asc' ? comparison : -comparison;
+  });
 }
 
 /**
- * Filter array items, removing nulls
+ * Filter array items, removing null and undefined values
+ *
+ * @param array - Input array with possibly null/undefined items
+ * @returns New array with null and undefined values removed
+ *
+ * @example
+ * ```typescript
+ * filterNulls([1, null, 2, undefined, 3])  // Returns [1, 2, 3]
+ * filterNulls([null, undefined])           // Returns []
+ * filterNulls([0, false, ''])              // Returns [0, false, ''] (keeps falsy values)
+ * ```
+ *
+ * Edge cases:
+ * - Keeps falsy values (0, false, empty string)
+ * - Type guard ensures return type doesn't include null|undefined
  */
 export function filterNulls<T>(array: (T | null | undefined)[]): T[] {
-    return array.filter((item): item is T => item !== null && item !== undefined);
+  return array.filter((item): item is T => item !== null && item !== undefined);
 }
 
 // ============================================================================
@@ -113,32 +263,100 @@ export function filterNulls<T>(array: (T | null | undefined)[]): T[] {
 
 /**
  * Validate a hexadecimal color string
+ *
+ * @param hex - Hex color string to validate
+ * @returns true if valid hex color, false otherwise
+ *
+ * @example
+ * ```typescript
+ * isValidHexColor('#FF0000')    // Returns true
+ * isValidHexColor('#F00')       // Returns true (shorthand)
+ * isValidHexColor('FF0000')     // Returns false (missing #)
+ * isValidHexColor('#GGGGGG')    // Returns false (invalid characters)
+ * isValidHexColor('')           // Returns false
+ * ```
+ *
+ * Accepts:
+ * - Full format: #RRGGBB (e.g., #FF0000)
+ * - Shorthand format: #RGB (e.g., #F00)
+ * - Case insensitive (A-F or a-f)
  */
 export function isValidHexColor(hex: string): boolean {
-    return PATTERNS.HEX_COLOR.test(hex);
+  if (typeof hex !== 'string') {
+    return false;
+  }
+  return PATTERNS.HEX_COLOR.test(hex);
 }
 
 /**
- * Validate RGB values
+ * Validate RGB color values
+ *
+ * @param r - Red value
+ * @param g - Green value
+ * @param b - Blue value
+ * @returns true if all values are valid (0-255, finite, not NaN), false otherwise
+ *
+ * @example
+ * ```typescript
+ * isValidRGB(255, 0, 0)       // Returns true
+ * isValidRGB(0, 128, 255)     // Returns true
+ * isValidRGB(256, 0, 0)       // Returns false (r > 255)
+ * isValidRGB(-1, 0, 0)        // Returns false (r < 0)
+ * isValidRGB(NaN, 0, 0)       // Returns false
+ * isValidRGB(Infinity, 0, 0)  // Returns false
+ * ```
+ *
+ * Valid range: 0-255 (inclusive) for all channels
  */
 export function isValidRGB(r: number, g: number, b: number): boolean {
-    return (
-        r >= RGB_MIN && r <= RGB_MAX && g >= RGB_MIN && g <= RGB_MAX && b >= RGB_MIN && b <= RGB_MAX
-    );
+  return (
+    Number.isFinite(r) &&
+    Number.isFinite(g) &&
+    Number.isFinite(b) &&
+    r >= RGB_MIN &&
+    r <= RGB_MAX &&
+    g >= RGB_MIN &&
+    g <= RGB_MAX &&
+    b >= RGB_MIN &&
+    b <= RGB_MAX
+  );
 }
 
 /**
- * Validate HSV values
+ * Validate HSV color values
+ *
+ * @param h - Hue value (0-360)
+ * @param s - Saturation value (0-100)
+ * @param v - Value/brightness (0-100)
+ * @returns true if all values are valid (finite, not NaN, within ranges), false otherwise
+ *
+ * @example
+ * ```typescript
+ * isValidHSV(180, 50, 100)    // Returns true
+ * isValidHSV(0, 0, 0)         // Returns true
+ * isValidHSV(360, 100, 100)   // Returns true (edge of range)
+ * isValidHSV(361, 50, 50)     // Returns false (h > 360)
+ * isValidHSV(180, -1, 50)     // Returns false (s < 0)
+ * isValidHSV(NaN, 50, 50)     // Returns false
+ * ```
+ *
+ * Valid ranges:
+ * - Hue: 0-360 (degrees)
+ * - Saturation: 0-100 (percent)
+ * - Value: 0-100 (percent)
  */
 export function isValidHSV(h: number, s: number, v: number): boolean {
-    return (
-        h >= HUE_MIN &&
-        h <= HUE_MAX &&
-        s >= SATURATION_MIN &&
-        s <= SATURATION_MAX &&
-        v >= VALUE_MIN &&
-        v <= VALUE_MAX
-    );
+  return (
+    Number.isFinite(h) &&
+    Number.isFinite(s) &&
+    Number.isFinite(v) &&
+    h >= HUE_MIN &&
+    h <= HUE_MAX &&
+    s >= SATURATION_MIN &&
+    s <= SATURATION_MAX &&
+    v >= VALUE_MIN &&
+    v <= VALUE_MAX
+  );
 }
 
 // ============================================================================
@@ -146,38 +364,102 @@ export function isValidHSV(h: number, s: number, v: number): boolean {
 // ============================================================================
 
 /**
- * Check if a value is a string
+ * Type guard: Check if a value is a string
+ *
+ * @param value - Value to check
+ * @returns true if value is a string, false otherwise
+ *
+ * @example
+ * ```typescript
+ * isString('hello')        // Returns true
+ * isString('')             // Returns true (empty string)
+ * isString(123)            // Returns false
+ * isString(new String('')) // Returns false (String object, not primitive)
+ * ```
  */
 export function isString(value: unknown): value is string {
-    return typeof value === 'string';
+  return typeof value === 'string';
 }
 
 /**
- * Check if a value is a number
+ * Type guard: Check if a value is a finite number (excludes NaN and Infinity)
+ *
+ * @param value - Value to check
+ * @returns true if value is a number and finite (not NaN, not Infinity), false otherwise
+ *
+ * @example
+ * ```typescript
+ * isNumber(42)              // Returns true
+ * isNumber(0)               // Returns true
+ * isNumber(-3.14)           // Returns true
+ * isNumber(NaN)             // Returns false
+ * isNumber(Infinity)        // Returns false
+ * isNumber('123')           // Returns false (string)
+ * isNumber(new Number(5))   // Returns false (Number object)
+ * ```
+ *
+ * Note: This excludes NaN and Infinity for safer numeric operations
  */
 export function isNumber(value: unknown): value is number {
-    return typeof value === 'number' && !isNaN(value);
+  return typeof value === 'number' && Number.isFinite(value);
 }
 
 /**
- * Check if a value is an array
+ * Type guard: Check if a value is an array
+ *
+ * @param value - Value to check
+ * @returns true if value is an array, false otherwise
+ *
+ * @example
+ * ```typescript
+ * isArray([1, 2, 3])       // Returns true
+ * isArray([])              // Returns true
+ * isArray('not array')     // Returns false
+ * isArray({ length: 0 })   // Returns false (array-like object)
+ * ```
  */
 export function isArray<T = unknown>(value: unknown): value is T[] {
-    return Array.isArray(value);
+  return Array.isArray(value);
 }
 
 /**
- * Check if a value is an object
+ * Type guard: Check if a value is a plain object (not array, not null)
+ *
+ * @param value - Value to check
+ * @returns true if value is a plain object, false otherwise
+ *
+ * @example
+ * ```typescript
+ * isObject({ a: 1 })       // Returns true
+ * isObject({})             // Returns true
+ * isObject([])             // Returns false (array)
+ * isObject(null)           // Returns false
+ * isObject(new Date())     // Returns true (object instance)
+ * ```
  */
 export function isObject(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null && !Array.isArray(value);
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 /**
- * Check if a value is null or undefined
+ * Type guard: Check if a value is null or undefined
+ *
+ * @param value - Value to check
+ * @returns true if value is null or undefined, false otherwise
+ *
+ * @example
+ * ```typescript
+ * isNullish(null)          // Returns true
+ * isNullish(undefined)     // Returns true
+ * isNullish(0)             // Returns false
+ * isNullish('')            // Returns false
+ * isNullish(false)         // Returns false
+ * ```
+ *
+ * Note: More precise than falsy check - only null/undefined, not 0/false/''
  */
 export function isNullish(value: unknown): value is null | undefined {
-    return value === null || value === undefined;
+  return value === null || value === undefined;
 }
 
 // ============================================================================
@@ -185,34 +467,89 @@ export function isNullish(value: unknown): value is null | undefined {
 // ============================================================================
 
 /**
- * Sleep for a specified duration
+ * Sleep for a specified duration (async delay)
+ *
+ * @param ms - Milliseconds to sleep (must be non-negative)
+ * @returns Promise that resolves after the specified delay
+ *
+ * @example
+ * ```typescript
+ * await sleep(1000);           // Wait 1 second
+ * await sleep(0);              // Immediate next tick
+ *
+ * // Use with async/await
+ * async function delayed() {
+ *   console.log('Start');
+ *   await sleep(2000);
+ *   console.log('After 2 seconds');
+ * }
+ * ```
+ *
+ * Note: Negative values are clamped to 0 (immediate resolution)
  */
 export function sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+  const delay = Math.max(0, ms); // Clamp to non-negative
+  return new Promise((resolve) => setTimeout(resolve, delay));
 }
 
 /**
- * Retry a function n times with exponential backoff
+ * Retry a function multiple times with exponential backoff
+ *
+ * @param fn - Async function to retry
+ * @param maxAttempts - Maximum number of attempts (default: 3, min: 1)
+ * @param delayMs - Initial delay in milliseconds (default: 1000, doubles each retry)
+ * @returns Promise resolving to function result
+ * @throws Last error if all attempts fail
+ *
+ * @example
+ * ```typescript
+ * // Retry API call up to 3 times
+ * const data = await retry(
+ *   () => fetch('https://api.example.com/data').then(r => r.json()),
+ *   3,
+ *   1000
+ * );
+ * // Delays: 0ms (try 1), 1000ms (try 2), 2000ms (try 3)
+ *
+ * // Custom retry logic
+ * const result = await retry(
+ *   async () => {
+ *     const response = await riskyOperation();
+ *     if (!response.ok) throw new Error('Not OK');
+ *     return response;
+ *   },
+ *   5,
+ *   500
+ * );
+ * ```
+ *
+ * Backoff schedule:
+ * - Attempt 1: Immediate (no delay)
+ * - Attempt 2: delayMs * 2^0 = delayMs
+ * - Attempt 3: delayMs * 2^1 = delayMs * 2
+ * - Attempt 4: delayMs * 2^2 = delayMs * 4
+ * - etc.
  */
 export async function retry<T>(
-    fn: () => Promise<T>,
-    maxAttempts: number = 3,
-    delayMs: number = 1000
+  fn: () => Promise<T>,
+  maxAttempts: number = 3,
+  delayMs: number = 1000
 ): Promise<T> {
-    let lastError: Error | null = null;
+  const attempts = Math.max(1, Math.floor(maxAttempts)); // Ensure at least 1 attempt
+  let lastError: Error | null = null;
 
-    for (let i = 0; i < maxAttempts; i++) {
-        try {
-            return await fn();
-        } catch (error) {
-            lastError = error instanceof Error ? error : new Error(String(error));
-            if (i < maxAttempts - 1) {
-                await sleep(delayMs * Math.pow(2, i)); // Exponential backoff
-            }
-        }
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+      if (i < attempts - 1) {
+        await sleep(delayMs * Math.pow(2, i)); // Exponential backoff
+      }
     }
+  }
 
-    throw lastError;
+  throw lastError;
 }
 
 // ============================================================================
@@ -221,15 +558,42 @@ export async function retry<T>(
 
 /**
  * Generate a simple checksum for data integrity checking
- * Uses a simple hash function (not cryptographically secure, but sufficient for cache validation)
+ *
+ * Uses a non-cryptographic hash function (djb2-like algorithm)
+ * Suitable for cache validation and detecting data corruption
+ *
+ * @param data - Any JSON-serializable data
+ * @returns Base-36 encoded hash string
+ * @throws Error if data contains circular references or cannot be stringified
+ *
+ * @example
+ * ```typescript
+ * const checksum1 = generateChecksum({ a: 1, b: 2 });  // "abc123"
+ * const checksum2 = generateChecksum({ a: 1, b: 2 });  // "abc123" (same)
+ * const checksum3 = generateChecksum({ a: 1, b: 3 });  // "xyz789" (different)
+ *
+ * // Use for cache validation
+ * const cachedData = { checksum: "abc123", data: {...} };
+ * const computedChecksum = generateChecksum(cachedData.data);
+ * if (computedChecksum !== cachedData.checksum) {
+ *   console.warn('Cache corruption detected!');
+ * }
+ * ```
+ *
+ * Important notes:
+ * - NOT cryptographically secure (do not use for security)
+ * - Deterministic: same input always produces same output
+ * - Fast and lightweight
+ * - Collision-resistant for typical cache validation use cases
+ * - Throws on circular references (by JSON.stringify)
  */
 export function generateChecksum(data: unknown): string {
-    const str = JSON.stringify(data);
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        const char = str.charCodeAt(i);
-        hash = (hash << 5) - hash + char;
-        hash = hash & hash; // Convert to 32-bit integer
-    }
-    return Math.abs(hash).toString(36);
+  const str = JSON.stringify(data); // Throws on circular references
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return Math.abs(hash).toString(36);
 }

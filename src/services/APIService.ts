@@ -22,6 +22,78 @@ import {
 import { retry, sleep, generateChecksum } from '../utils/index.js';
 
 // ============================================================================
+// Fetch Client Interface
+// ============================================================================
+
+/**
+ * Fetch client interface for HTTP requests
+ * Implement this for different fetch implementations (global fetch, node-fetch, mocked fetch, etc.)
+ *
+ * Refactored for testability: Allows injecting mock fetch clients
+ */
+export interface FetchClient {
+  /**
+   * Perform HTTP fetch request
+   */
+  fetch(url: string, options?: RequestInit): Promise<Response>;
+}
+
+/**
+ * Default fetch client using global fetch API
+ */
+export class DefaultFetchClient implements FetchClient {
+  async fetch(url: string, options?: RequestInit): Promise<Response> {
+    return fetch(url, options);
+  }
+}
+
+// ============================================================================
+// Rate Limiter Interface
+// ============================================================================
+
+/**
+ * Rate limiter interface for controlling request frequency
+ * Implement this for different rate limiting strategies
+ *
+ * Refactored for testability: Allows injecting custom rate limiters or disabling rate limiting for tests
+ */
+export interface RateLimiter {
+  /**
+   * Wait if needed to respect rate limits
+   */
+  waitIfNeeded(): Promise<void>;
+
+  /**
+   * Record that a request was made (updates internal state)
+   */
+  recordRequest(): void;
+}
+
+/**
+ * Default rate limiter with configurable minimum delay between requests
+ */
+export class DefaultRateLimiter implements RateLimiter {
+  private lastRequestTime: number = 0;
+
+  /**
+   * Constructor with optional minimum delay
+   * @param minDelay Minimum milliseconds between requests (default: API_RATE_LIMIT_DELAY)
+   */
+  constructor(private minDelay: number = API_RATE_LIMIT_DELAY) {}
+
+  async waitIfNeeded(): Promise<void> {
+    const timeSinceLastRequest = Date.now() - this.lastRequestTime;
+    if (timeSinceLastRequest < this.minDelay) {
+      await sleep(this.minDelay - timeSinceLastRequest);
+    }
+  }
+
+  recordRequest(): void {
+    this.lastRequestTime = Date.now();
+  }
+}
+
+// ============================================================================
 // Cache Interface
 // ============================================================================
 
@@ -91,28 +163,43 @@ export class MemoryCacheBackend implements ICacheBackend {
  * Service for Universalis API integration
  * Handles price data fetching with caching and debouncing
  *
+ * Refactored for testability: Supports dependency injection of cache, fetch client, and rate limiter
+ *
  * @example
- * // With default memory cache
+ * // With default implementations (memory cache, global fetch, standard rate limiting)
  * const apiService = new APIService();
  *
  * // With custom cache backend (e.g., Redis)
  * const redisCache = new RedisCacheBackend(redisClient);
  * const apiService = new APIService(redisCache);
  *
+ * // With custom fetch client for testing
+ * const mockFetch = new MockFetchClient();
+ * const apiService = new APIService(undefined, mockFetch);
+ *
+ * // With custom rate limiter (e.g., no rate limiting for tests)
+ * const noRateLimit = new NoOpRateLimiter();
+ * const apiService = new APIService(undefined, undefined, noRateLimit);
+ *
  * // Fetch price data
  * const priceData = await apiService.getPriceData(itemID, worldID, dataCenterID);
  */
 export class APIService {
   private cache: ICacheBackend;
+  private fetchClient: FetchClient;
+  private rateLimiter: RateLimiter;
   private pendingRequests: Map<string, Promise<PriceData | null>> = new Map();
-  private lastRequestTime: number = 0;
 
   /**
-   * Constructor with optional cache backend
-   * @param cacheBackend - Cache backend implementation (defaults to memory)
+   * Constructor with optional dependency injection
+   * @param cacheBackend Cache backend implementation (defaults to memory cache)
+   * @param fetchClient Fetch client implementation (defaults to global fetch)
+   * @param rateLimiter Rate limiter implementation (defaults to standard rate limiting)
    */
-  constructor(cacheBackend?: ICacheBackend) {
+  constructor(cacheBackend?: ICacheBackend, fetchClient?: FetchClient, rateLimiter?: RateLimiter) {
     this.cache = cacheBackend || new MemoryCacheBackend();
+    this.fetchClient = fetchClient || new DefaultFetchClient();
+    this.rateLimiter = rateLimiter || new DefaultRateLimiter();
   }
 
   // ============================================================================
@@ -246,13 +333,9 @@ export class APIService {
     worldID?: number,
     dataCenterID?: string
   ): Promise<PriceData | null> {
-    // Rate limiting: ensure minimum delay between requests
-    const timeSinceLastRequest = Date.now() - this.lastRequestTime;
-    if (timeSinceLastRequest < API_RATE_LIMIT_DELAY) {
-      await sleep(API_RATE_LIMIT_DELAY - timeSinceLastRequest);
-    }
-
-    this.lastRequestTime = Date.now();
+    // Rate limiting: use injected rate limiter
+    await this.rateLimiter.waitIfNeeded();
+    this.rateLimiter.recordRequest();
 
     // Build API URL
     const url = this.buildApiUrl(itemID, worldID, dataCenterID);
@@ -281,6 +364,7 @@ export class APIService {
 
   /**
    * Fetch with timeout and size limits
+   * Uses injected fetch client for better testability
    */
   private async fetchWithTimeout(
     url: string,
@@ -308,7 +392,7 @@ export class APIService {
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
-      const response = await fetch(url, { signal: controller.signal });
+      const response = await this.fetchClient.fetch(url, { signal: controller.signal });
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -340,9 +424,29 @@ export class APIService {
 
       // Parse JSON with error handling
       try {
-        return JSON.parse(text);
+        return JSON.parse(text) as {
+          results?: Array<{
+            itemId: number;
+            nq?: {
+              minListing?: {
+                dc?: { price: number };
+                world?: { price: number };
+                region?: { price: number };
+              };
+            };
+            hq?: {
+              minListing?: {
+                dc?: { price: number };
+                world?: { price: number };
+                region?: { price: number };
+              };
+            };
+          }>;
+        };
       } catch (parseError) {
-        throw new Error(`Invalid JSON response: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
+        throw new Error(
+          `Invalid JSON response: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`
+        );
       }
     } finally {
       clearTimeout(timeoutId);
@@ -514,10 +618,11 @@ export class APIService {
 
   /**
    * Check if Universalis API is available
+   * Uses injected fetch client
    */
   async isAPIAvailable(): Promise<boolean> {
     try {
-      const response = await fetch(`${UNIVERSALIS_API_BASE}/data-centers`);
+      const response = await this.fetchClient.fetch(`${UNIVERSALIS_API_BASE}/data-centers`);
       return response.ok;
     } catch {
       return false;
