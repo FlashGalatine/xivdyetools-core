@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2025-11-27
+
+### Added
+- **Comprehensive Test Coverage**: Achieved 93%+ overall test coverage
+  - **ColorService Tests**: 41 tests covering all facade delegation methods
+  - **DyeService Tests**: 50 tests covering database access, search/filter, harmony generation, localization
+  - **LocalizationService Tests**: Enhanced static API tests for 100% coverage
+  - **Utils Tests**: 93 tests for all utility functions (clamp, lerp, validation, async helpers)
+  - **882 total tests** across the entire test suite
+
+### Changed
+- **Test Quality Improvements**
+  - Static API tests now actually call methods instead of just checking `typeof`
+  - Harmony tests use flexible expectations for limited sample data scenarios
+  - Retry utility tests use real timers for more reliable async behavior
+
+### Fixed
+- Test assertions for color brightness comparisons use `toBeLessThanOrEqual`
+- Harmony generation tests handle variable result counts from limited dye datasets
+
+---
+
 ## [1.1.0] - 2025-11-23
 
 ### Added
