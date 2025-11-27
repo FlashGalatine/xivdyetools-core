@@ -25,8 +25,13 @@ export class HarmonyGenerator {
   findComplementaryPair(hex: string): Dye | null {
     this.database.ensureLoaded();
 
-    const complementaryHex = ColorManipulator.invert(hex);
-    return this.search.findClosestDye(complementaryHex);
+    try {
+      const complementaryHex = ColorManipulator.invert(hex);
+      return this.search.findClosestDye(complementaryHex);
+    } catch {
+      // Invalid hex color
+      return null;
+    }
   }
 
   /**
@@ -115,7 +120,8 @@ export class HarmonyGenerator {
   findShadesDyes(hex: string): Dye[] {
     this.database.ensureLoaded();
 
-    return this.findAnalogousDyes(hex, 15);
+    // Use tighter tolerance (5°) for shades to ensure results are close to target hue
+    return this.findHarmonyDyesByOffsets(hex, [15, -15], { tolerance: 5 });
   }
 
   /**
@@ -171,7 +177,10 @@ export class HarmonyGenerator {
           continue;
         }
 
-        const diff = Math.min(Math.abs(dye.hsv.h - targetHue), 360 - Math.abs(dye.hsv.h - targetHue));
+        const diff = Math.min(
+          Math.abs(dye.hsv.h - targetHue),
+          360 - Math.abs(dye.hsv.h - targetHue)
+        );
 
         if (!bestOverall || diff < bestOverall.diff) {
           bestOverall = { dye, diff };
@@ -188,4 +197,3 @@ export class HarmonyGenerator {
     return withinTolerance?.dye ?? bestOverall?.dye ?? null;
   }
 }
-
