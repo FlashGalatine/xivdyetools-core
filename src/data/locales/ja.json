@@ -2,7 +2,7 @@
   "locale": "ja",
   "meta": {
     "version": "1.0.0",
-    "generated": "2025-11-27T05:18:57.840Z",
+    "generated": "2025-11-27T06:57:54.088Z",
     "dyeCount": 125
   },
   "labels": {
@@ -151,6 +151,19 @@
     "Purples": "紫系",
     "Special": "特殊",
     "Facewear": "フェイスウェア"
+  },
+  "acquisitions": {
+    "Dye Vendor": "染料販売業者",
+    "Crafting": "製作",
+    "Ixali Vendor": "イクサル族のよろず屋",
+    "Sylphic Vendor": "シルフ族のよろず屋",
+    "Amalj'aa Vendor": "アマルジャ族のよろず屋",
+    "Sahagin Vendor": "サハギン族のよろず屋",
+    "Kobold Vendor": "コボルド族のよろず屋",
+    "Cosmic Exploration": "コスモエクスプローラー",
+    "Cosmic Fortunes": "コスモフォーチュン",
+    "Venture Coffers": "リテイナーの宝箱",
+    "Facewear Collection": "フェイスウェアコレクション"
   },
   "metallicDyeIds": [
     13116,

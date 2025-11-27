@@ -206,6 +206,7 @@ export interface LocaleData {
   labels: Record<TranslationKey, string>;
   dyeNames: Record<string, string>;
   categories: Record<string, string>;
+  acquisitions: Record<string, string>;
   metallicDyeIds: number[];
   harmonyTypes: Record<HarmonyTypeKey, string>;
   visionTypes: Record<VisionType, string>;

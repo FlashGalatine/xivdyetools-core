@@ -116,6 +116,7 @@ function buildLocaleData(
     labels,
     dyeNames,
     categories,
+    acquisitions: buildAcquisitions(locale),
     metallicDyeIds,
     harmonyTypes: buildHarmonyTypes(locale),
     visionTypes: buildVisionTypes(locale),
@@ -206,6 +207,66 @@ function buildCategories(locale: LocaleCode): Record<string, string> {
       Purples: 'Violets',
       Special: 'Spécial',
       Facewear: 'Accessoires faciaux',
+    },
+  };
+
+  return translations[locale];
+}
+
+function buildAcquisitions(locale: LocaleCode): Record<string, string> {
+  // Hardcoded acquisition translations
+  const translations: Record<LocaleCode, Record<string, string>> = {
+    en: {
+      'Dye Vendor': 'Dye Vendor',
+      Crafting: 'Crafting',
+      'Ixali Vendor': 'Ixali Vendor',
+      'Sylphic Vendor': 'Sylphic Vendor',
+      "Amalj'aa Vendor": "Amalj'aa Vendor",
+      'Sahagin Vendor': 'Sahagin Vendor',
+      'Kobold Vendor': 'Kobold Vendor',
+      'Cosmic Exploration': 'Cosmic Exploration',
+      'Cosmic Fortunes': 'Cosmic Fortunes',
+      'Venture Coffers': 'Venture Coffers',
+      'Facewear Collection': 'Facewear Collection',
+    },
+    ja: {
+      'Dye Vendor': '染料販売業者',
+      Crafting: '製作',
+      'Ixali Vendor': 'イクサル族のよろず屋',
+      'Sylphic Vendor': 'シルフ族のよろず屋',
+      "Amalj'aa Vendor": 'アマルジャ族のよろず屋',
+      'Sahagin Vendor': 'サハギン族のよろず屋',
+      'Kobold Vendor': 'コボルド族のよろず屋',
+      'Cosmic Exploration': 'コスモエクスプローラー',
+      'Cosmic Fortunes': 'コスモフォーチュン',
+      'Venture Coffers': 'リテイナーの宝箱',
+      'Facewear Collection': 'フェイスウェアコレクション',
+    },
+    de: {
+      'Dye Vendor': 'Farbstoffverkäufer',
+      Crafting: 'Handwerker',
+      'Ixali Vendor': 'Ixal-Händler',
+      'Sylphic Vendor': 'Sylphen-Händlerin',
+      "Amalj'aa Vendor": "Amalj'aa-Händler",
+      'Sahagin Vendor': 'Sahagin-Händler',
+      'Kobold Vendor': 'Kobold-Händler',
+      'Cosmic Exploration': 'Kosmo-Erkundung',
+      'Cosmic Fortunes': 'Kosmo-Glück',
+      'Venture Coffers': 'Gehilfen-Schatzkiste',
+      'Facewear Collection': 'Gesichtsschmuck-Sammlung',
+    },
+    fr: {
+      'Dye Vendor': 'Vendeur de teinture',
+      Crafting: 'Artisanat',
+      'Ixali Vendor': 'Vendeur ixal',
+      'Sylphic Vendor': 'Vendeur sylphe',
+      "Amalj'aa Vendor": "Vendeur amalj'aa",
+      'Sahagin Vendor': 'Vendeur sahuagin',
+      'Kobold Vendor': 'Vendeur kobold',
+      'Cosmic Exploration': "l'exploration cosmique",
+      'Cosmic Fortunes': 'Roue de la fortune cosmique',
+      'Venture Coffers': 'Trouvaille de servant',
+      'Facewear Collection': 'Collection accessoires faciaux',
     },
   };
 

@@ -116,6 +116,39 @@ export class TranslationProvider {
   }
 
   /**
+   * Get acquisition method with fallback
+   *
+   * @param acquisition - Acquisition key (e.g., "Dye Vendor", "Crafting")
+   * @param locale - Requested locale
+   * @returns Localized acquisition method
+   *
+   * @example
+   * ```typescript
+   * const acq = provider.getAcquisition('Dye Vendor', 'ja');
+   * // Returns "染料販売業者" (ja) or "Dye Vendor" (en fallback)
+   * ```
+   */
+  getAcquisition(acquisition: string, locale: LocaleCode): string {
+    const localeData = this.registry.getLocale(locale);
+
+    // Try requested locale
+    if (localeData?.acquisitions[acquisition]) {
+      return localeData.acquisitions[acquisition];
+    }
+
+    // Fallback to English
+    if (locale !== 'en') {
+      const englishData = this.registry.getLocale('en');
+      if (englishData?.acquisitions[acquisition]) {
+        return englishData.acquisitions[acquisition];
+      }
+    }
+
+    // Final fallback: return original acquisition
+    return acquisition;
+  }
+
+  /**
    * Get metallic dye IDs (locale-independent)
    *
    * @param locale - Current locale (for consistency)

@@ -231,6 +231,22 @@ export class LocalizationService {
   }
 
   /**
+   * Get localized acquisition method
+   *
+   * @param acquisition - Acquisition key (e.g., "Dye Vendor", "Crafting")
+   * @returns Localized acquisition method
+   *
+   * @example
+   * ```typescript
+   * const acq = LocalizationService.getAcquisition('Dye Vendor');
+   * // Returns "染料販売業者" (ja) or "Dye Vendor" (en)
+   * ```
+   */
+  static getAcquisition(acquisition: string): string {
+    return this.translator.getAcquisition(acquisition, this.currentLocale);
+  }
+
+  /**
    * Get all metallic dye IDs (for exclusion filtering)
    *
    * @returns Array of metallic dye item IDs

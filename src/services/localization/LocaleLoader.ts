@@ -75,6 +75,7 @@ export class LocaleLoader {
       typeof localeData.labels === 'object' &&
       typeof localeData.dyeNames === 'object' &&
       typeof localeData.categories === 'object' &&
+      typeof localeData.acquisitions === 'object' &&
       Array.isArray(localeData.metallicDyeIds) &&
       typeof localeData.harmonyTypes === 'object' &&
       typeof localeData.visionTypes === 'object'
