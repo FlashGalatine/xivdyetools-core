@@ -51,13 +51,13 @@ describe('LocaleLoader', () => {
       expect(localeData.meta).toBeDefined();
     });
 
-    it('should throw AppError for non-existent locale', async () => {
-      await expect(loader.loadLocale('invalid' as LocaleCode)).rejects.toThrow(AppError);
+    it('should throw AppError for non-existent locale', () => {
+      expect(() => loader.loadLocale('invalid' as LocaleCode)).toThrow(AppError);
     });
 
-    it('should throw AppError with correct error code for invalid locale', async () => {
+    it('should throw AppError with correct error code for invalid locale', () => {
       try {
-        await loader.loadLocale('xx' as LocaleCode);
+        loader.loadLocale('xx' as LocaleCode);
         expect.fail('Should have thrown an error');
       } catch (error) {
         expect(error).toBeInstanceOf(AppError);

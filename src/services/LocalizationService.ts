@@ -200,8 +200,8 @@ export class LocalizationService {
       return;
     }
 
-    // Load locale data
-    const localeData = await this.loader.loadLocale(locale);
+    // Load locale data (synchronous as of v1.1.3)
+    const localeData = this.loader.loadLocale(locale);
     this.registry.registerLocale(localeData);
     this.currentLocale = locale;
     this.isInitialized = true;

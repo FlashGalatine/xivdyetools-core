@@ -261,7 +261,7 @@ class MockLocaleLoader extends LocaleLoader {
     this.mockData.set(locale, data);
   }
 
-  async loadLocale(locale: LocaleCode) {
+  loadLocale(locale: LocaleCode) {
     const data = this.mockData.get(locale) as Record<string, unknown>;
     if (!data) {
       throw new Error(`Mock data not set for locale: ${locale}`);

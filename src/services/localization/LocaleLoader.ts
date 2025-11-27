@@ -1,44 +1,47 @@
 /**
- * LocaleLoader - Loads locale JSON files via dynamic import
+ * LocaleLoader - Loads locale JSON files
  *
  * Per R-4: Single Responsibility - locale file loading only
- * Uses dynamic import for tree-shaking (bundlers can code-split by locale)
+ * Uses fs.readFileSync for Node.js compatibility (works with Node.js v23+)
  *
  * @module services/localization
  */
 
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import type { LocaleCode, LocaleData } from '../../types/index.js';
 import { AppError, ErrorCode } from '../../types/index.js';
+
+// Get directory path for ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /**
  * Loads locale data from JSON files
  */
 export class LocaleLoader {
   /**
-   * Load locale data from JSON file using dynamic import
+   * Load locale data from JSON file
    *
    * @param locale - Locale code to load
-   * @returns Promise resolving to locale data
+   * @returns Locale data
    * @throws {AppError} If locale file fails to load or is invalid
    *
    * @example
    * ```typescript
    * const loader = new LocaleLoader();
-   * const jaData = await loader.loadLocale('ja');
+   * const jaData = loader.loadLocale('ja');
    * console.log(jaData.labels.dye); // "カララント:"
    * ```
    */
-  async loadLocale(locale: LocaleCode): Promise<LocaleData> {
+  loadLocale(locale: LocaleCode): LocaleData {
     try {
-      // Dynamic import allows bundlers to code-split by locale
-      // Using string template for locale path
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const module = await import(`../../data/locales/${locale}.json`, {
-        assert: { type: 'json' },
-      });
-
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      const data = (module.default || module) as unknown;
+      // Use fs.readFileSync for Node.js v23+ compatibility
+      // (avoids import assertion/attribute issues)
+      const filePath = join(__dirname, '..', '..', 'data', 'locales', `${locale}.json`);
+      const content = readFileSync(filePath, 'utf-8');
+      const data = JSON.parse(content) as unknown;
 
       // Validate structure
       if (!this.isValidLocaleData(data)) {
