@@ -73,25 +73,35 @@ describe('extractLocaleCode', () => {
     });
   });
 
+  describe('supported locales - Korean and Chinese', () => {
+    it('should extract "ko" from "ko"', () => {
+      expect(extractLocaleCode('ko')).toBe('ko');
+    });
+
+    it('should extract "ko" from "ko-KR"', () => {
+      expect(extractLocaleCode('ko-KR')).toBe('ko');
+    });
+
+    it('should extract "zh" from "zh"', () => {
+      expect(extractLocaleCode('zh')).toBe('zh');
+    });
+
+    it('should extract "zh" from "zh-CN"', () => {
+      expect(extractLocaleCode('zh-CN')).toBe('zh');
+    });
+  });
+
   describe('unsupported locales', () => {
-    it('should return null for unsupported locale "zh"', () => {
-      expect(extractLocaleCode('zh')).toBeNull();
-    });
-
-    it('should return null for unsupported locale "zh-CN"', () => {
-      expect(extractLocaleCode('zh-CN')).toBeNull();
-    });
-
-    it('should return null for unsupported locale "ko"', () => {
-      expect(extractLocaleCode('ko')).toBeNull();
-    });
-
     it('should return null for unsupported locale "es"', () => {
       expect(extractLocaleCode('es')).toBeNull();
     });
 
     it('should return null for unsupported locale "pt-BR"', () => {
       expect(extractLocaleCode('pt-BR')).toBeNull();
+    });
+
+    it('should return null for unsupported locale "it"', () => {
+      expect(extractLocaleCode('it')).toBeNull();
     });
   });
 
@@ -134,12 +144,32 @@ describe('resolveLocaleFromPreference', () => {
 
     it('should skip invalid explicit locale', () => {
       const preference: LocalePreference = {
-        explicit: 'zh' as LocaleCode, // Invalid
+        explicit: 'es' as LocaleCode, // Invalid - Spanish not supported
         guild: 'ja',
         system: 'en',
         fallback: 'en',
       };
       expect(resolveLocaleFromPreference(preference)).toBe('ja');
+    });
+
+    it('should accept Chinese as valid explicit locale', () => {
+      const preference: LocalePreference = {
+        explicit: 'zh',
+        guild: 'ja',
+        system: 'en',
+        fallback: 'en',
+      };
+      expect(resolveLocaleFromPreference(preference)).toBe('zh');
+    });
+
+    it('should accept Korean as valid explicit locale', () => {
+      const preference: LocalePreference = {
+        explicit: 'ko',
+        guild: 'ja',
+        system: 'en',
+        fallback: 'en',
+      };
+      expect(resolveLocaleFromPreference(preference)).toBe('ko');
     });
   });
 
@@ -167,11 +197,21 @@ describe('resolveLocaleFromPreference', () => {
     it('should skip invalid guild locale', () => {
       const preference: LocalePreference = {
         explicit: null,
-        guild: 'zh-CN',
+        guild: 'es-ES', // Spanish not supported
         system: 'de',
         fallback: 'en',
       };
       expect(resolveLocaleFromPreference(preference)).toBe('de');
+    });
+
+    it('should accept Chinese guild locale', () => {
+      const preference: LocalePreference = {
+        explicit: null,
+        guild: 'zh-CN',
+        system: 'de',
+        fallback: 'en',
+      };
+      expect(resolveLocaleFromPreference(preference)).toBe('zh');
     });
   });
 
@@ -200,10 +240,20 @@ describe('resolveLocaleFromPreference', () => {
       const preference: LocalePreference = {
         explicit: null,
         guild: null,
-        system: 'ko-KR',
+        system: 'it-IT', // Italian not supported
         fallback: 'en',
       };
       expect(resolveLocaleFromPreference(preference)).toBe('en');
+    });
+
+    it('should accept Korean system locale', () => {
+      const preference: LocalePreference = {
+        explicit: null,
+        guild: null,
+        system: 'ko-KR',
+        fallback: 'en',
+      };
+      expect(resolveLocaleFromPreference(preference)).toBe('ko');
     });
   });
 
@@ -220,9 +270,9 @@ describe('resolveLocaleFromPreference', () => {
 
     it('should use fallback when all others are invalid', () => {
       const preference: LocalePreference = {
-        explicit: 'zh' as LocaleCode,
-        guild: 'ko',
-        system: 'pt',
+        explicit: 'es' as LocaleCode, // Spanish not supported
+        guild: 'it', // Italian not supported
+        system: 'pt', // Portuguese not supported
         fallback: 'ja',
       };
       expect(resolveLocaleFromPreference(preference)).toBe('ja');
@@ -231,22 +281,24 @@ describe('resolveLocaleFromPreference', () => {
 });
 
 describe('SUPPORTED_LOCALES', () => {
-  it('should contain en, ja, de, fr', () => {
+  it('should contain en, ja, de, fr, ko, zh', () => {
     expect(SUPPORTED_LOCALES).toContain('en');
     expect(SUPPORTED_LOCALES).toContain('ja');
     expect(SUPPORTED_LOCALES).toContain('de');
     expect(SUPPORTED_LOCALES).toContain('fr');
+    expect(SUPPORTED_LOCALES).toContain('ko');
+    expect(SUPPORTED_LOCALES).toContain('zh');
   });
 
-  it('should have exactly 4 locales', () => {
-    expect(SUPPORTED_LOCALES.length).toBe(4);
+  it('should have exactly 6 locales', () => {
+    expect(SUPPORTED_LOCALES.length).toBe(6);
   });
 
   it('should be readonly array', () => {
     // TypeScript enforces readonly at compile time via `as const`
     // Runtime we verify it's an array with expected content
     expect(Array.isArray(SUPPORTED_LOCALES)).toBe(true);
-    expect(SUPPORTED_LOCALES).toEqual(['en', 'ja', 'de', 'fr']);
+    expect(SUPPORTED_LOCALES).toEqual(['en', 'ja', 'de', 'fr', 'ko', 'zh']);
   });
 });
 
@@ -565,6 +617,8 @@ describe('LocalizationService', () => {
       expect(locales).toContain('ja');
       expect(locales).toContain('de');
       expect(locales).toContain('fr');
+      expect(locales).toContain('ko');
+      expect(locales).toContain('zh');
     });
 
     it('should return a copy', () => {

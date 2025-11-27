@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-11-27
+
+### Added
+- **Chinese (zh) Localization**: Full Chinese translation support
+  - All 125 dye names translated
+  - UI labels, categories, acquisitions, harmony types, vision types
+- **Korean (ko) Localization**: Full Korean translation support
+  - All 125 dye names translated
+  - UI labels, categories, acquisitions, harmony types, vision types
+- **Expanded `LocaleCode` type**: Now includes `'ko'` and `'zh'` in addition to `'en'`, `'ja'`, `'de'`, `'fr'`
+- **6 supported locales**: English, Japanese, German, French, Korean, Chinese
+
+### Changed
+- `SUPPORTED_LOCALES` array now contains 6 locales
+- Updated tests to reflect new supported locales
+
+---
+
 ## [1.1.2] - 2025-11-27
 
 ### Fixed

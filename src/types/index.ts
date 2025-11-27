@@ -165,7 +165,7 @@ export interface LocalizedDye extends Dye {
 /**
  * Supported locale codes
  */
-export type LocaleCode = 'en' | 'ja' | 'de' | 'fr';
+export type LocaleCode = 'en' | 'ja' | 'de' | 'fr' | 'ko' | 'zh';
 
 /**
  * Translation keys for UI labels

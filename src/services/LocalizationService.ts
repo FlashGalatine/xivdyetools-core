@@ -25,7 +25,14 @@ import { TranslationProvider } from './localization/TranslationProvider.js';
 /**
  * List of supported locale codes
  */
-export const SUPPORTED_LOCALES: readonly LocaleCode[] = ['en', 'ja', 'de', 'fr'] as const;
+export const SUPPORTED_LOCALES: readonly LocaleCode[] = [
+  'en',
+  'ja',
+  'de',
+  'fr',
+  'ko',
+  'zh',
+] as const;
 
 /**
  * Extract 2-letter locale code from longer locale strings
@@ -200,7 +207,8 @@ export class LocalizationService {
       return;
     }
 
-    // Load locale data (synchronous as of v1.1.3)
+    // Load locale data (synchronous as of v1.1.3, async signature kept for API compatibility)
+    await Promise.resolve(); // Satisfy async requirement while maintaining sync behavior
     const localeData = this.loader.loadLocale(locale);
     this.registry.registerLocale(localeData);
     this.currentLocale = locale;

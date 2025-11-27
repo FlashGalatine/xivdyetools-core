@@ -16,6 +16,7 @@
 📡 **Universalis API** - Price data integration with caching
 🔌 **Pluggable Cache** - Memory, localStorage, Redis support
 🌍 **Environment Agnostic** - Works in Node.js, browsers, edge runtimes
+🗣️ **6 Languages** - English, Japanese, German, French, Korean, Chinese
 
 ## Installation
 
