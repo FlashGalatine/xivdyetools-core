@@ -1,0 +1,123 @@
+name: Test Coverage
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+
+      - name: Check coverage thresholds
+        run: |
+          LINES=$(jq '.total.lines.pct' coverage/coverage-summary.json)
+          BRANCHES=$(jq '.total.branches.pct' coverage/coverage-summary.json)
+          FUNCTIONS=$(jq '.total.functions.pct' coverage/coverage-summary.json)
+          STATEMENTS=$(jq '.total.statements.pct' coverage/coverage-summary.json)
+
+          echo "Coverage Report:"
+          echo "  Lines:      $LINES%"
+          echo "  Branches:   $BRANCHES%"
+          echo "  Functions:  $FUNCTIONS%"
+          echo "  Statements: $STATEMENTS%"
+          echo ""
+
+          FAILED=0
+
+          if (( $(echo "$LINES < 85" | bc -l) )); then
+            echo "❌ Lines coverage $LINES% is below 85% threshold"
+            FAILED=1
+          else
+            echo "✅ Lines coverage $LINES% meets 85% threshold"
+          fi
+
+          if (( $(echo "$BRANCHES < 85" | bc -l) )); then
+            echo "❌ Branch coverage $BRANCHES% is below 85% threshold"
+            FAILED=1
+          else
+            echo "✅ Branch coverage $BRANCHES% meets 85% threshold"
+          fi
+
+          if (( $(echo "$FUNCTIONS < 85" | bc -l) )); then
+            echo "❌ Function coverage $FUNCTIONS% is below 85% threshold"
+            FAILED=1
+          else
+            echo "✅ Function coverage $FUNCTIONS% meets 85% threshold"
+          fi
+
+          if (( $(echo "$STATEMENTS < 85" | bc -l) )); then
+            echo "❌ Statement coverage $STATEMENTS% is below 85% threshold"
+            FAILED=1
+          else
+            echo "✅ Statement coverage $STATEMENTS% meets 85% threshold"
+          fi
+
+          if [ $FAILED -eq 1 ]; then
+            echo ""
+            echo "Coverage check failed. Please add tests to meet the 85% threshold."
+            exit 1
+          fi
+
+          echo ""
+          echo "All coverage thresholds met! 🎉"
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 30
+
+      - name: Comment PR with coverage
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const coverage = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8'));
+            const lines = coverage.total.lines.pct.toFixed(2);
+            const branches = coverage.total.branches.pct.toFixed(2);
+            const functions = coverage.total.functions.pct.toFixed(2);
+            const statements = coverage.total.statements.pct.toFixed(2);
+
+            const body = `## Coverage Report 📊
+
+            | Metric | Coverage | Status |
+            |--------|----------|--------|
+            | Lines | ${lines}% | ${lines >= 85 ? '✅' : '❌'} |
+            | Branches | ${branches}% | ${branches >= 85 ? '✅' : '❌'} |
+            | Functions | ${functions}% | ${functions >= 85 ? '✅' : '❌'} |
+            | Statements | ${statements}% | ${statements >= 85 ? '✅' : '❌'} |
+
+            **Threshold**: 85% minimum
+
+            ${lines >= 85 && branches >= 85 && functions >= 85 && statements >= 85
+              ? '✅ All coverage thresholds met!'
+              : '⚠️ Some coverage thresholds not met. Please add tests.'}
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
