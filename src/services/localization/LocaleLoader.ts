@@ -2,27 +2,38 @@
  * LocaleLoader - Loads locale JSON files
  *
  * Per R-4: Single Responsibility - locale file loading only
- * Uses fs.readFileSync for Node.js compatibility (works with Node.js v23+)
+ * Uses static imports for browser/bundler compatibility
  *
  * @module services/localization
  */
 
-import { readFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
 import type { LocaleCode, LocaleData } from '../../types/index.js';
 import { AppError, ErrorCode } from '../../types/index.js';
 
-// Get directory path for ESM
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// Static imports for all locale files (bundler-compatible)
+import enLocale from '../../data/locales/en.json' with { type: 'json' };
+import jaLocale from '../../data/locales/ja.json' with { type: 'json' };
+import deLocale from '../../data/locales/de.json' with { type: 'json' };
+import frLocale from '../../data/locales/fr.json' with { type: 'json' };
+import koLocale from '../../data/locales/ko.json' with { type: 'json' };
+import zhLocale from '../../data/locales/zh.json' with { type: 'json' };
+
+// Map of locale codes to pre-loaded data
+const localeMap: Record<LocaleCode, unknown> = {
+  en: enLocale,
+  ja: jaLocale,
+  de: deLocale,
+  fr: frLocale,
+  ko: koLocale,
+  zh: zhLocale,
+};
 
 /**
- * Loads locale data from JSON files
+ * Loads locale data from pre-bundled JSON files
  */
 export class LocaleLoader {
   /**
-   * Load locale data from JSON file
+   * Load locale data from pre-bundled JSON
    *
    * @param locale - Locale code to load
    * @returns Locale data
@@ -37,11 +48,11 @@ export class LocaleLoader {
    */
   loadLocale(locale: LocaleCode): LocaleData {
     try {
-      // Use fs.readFileSync for Node.js v23+ compatibility
-      // (avoids import assertion/attribute issues)
-      const filePath = join(__dirname, '..', '..', 'data', 'locales', `${locale}.json`);
-      const content = readFileSync(filePath, 'utf-8');
-      const data = JSON.parse(content) as unknown;
+      const data = localeMap[locale];
+
+      if (!data) {
+        throw new Error(`Locale "${locale}" not found in bundled locales`);
+      }
 
       // Validate structure
       if (!this.isValidLocaleData(data)) {
