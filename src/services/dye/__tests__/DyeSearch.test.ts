@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { DyeSearch } from '../DyeSearch.js';
 import { DyeDatabase } from '../DyeDatabase.js';
 import type { Dye } from '../../../types/index.js';
@@ -418,6 +418,114 @@ describe('DyeSearch', () => {
     it('should handle malformed color gracefully', () => {
       expect(() => search.findClosestDye('not-a-color')).not.toThrow();
       expect(search.findClosestDye('not-a-color')).toBeNull();
+    });
+  });
+
+  describe('linear search fallback (no k-d tree)', () => {
+    let fallbackDatabase: DyeDatabase;
+    let fallbackSearch: DyeSearch;
+
+    beforeEach(() => {
+      fallbackDatabase = new DyeDatabase();
+      fallbackDatabase.initialize(mockDyes);
+      // Mock getKdTree to return null to force linear search fallback
+      vi.spyOn(fallbackDatabase, 'getKdTree').mockReturnValue(null);
+      fallbackSearch = new DyeSearch(fallbackDatabase);
+    });
+
+    describe('findClosestDye fallback', () => {
+      it('should find exact color match using linear search', () => {
+        const closest = fallbackSearch.findClosestDye('#FFFFFF');
+        expect(closest).toBeDefined();
+        expect(closest?.hex).toBe('#FFFFFF');
+      });
+
+      it('should find nearest color using linear search', () => {
+        const closest = fallbackSearch.findClosestDye('#4D1919');
+        expect(closest).toBeDefined();
+        expect(closest?.name).toBe('Wine Red');
+      });
+
+      it('should exclude specified IDs using linear search', () => {
+        const closest = fallbackSearch.findClosestDye('#FFFFFF', [5729]);
+        expect(closest).toBeDefined();
+        expect(closest?.id).not.toBe(5729);
+      });
+
+      it('should exclude Facewear dyes using linear search', () => {
+        const closest = fallbackSearch.findClosestDye('#FF0000');
+        expect(closest).toBeDefined();
+        expect(closest?.category).not.toBe('Facewear');
+      });
+
+      it('should return null for invalid hex in linear search', () => {
+        const closest = fallbackSearch.findClosestDye('invalid');
+        expect(closest).toBeNull();
+      });
+
+      it('should handle 3-digit hex colors in linear search', () => {
+        const closest = fallbackSearch.findClosestDye('#FFF');
+        expect(closest).toBeDefined();
+      });
+
+      it('should find closest to a mid-range color using linear search', () => {
+        const closest = fallbackSearch.findClosestDye('#228B22');
+        expect(closest).toBeDefined();
+        expect(closest?.name).toBe('Forest Green');
+      });
+    });
+
+    describe('findDyesWithinDistance fallback', () => {
+      it('should find dyes within distance threshold using linear search', () => {
+        const results = fallbackSearch.findDyesWithinDistance('#FFFFFF', 50);
+        expect(results.length).toBeGreaterThan(0);
+      });
+
+      it('should respect distance limit using linear search', () => {
+        const results = fallbackSearch.findDyesWithinDistance('#FFFFFF', 10);
+        expect(
+          results.every((d) => {
+            const r = Math.abs(d.rgb.r - 255);
+            const g = Math.abs(d.rgb.g - 255);
+            const b = Math.abs(d.rgb.b - 255);
+            return r + g + b <= 10;
+          })
+        ).toBe(true);
+      });
+
+      it('should apply limit parameter using linear search', () => {
+        const results = fallbackSearch.findDyesWithinDistance('#FFFFFF', 200, 2);
+        expect(results.length).toBeLessThanOrEqual(2);
+      });
+
+      it('should exclude Facewear dyes using linear search', () => {
+        const results = fallbackSearch.findDyesWithinDistance('#FF0000', 100);
+        expect(results.every((d) => d.category !== 'Facewear')).toBe(true);
+      });
+
+      it('should return empty array for invalid hex using linear search', () => {
+        const results = fallbackSearch.findDyesWithinDistance('invalid', 50);
+        expect(results).toHaveLength(0);
+      });
+
+      it('should return empty array for zero distance using linear search', () => {
+        const results = fallbackSearch.findDyesWithinDistance('#123456', 0);
+        expect(results).toHaveLength(0);
+      });
+
+      it('should sort results by distance using linear search', () => {
+        const results = fallbackSearch.findDyesWithinDistance('#FFFFFF', 200);
+        // Results should be sorted by distance - Snow White (exact match) should be first
+        if (results.length > 0) {
+          expect(results[0].hex).toBe('#FFFFFF');
+        }
+      });
+
+      it('should handle limit of 0 using linear search', () => {
+        const results = fallbackSearch.findDyesWithinDistance('#FFFFFF', 200, 0);
+        // When limit is 0, if(limit) evaluates to false, so no limit is applied
+        expect(results.length).toBeGreaterThan(0);
+      });
     });
   });
 });

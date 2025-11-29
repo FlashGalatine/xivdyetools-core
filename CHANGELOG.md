@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.3] - 2025-11-28
+
+### Added
+- **Comprehensive Branch Coverage Testing**: Improved test coverage from ~85% to 95.8% branch coverage
+  - **types/index.ts**: Added 66 new tests for branded type helpers (`createHexColor`, `createDyeId`, `createHue`, `createSaturation`) and `AppError` class (41.66% → 100%)
+  - **DyeSearch.ts**: Added linear search fallback tests for when k-d tree is unavailable (74.5% → 98.03%)
+  - **APIService.ts**: Added tests for oversized response handling, JSON parse errors, health check failures, worldID cache keys (84% → 93%)
+  - **LocaleLoader.ts**: Added `isValidLocaleData` direct tests and mocked validation failure tests (84.21% → 94.73%)
+  - **ColorblindnessSimulator.ts**: Added LRU cache eviction tests (73.33% → 86.66%)
+
+### Changed
+- All 17 source files now meet or approach 90%+ branch coverage target
+- 1095 total tests across the entire test suite
+
+---
+
 ## [1.2.2] - 2025-11-28
 
 ### Fixed

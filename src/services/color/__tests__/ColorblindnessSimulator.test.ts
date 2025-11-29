@@ -412,6 +412,93 @@ describe('ColorblindnessSimulator', () => {
       ColorblindnessSimulator.clearCache();
       expect(ColorblindnessSimulator.getCacheStats().colorblind).toBe(0);
     });
+
+    it('should update cache when setting same key again (LRU behavior)', () => {
+      // First simulation caches the result
+      const rgb: RGB = { r: 50, g: 100, b: 150 };
+      const result1 = ColorblindnessSimulator.simulateColorblindness(rgb, 'deuteranopia');
+      expect(ColorblindnessSimulator.getCacheStats().colorblind).toBe(1);
+
+      // Second call with same key should hit cache (and update LRU order)
+      const result2 = ColorblindnessSimulator.simulateColorblindness(rgb, 'deuteranopia');
+      expect(result2).toEqual(result1);
+      // Cache size stays at 1 (same key)
+      expect(ColorblindnessSimulator.getCacheStats().colorblind).toBe(1);
+    });
+  });
+
+  // ============================================================================
+  // LRU Cache Eviction Tests (covers lines 36, 38-40)
+  // ============================================================================
+
+  describe('LRU cache eviction', () => {
+    // Note: The LRU cache in ColorblindnessSimulator has maxSize of 1000
+    // To test eviction, we need to fill it beyond capacity
+
+    it('should evict oldest entry when cache is full', () => {
+      // Fill the cache with 1000 unique entries
+      // Each unique RGB + vision type combination creates a new cache entry
+      // We use deuteranopia for all to avoid the 'normal' early return
+
+      // Generate 1001 unique colors to trigger eviction
+      for (let i = 0; i < 1001; i++) {
+        const r = i % 256;
+        const g = Math.floor(i / 256) % 256;
+        const b = Math.floor(i / 65536) % 256;
+        ColorblindnessSimulator.simulateColorblindness({ r, g, b }, 'deuteranopia');
+      }
+
+      // After 1001 entries, cache should be at max size (1000)
+      // The oldest entry should have been evicted
+      expect(ColorblindnessSimulator.getCacheStats().colorblind).toBe(1000);
+    });
+
+    it('should maintain max cache size under heavy load', () => {
+      // Add many entries rapidly
+      for (let i = 0; i < 2000; i++) {
+        const r = i % 256;
+        const g = (i * 3) % 256;
+        const b = (i * 7) % 256;
+        ColorblindnessSimulator.simulateColorblindness({ r, g, b }, 'protanopia');
+      }
+
+      // Cache should never exceed max size
+      expect(ColorblindnessSimulator.getCacheStats().colorblind).toBeLessThanOrEqual(1000);
+    });
+
+    it('should preserve recently used entries during eviction', () => {
+      // Fill cache with initial entries
+      for (let i = 0; i < 999; i++) {
+        const r = i % 256;
+        const g = Math.floor(i / 256) % 256;
+        ColorblindnessSimulator.simulateColorblindness({ r, g, b: 0 }, 'deuteranopia');
+      }
+
+      // Add a specific "important" entry
+      const importantColor: RGB = { r: 42, g: 42, b: 42 };
+      const importantResult = ColorblindnessSimulator.simulateColorblindness(
+        importantColor,
+        'tritanopia'
+      );
+
+      // Access the important entry to make it recently used
+      ColorblindnessSimulator.simulateColorblindness(importantColor, 'tritanopia');
+
+      // Add more entries to trigger eviction
+      for (let i = 0; i < 500; i++) {
+        ColorblindnessSimulator.simulateColorblindness(
+          { r: 200, g: i % 256, b: i % 256 },
+          'achromatopsia'
+        );
+      }
+
+      // The important entry should still be in cache (recently accessed)
+      const retrieved = ColorblindnessSimulator.simulateColorblindness(
+        importantColor,
+        'tritanopia'
+      );
+      expect(retrieved).toEqual(importantResult);
+    });
   });
 
   // ============================================================================

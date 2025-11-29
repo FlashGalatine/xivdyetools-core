@@ -1093,5 +1093,278 @@ describe('APIService', () => {
       const stats = await apiService.getCacheStats();
       expect(stats.keys).toContain(`${itemID}_${dataCenterID}`);
     });
+
+    it('should create worldID key when only worldID provided (line 571)', async () => {
+      const itemID = 5729;
+      const worldID = 73; // Gilgamesh world ID
+
+      // Note: The API uses dataCenterID in the URL, worldID is used only for cache key
+      mockFetch.setResponse(`https://universalis.app/api/v2/aggregated/universal/${itemID}`, {
+        status: 200,
+        body: {
+          results: [{ itemId: itemID, nq: { minListing: { dc: { price: 1000 } } } }],
+        },
+      });
+
+      await apiService.getPriceData(itemID, worldID, undefined);
+      const stats = await apiService.getCacheStats();
+      expect(stats.keys).toContain(`${itemID}_${worldID}`);
+    });
+  });
+
+  // ==========================================================================
+  // Response Size and Content Tests (lines 409-411, 420, 447)
+  // ==========================================================================
+
+  describe('response size and content validation', () => {
+    it('should handle content-length header indicating oversized response (lines 409-411)', async () => {
+      const itemID = 5729;
+      // Create a mock fetch that returns a very large content-length header
+      const oversizedFetch: FetchClient = {
+        async fetch() {
+          const headers = new Headers({
+            'content-type': 'application/json',
+            'content-length': '999999999', // Way over the max response size
+          });
+          return {
+            ok: true,
+            status: 200,
+            statusText: 'OK',
+            headers,
+            text: async () => '{}',
+          } as Response;
+        },
+      };
+
+      const service = new APIService(memoryCache, oversizedFetch, noOpRateLimiter);
+
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const result = await service.getPriceData(itemID);
+      errorSpy.mockRestore();
+
+      expect(result).toBeNull();
+    });
+
+    it('should handle response text too large (line 420)', async () => {
+      const itemID = 5729;
+      // Create a mock fetch that returns text larger than max size
+      const largeTextFetch: FetchClient = {
+        async fetch() {
+          const headers = new Headers({
+            'content-type': 'application/json',
+            // No content-length header, so size check happens on text
+          });
+          // Create a very large text (> API_MAX_RESPONSE_SIZE)
+          const largeText = 'x'.repeat(20 * 1024 * 1024); // 20MB
+          return {
+            ok: true,
+            status: 200,
+            statusText: 'OK',
+            headers,
+            text: async () => largeText,
+          } as Response;
+        },
+      };
+
+      const service = new APIService(memoryCache, largeTextFetch, noOpRateLimiter);
+
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const result = await service.getPriceData(itemID);
+      errorSpy.mockRestore();
+
+      expect(result).toBeNull();
+    });
+
+    it('should handle invalid JSON response (line 447)', async () => {
+      const itemID = 5729;
+      // Create a mock fetch that returns invalid JSON
+      const invalidJsonFetch: FetchClient = {
+        async fetch() {
+          const headers = new Headers({
+            'content-type': 'application/json',
+          });
+          return {
+            ok: true,
+            status: 200,
+            statusText: 'OK',
+            headers,
+            text: async () => 'this is not valid JSON {{{',
+          } as Response;
+        },
+      };
+
+      const service = new APIService(memoryCache, invalidJsonFetch, noOpRateLimiter);
+
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const result = await service.getPriceData(itemID);
+      errorSpy.mockRestore();
+
+      expect(result).toBeNull();
+    });
+  });
+
+  // ==========================================================================
+  // Invalid Result Structure Tests (lines 496-497, 548-549)
+  // ==========================================================================
+
+  describe('invalid result structure handling', () => {
+    it('should return null for result that is not an object (lines 496-497)', async () => {
+      const itemID = 5729;
+      mockFetch.setResponse(`https://universalis.app/api/v2/aggregated/universal/${itemID}`, {
+        status: 200,
+        body: {
+          results: [null], // First result is null, not an object
+        },
+      });
+
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const result = await apiService.getPriceData(itemID);
+      warnSpy.mockRestore();
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null for result with non-number itemId (lines 496-497)', async () => {
+      const itemID = 5729;
+      mockFetch.setResponse(`https://universalis.app/api/v2/aggregated/universal/${itemID}`, {
+        status: 200,
+        body: {
+          results: [
+            {
+              itemId: 'not-a-number', // itemId should be a number
+              nq: { minListing: { dc: { price: 1000 } } },
+            },
+          ],
+        },
+      });
+
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const result = await apiService.getPriceData(itemID);
+      warnSpy.mockRestore();
+
+      expect(result).toBeNull();
+    });
+
+    it('should handle undefined result in array', async () => {
+      const itemID = 5729;
+      mockFetch.setResponse(`https://universalis.app/api/v2/aggregated/universal/${itemID}`, {
+        status: 200,
+        body: {
+          results: [undefined],
+        },
+      });
+
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const result = await apiService.getPriceData(itemID);
+      warnSpy.mockRestore();
+
+      expect(result).toBeNull();
+    });
+  });
+
+  // ==========================================================================
+  // Health Check Error Handling Tests (lines 628, 644)
+  // ==========================================================================
+
+  describe('health check error handling', () => {
+    it('should return false when fetch throws (line 628)', async () => {
+      // Create a fetch client that throws an error
+      const throwingFetch: FetchClient = {
+        async fetch() {
+          throw new Error('Network error');
+        },
+      };
+
+      const service = new APIService(memoryCache, throwingFetch, noOpRateLimiter);
+
+      const result = await service.isAPIAvailable();
+      expect(result).toBe(false);
+    });
+
+    it('should return unavailable status when isAPIAvailable returns false (line 644)', async () => {
+      // Create a fetch client that throws an error
+      const throwingFetch: FetchClient = {
+        async fetch() {
+          throw new Error('Network error');
+        },
+      };
+
+      const service = new APIService(memoryCache, throwingFetch, noOpRateLimiter);
+
+      const status = await service.getAPIStatus();
+      expect(status.available).toBe(false);
+      // isAPIAvailable catches the error internally and returns false
+      // so getAPIStatus calculates the latency normally (>= 0)
+      expect(status.latency).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should return -1 latency when getAPIStatus catch block is triggered (line 644)', async () => {
+      // To trigger the catch block in getAPIStatus, we need isAPIAvailable to throw
+      // This is an edge case that's hard to trigger in practice
+      const service = new APIService(memoryCache, mockFetch, noOpRateLimiter);
+
+      // Mock isAPIAvailable to throw an error
+      vi.spyOn(service, 'isAPIAvailable').mockRejectedValue(new Error('Unexpected error'));
+
+      const status = await service.getAPIStatus();
+      expect(status.available).toBe(false);
+      expect(status.latency).toBe(-1);
+
+      vi.restoreAllMocks();
+    });
+  });
+
+  // ==========================================================================
+  // Retry Logic Tests (line 351)
+  // ==========================================================================
+
+  describe('retry logic', () => {
+    it('should return null when retry returns no data (line 351)', async () => {
+      const itemID = 5729;
+      // Create a fetch that returns null-like data after retries
+      let callCount = 0;
+      const failingFetch: FetchClient = {
+        async fetch() {
+          callCount++;
+          // Return a response that will result in null data after parsing
+          const headers = new Headers({
+            'content-type': 'application/json',
+          });
+          return {
+            ok: true,
+            status: 200,
+            statusText: 'OK',
+            headers,
+            text: async () => JSON.stringify(null), // Will result in !data check failing
+          } as Response;
+        },
+      };
+
+      const service = new APIService(memoryCache, failingFetch, noOpRateLimiter);
+
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const result = await service.getPriceData(itemID);
+      warnSpy.mockRestore();
+
+      expect(result).toBeNull();
+    });
+  });
+
+  // ==========================================================================
+  // DefaultFetchClient Integration Test (line 46)
+  // ==========================================================================
+
+  describe('DefaultFetchClient', () => {
+    it('should use global fetch when called', async () => {
+      const client = new DefaultFetchClient();
+      // We can't easily test the actual fetch call without making a real network request
+      // but we can verify the method exists and is callable
+      expect(typeof client.fetch).toBe('function');
+
+      // Verify it returns a promise
+      // Note: This would make a real network request in production, so we just check the signature
+      const fetchFn = client.fetch;
+      expect(fetchFn.length).toBe(2); // url and options parameters
+    });
   });
 });
