@@ -28,7 +28,34 @@ export class DyeDatabase {
   private static readonly HUE_BUCKET_COUNT = 36; // 360 / 10
 
   /**
+   * Dangerous prototype pollution keys to filter out
+   * Per Security: Prevents prototype pollution attacks from untrusted data
+   */
+  private static readonly DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
+  /**
+   * Create a safe copy of an object, filtering out prototype pollution keys
+   * Per Security: Deep clones object while preventing prototype pollution
+   */
+  private safeClone(obj: Record<string, unknown>): Record<string, unknown> {
+    const result: Record<string, unknown> = Object.create(null);
+    for (const key of Object.keys(obj)) {
+      if (DyeDatabase.DANGEROUS_KEYS.has(key)) {
+        continue; // Skip dangerous keys
+      }
+      const value = obj[key];
+      if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+        result[key] = this.safeClone(value as Record<string, unknown>);
+      } else {
+        result[key] = value;
+      }
+    }
+    return result;
+  }
+
+  /**
    * Initialize dye database from data
+   * Per Security: Includes prototype pollution protection for untrusted data sources
    */
   initialize(dyeData: unknown): void {
     try {
@@ -39,13 +66,24 @@ export class DyeDatabase {
         throw new Error('Invalid dye database format');
       }
 
-      // Normalize dyes: map itemID to id if needed
+      // Normalize dyes: map itemID to id, price to cost, with prototype pollution protection
       this.dyes = loadedDyes.map((dye: unknown) => {
-        const normalizedDye = dye as Record<string, unknown>;
+        // Per Security: Create a safe clone to prevent prototype pollution
+        const normalizedDye = this.safeClone(dye as Record<string, unknown>);
 
         // If the dye has itemID but no id, use itemID as the id
         if (normalizedDye.itemID && !normalizedDye.id) {
           normalizedDye.id = normalizedDye.itemID;
+        }
+
+        // Per Bug Fix: Map 'price' field to 'cost' for Dye interface compatibility
+        // JSON data uses 'price' but Dye interface expects 'cost'
+        if (normalizedDye.price !== undefined && normalizedDye.cost === undefined) {
+          normalizedDye.cost = normalizedDye.price ?? 0;
+        }
+        // Ensure cost is always a number (handle null values in JSON)
+        if (normalizedDye.cost === null || normalizedDye.cost === undefined) {
+          normalizedDye.cost = 0;
         }
 
         return normalizedDye as unknown as Dye;

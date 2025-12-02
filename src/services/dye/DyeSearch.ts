@@ -66,11 +66,13 @@ export class DyeSearch {
     }
 
     if (filter.minPrice !== undefined) {
-      results = results.filter((dye) => dye.cost >= filter.minPrice!);
+      // Defensively handle undefined/null cost values
+      results = results.filter((dye) => (dye.cost ?? 0) >= filter.minPrice!);
     }
 
     if (filter.maxPrice !== undefined) {
-      results = results.filter((dye) => dye.cost <= filter.maxPrice!);
+      // Defensively handle undefined/null cost values
+      results = results.filter((dye) => (dye.cost ?? 0) <= filter.maxPrice!);
     }
 
     return results;
@@ -236,4 +238,3 @@ export class DyeSearch {
     });
   }
 }
-

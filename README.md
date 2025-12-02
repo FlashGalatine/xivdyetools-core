@@ -79,6 +79,8 @@ const harmonyDyes = dyeService.findComplementaryPair(baseDye.hex);
 
 Pure color conversion and manipulation algorithms.
 
+> **Memory Note**: ColorService uses LRU caches (5 caches × 1000 entries each = up to 5000 cached entries) for performance optimization. For long-running applications or memory-constrained environments, call `ColorService.clearCaches()` periodically to free memory. Each cache entry is approximately 50-100 bytes, so maximum memory usage is ~500KB.
+
 ```typescript
 import { ColorService } from 'xivdyetools-core';
 
@@ -101,6 +103,10 @@ const distance = ColorService.getColorDistance('#FF0000', '#00FF00');
 
 // Color inversion
 const inverted = ColorService.invert('#FF6B6B');
+
+// Cache management (for memory-constrained environments)
+ColorService.clearCaches();
+const cacheStats = ColorService.getCacheStats();
 ```
 
 ### DyeService
