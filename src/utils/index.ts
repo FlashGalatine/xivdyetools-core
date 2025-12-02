@@ -622,6 +622,7 @@ export async function retry<T>(
  * - Fast and lightweight
  * - Collision-resistant for typical cache validation use cases
  * - Throws on circular references (by JSON.stringify)
+ * - Per Issue #7: Uses |0 to properly convert to 32-bit integer
  */
 export function generateChecksum(data: unknown): string {
   const str = JSON.stringify(data); // Throws on circular references
@@ -629,7 +630,7 @@ export function generateChecksum(data: unknown): string {
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
     hash = (hash << 5) - hash + char;
-    hash = hash & hash; // Convert to 32-bit integer
+    hash = hash | 0; // Per Issue #7: Convert to 32-bit signed integer (|0 is idiomatic)
   }
   return Math.abs(hash).toString(36);
 }

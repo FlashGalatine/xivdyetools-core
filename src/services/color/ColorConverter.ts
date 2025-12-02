@@ -78,7 +78,8 @@ export class ColorConverter {
   private readonly hexToHsvCache: LRUCache<string, HSV>;
 
   // Default singleton instance for static API compatibility
-  private static defaultInstance: ColorConverter;
+  // Per Issue #6: Eager initialization to avoid race conditions in concurrent scenarios
+  private static defaultInstance: ColorConverter = new ColorConverter();
 
   /**
    * Constructor with optional cache configuration
@@ -95,11 +96,9 @@ export class ColorConverter {
 
   /**
    * Get the default singleton instance
+   * Per Issue #6: Returns eagerly-initialized instance to avoid race conditions
    */
   private static getDefault(): ColorConverter {
-    if (!this.defaultInstance) {
-      this.defaultInstance = new ColorConverter();
-    }
     return this.defaultInstance;
   }
 

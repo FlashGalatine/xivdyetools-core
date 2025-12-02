@@ -165,7 +165,8 @@ export class LocalizationService {
   private isInitialized: boolean = false;
 
   // Default singleton instance for static API compatibility
-  private static defaultInstance: LocalizationService;
+  // Per Issue #6: Eager initialization to avoid race conditions in concurrent scenarios
+  private static defaultInstance: LocalizationService = new LocalizationService();
 
   /**
    * Constructor with optional dependency injection
@@ -179,11 +180,9 @@ export class LocalizationService {
 
   /**
    * Get the default singleton instance
+   * Per Issue #6: Returns eagerly-initialized instance to avoid race conditions
    */
   private static getDefault(): LocalizationService {
-    if (!this.defaultInstance) {
-      this.defaultInstance = new LocalizationService();
-    }
     return this.defaultInstance;
   }
 
@@ -469,6 +468,7 @@ export class LocalizationService {
   /**
    * Reset the static singleton instance
    * Useful for testing to prevent test pollution between test suites
+   * Per Issue #6: Creates a fresh instance since we use eager initialization
    *
    * @example
    * ```typescript
@@ -479,9 +479,7 @@ export class LocalizationService {
    * ```
    */
   static resetInstance(): void {
-    if (this.defaultInstance) {
-      this.defaultInstance.clear();
-    }
-    this.defaultInstance = undefined as unknown as LocalizationService;
+    this.defaultInstance.clear();
+    this.defaultInstance = new LocalizationService();
   }
 }

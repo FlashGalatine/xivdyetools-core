@@ -254,8 +254,11 @@ export class DyeDatabase {
       const kdTreePoints: Point3D[] = [];
 
       for (const dye of this.dyes) {
+        // Map by id (which equals itemID after normalization)
         this.dyesByIdMap.set(dye.id, dye);
-        if (dye.itemID) {
+        // Per Issue #5: Only map itemID separately if it differs from id
+        // This avoids storing the same dye twice with the same key
+        if (dye.itemID && dye.itemID !== dye.id) {
           this.dyesByIdMap.set(dye.itemID, dye);
         }
 
