@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-12-01
+
+### Added
+- **Dye Type Flags**: Added locale-independent type flags to `Dye` interface for filtering
+  - `isMetallic`: Identifies metallic dyes (14 dyes)
+  - `isPastel`: Identifies pastel dyes (4 dyes)
+  - `isDark`: Identifies dark dyes (5 dyes)
+  - `isCosmic`: Identifies cosmic dyes from Cosmic Exploration/Fortunes (20 dyes)
+  - Enables filtering by dye type regardless of user's language setting
+  - All 136 dyes in `colors_xiv.json` now include these boolean flags
+
+### Changed
+- **Breaking Change**: `Dye` interface now requires four additional boolean properties
+  - Applications using this package must update to handle the new properties
+  - Existing code will continue to work but TypeScript will show type errors until updated
+
 ## [1.2.5] - 2025-11-30
 
 ### Fixed

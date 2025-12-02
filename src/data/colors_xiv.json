@@ -7,8 +7,20 @@
     "acquisition": "Ixali Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 228, "g": 223, "b": 208},
-    "hsv": {"h": 45, "s": 8.77, "v": 89.41}
+    "rgb": {
+      "r": 228,
+      "g": 223,
+      "b": 208
+    },
+    "hsv": {
+      "h": 45,
+      "s": 8.77,
+      "v": 89.41
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5730,
@@ -18,8 +30,20 @@
     "acquisition": "Dye Vendor",
     "price": 40,
     "currency": "Gil",
-    "rgb": {"r": 172, "g": 168, "b": 162},
-    "hsv": {"h": 36, "s": 5.81, "v": 67.45}
+    "rgb": {
+      "r": 172,
+      "g": 168,
+      "b": 162
+    },
+    "hsv": {
+      "h": 36,
+      "s": 5.81,
+      "v": 67.45
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5731,
@@ -29,8 +53,20 @@
     "acquisition": "Dye Vendor",
     "price": 40,
     "currency": "Gil",
-    "rgb": {"r": 137, "g": 135, "b": 132},
-    "hsv": {"h": 36, "s": 3.65, "v": 53.73}
+    "rgb": {
+      "r": 137,
+      "g": 135,
+      "b": 132
+    },
+    "hsv": {
+      "h": 36,
+      "s": 3.65,
+      "v": 53.73
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5732,
@@ -40,8 +76,20 @@
     "acquisition": "Dye Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 101, "g": 101, "b": 101},
-    "hsv": {"h": 0, "s": 0, "v": 39.61}
+    "rgb": {
+      "r": 101,
+      "g": 101,
+      "b": 101
+    },
+    "hsv": {
+      "h": 0,
+      "s": 0,
+      "v": 39.61
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5733,
@@ -51,8 +99,20 @@
     "acquisition": "Dye Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 72, "g": 71, "b": 66},
-    "hsv": {"h": 50, "s": 8.33, "v": 28.24}
+    "rgb": {
+      "r": 72,
+      "g": 71,
+      "b": 66
+    },
+    "hsv": {
+      "h": 50,
+      "s": 8.33,
+      "v": 28.24
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5734,
@@ -62,8 +122,20 @@
     "acquisition": "Ixali Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 43, "g": 41, "b": 35},
-    "hsv": {"h": 45, "s": 18.6, "v": 16.86}
+    "rgb": {
+      "r": 43,
+      "g": 41,
+      "b": 35
+    },
+    "hsv": {
+      "h": 45,
+      "s": 18.6,
+      "v": 16.86
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5735,
@@ -73,8 +145,20 @@
     "acquisition": "Dye Vendor",
     "price": 40,
     "currency": "Gil",
-    "rgb": {"r": 230, "g": 159, "b": 150},
-    "hsv": {"h": 6.75, "s": 34.78, "v": 90.2}
+    "rgb": {
+      "r": 230,
+      "g": 159,
+      "b": 150
+    },
+    "hsv": {
+      "h": 6.75,
+      "s": 34.78,
+      "v": 90.2
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5736,
@@ -84,8 +168,20 @@
     "acquisition": "Sahagin Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 131, "g": 105, "b": 105},
-    "hsv": {"h": 0, "s": 19.85, "v": 51.37}
+    "rgb": {
+      "r": 131,
+      "g": 105,
+      "b": 105
+    },
+    "hsv": {
+      "h": 0,
+      "s": 19.85,
+      "v": 51.37
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5737,
@@ -95,8 +191,20 @@
     "acquisition": "Dye Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 91, "g": 23, "b": 41},
-    "hsv": {"h": 344.12, "s": 74.73, "v": 35.69}
+    "rgb": {
+      "r": 91,
+      "g": 23,
+      "b": 41
+    },
+    "hsv": {
+      "h": 344.12,
+      "s": 74.73,
+      "v": 35.69
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5738,
@@ -106,8 +214,20 @@
     "acquisition": "Crafting",
     "price": null,
     "currency": null,
-    "rgb": {"r": 120, "g": 26, "b": 26},
-    "hsv": {"h": 0, "s": 78.33, "v": 47.06}
+    "rgb": {
+      "r": 120,
+      "g": 26,
+      "b": 26
+    },
+    "hsv": {
+      "h": 0,
+      "s": 78.33,
+      "v": 47.06
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5739,
@@ -117,8 +237,20 @@
     "acquisition": "Dye Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 98, "g": 34, "b": 7},
-    "hsv": {"h": 17.8, "s": 92.86, "v": 38.43}
+    "rgb": {
+      "r": 98,
+      "g": 34,
+      "b": 7
+    },
+    "hsv": {
+      "h": 17.8,
+      "s": 92.86,
+      "v": 38.43
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5740,
@@ -128,8 +260,20 @@
     "acquisition": "Crafting",
     "price": null,
     "currency": null,
-    "rgb": {"r": 69, "g": 21, "b": 17},
-    "hsv": {"h": 4.62, "s": 75.36, "v": 27.06}
+    "rgb": {
+      "r": 69,
+      "g": 21,
+      "b": 17
+    },
+    "hsv": {
+      "h": 4.62,
+      "s": 75.36,
+      "v": 27.06
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5741,
@@ -139,8 +283,20 @@
     "acquisition": "Sahagin Vendor",
     "price": 334,
     "currency": "Gil",
-    "rgb": {"r": 204, "g": 108, "b": 94},
-    "hsv": {"h": 7.64, "s": 53.92, "v": 80}
+    "rgb": {
+      "r": 204,
+      "g": 108,
+      "b": 94
+    },
+    "hsv": {
+      "h": 7.64,
+      "s": 53.92,
+      "v": 80
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5742,
@@ -150,8 +306,20 @@
     "acquisition": "Dye Vendor",
     "price": 40,
     "currency": "Gil",
-    "rgb": {"r": 145, "g": 59, "b": 39},
-    "hsv": {"h": 11.32, "s": 73.1, "v": 56.86}
+    "rgb": {
+      "r": 145,
+      "g": 59,
+      "b": 39
+    },
+    "hsv": {
+      "h": 11.32,
+      "s": 73.1,
+      "v": 56.86
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5743,
@@ -161,8 +329,20 @@
     "acquisition": "Dye Vendor",
     "price": 40,
     "currency": "Gil",
-    "rgb": {"r": 228, "g": 170, "b": 138},
-    "hsv": {"h": 21.33, "s": 39.47, "v": 89.41}
+    "rgb": {
+      "r": 228,
+      "g": 170,
+      "b": 138
+    },
+    "hsv": {
+      "h": 21.33,
+      "s": 39.47,
+      "v": 89.41
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5744,
@@ -172,8 +352,20 @@
     "acquisition": "Crafting",
     "price": null,
     "currency": null,
-    "rgb": {"r": 183, "g": 92, "b": 45},
-    "hsv": {"h": 20.43, "s": 75.41, "v": 71.76}
+    "rgb": {
+      "r": 183,
+      "g": 92,
+      "b": 45
+    },
+    "hsv": {
+      "h": 20.43,
+      "s": 75.41,
+      "v": 71.76
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5745,
@@ -183,8 +375,20 @@
     "acquisition": "Dye Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 125, "g": 57, "b": 6},
-    "hsv": {"h": 25.71, "s": 95.2, "v": 49.02}
+    "rgb": {
+      "r": 125,
+      "g": 57,
+      "b": 6
+    },
+    "hsv": {
+      "h": 25.71,
+      "s": 95.2,
+      "v": 49.02
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5746,
@@ -194,8 +398,20 @@
     "acquisition": "Dye Vendor",
     "price": 40,
     "currency": "Gil",
-    "rgb": {"r": 106, "g": 75, "b": 55},
-    "hsv": {"h": 23.53, "s": 48.11, "v": 41.57}
+    "rgb": {
+      "r": 106,
+      "g": 75,
+      "b": 55
+    },
+    "hsv": {
+      "h": 23.53,
+      "s": 48.11,
+      "v": 41.57
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5747,
@@ -205,8 +421,20 @@
     "acquisition": "Dye Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 110, "g": 61, "b": 36},
-    "hsv": {"h": 20.27, "s": 67.27, "v": 43.14}
+    "rgb": {
+      "r": 110,
+      "g": 61,
+      "b": 36
+    },
+    "hsv": {
+      "h": 20.27,
+      "s": 67.27,
+      "v": 43.14
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5748,
@@ -216,8 +444,20 @@
     "acquisition": "Dye Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 79, "g": 45, "b": 31},
-    "hsv": {"h": 17.5, "s": 60.76, "v": 30.98}
+    "rgb": {
+      "r": 79,
+      "g": 45,
+      "b": 31
+    },
+    "hsv": {
+      "h": 17.5,
+      "s": 60.76,
+      "v": 30.98
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5749,
@@ -227,8 +467,20 @@
     "acquisition": "Crafting",
     "price": null,
     "currency": null,
-    "rgb": {"r": 48, "g": 33, "b": 27},
-    "hsv": {"h": 17.14, "s": 43.75, "v": 18.82}
+    "rgb": {
+      "r": 48,
+      "g": 33,
+      "b": 27
+    },
+    "hsv": {
+      "h": 17.14,
+      "s": 43.75,
+      "v": 18.82
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5750,
@@ -238,8 +490,20 @@
     "acquisition": "Kobold Vendor",
     "price": 334,
     "currency": "Gil",
-    "rgb": {"r": 201, "g": 145, "b": 86},
-    "hsv": {"h": 30.78, "s": 57.21, "v": 78.82}
+    "rgb": {
+      "r": 201,
+      "g": 145,
+      "b": 86
+    },
+    "hsv": {
+      "h": 30.78,
+      "s": 57.21,
+      "v": 78.82
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5751,
@@ -249,8 +513,20 @@
     "acquisition": "Sylphic Vendor",
     "price": 334,
     "currency": "Gil",
-    "rgb": {"r": 153, "g": 110, "b": 63},
-    "hsv": {"h": 31.33, "s": 58.82, "v": 60}
+    "rgb": {
+      "r": 153,
+      "g": 110,
+      "b": 63
+    },
+    "hsv": {
+      "h": 31.33,
+      "s": 58.82,
+      "v": 60
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5752,
@@ -260,8 +536,20 @@
     "acquisition": "Dye Vendor",
     "price": 40,
     "currency": "Gil",
-    "rgb": {"r": 123, "g": 92, "b": 45},
-    "hsv": {"h": 36.15, "s": 63.41, "v": 48.24}
+    "rgb": {
+      "r": 123,
+      "g": 92,
+      "b": 45
+    },
+    "hsv": {
+      "h": 36.15,
+      "s": 63.41,
+      "v": 48.24
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5753,
@@ -271,8 +559,20 @@
     "acquisition": "Sylphic Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 162, "g": 135, "b": 92},
-    "hsv": {"h": 36.86, "s": 43.21, "v": 63.53}
+    "rgb": {
+      "r": 162,
+      "g": 135,
+      "b": 92
+    },
+    "hsv": {
+      "h": 36.86,
+      "s": 43.21,
+      "v": 63.53
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5754,
@@ -282,8 +582,20 @@
     "acquisition": "Crafting",
     "price": null,
     "currency": null,
-    "rgb": {"r": 197, "g": 116, "b": 36},
-    "hsv": {"h": 29.81, "s": 81.73, "v": 77.25}
+    "rgb": {
+      "r": 197,
+      "g": 116,
+      "b": 36
+    },
+    "hsv": {
+      "h": 29.81,
+      "s": 81.73,
+      "v": 77.25
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5755,
@@ -293,8 +605,20 @@
     "acquisition": "Sylphic Vendor",
     "price": 334,
     "currency": "Gil",
-    "rgb": {"r": 142, "g": 88, "b": 27},
-    "hsv": {"h": 31.83, "s": 80.99, "v": 55.69}
+    "rgb": {
+      "r": 142,
+      "g": 88,
+      "b": 27
+    },
+    "hsv": {
+      "h": 31.83,
+      "s": 80.99,
+      "v": 55.69
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5756,
@@ -304,8 +628,20 @@
     "acquisition": "Dye Vendor",
     "price": 40,
     "currency": "Gil",
-    "rgb": {"r": 100, "g": 66, "b": 22},
-    "hsv": {"h": 33.85, "s": 78, "v": 39.22}
+    "rgb": {
+      "r": 100,
+      "g": 66,
+      "b": 22
+    },
+    "hsv": {
+      "h": 33.85,
+      "s": 78,
+      "v": 39.22
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5757,
@@ -315,8 +651,20 @@
     "acquisition": "Dye Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 61, "g": 41, "b": 13},
-    "hsv": {"h": 35, "s": 78.69, "v": 23.92}
+    "rgb": {
+      "r": 61,
+      "g": 41,
+      "b": 13
+    },
+    "hsv": {
+      "h": 35,
+      "s": 78.69,
+      "v": 23.92
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5758,
@@ -326,8 +674,20 @@
     "acquisition": "Kobold Vendor",
     "price": 334,
     "currency": "Gil",
-    "rgb": {"r": 185, "g": 164, "b": 137},
-    "hsv": {"h": 33.75, "s": 25.95, "v": 72.55}
+    "rgb": {
+      "r": 185,
+      "g": 164,
+      "b": 137
+    },
+    "hsv": {
+      "h": 33.75,
+      "s": 25.95,
+      "v": 72.55
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5759,
@@ -337,8 +697,20 @@
     "acquisition": "Sylphic Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 146, "g": 129, "b": 108},
-    "hsv": {"h": 33.16, "s": 26.03, "v": 57.25}
+    "rgb": {
+      "r": 146,
+      "g": 129,
+      "b": 108
+    },
+    "hsv": {
+      "h": 33.16,
+      "s": 26.03,
+      "v": 57.25
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5760,
@@ -348,8 +720,20 @@
     "acquisition": "Dye Vendor",
     "price": 40,
     "currency": "Gil",
-    "rgb": {"r": 97, "g": 82, "b": 69},
-    "hsv": {"h": 27.86, "s": 28.87, "v": 38.04}
+    "rgb": {
+      "r": 97,
+      "g": 82,
+      "b": 69
+    },
+    "hsv": {
+      "h": 27.86,
+      "s": 28.87,
+      "v": 38.04
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5761,
@@ -359,8 +743,20 @@
     "acquisition": "Crafting",
     "price": null,
     "currency": null,
-    "rgb": {"r": 63, "g": 51, "b": 41},
-    "hsv": {"h": 27.27, "s": 34.92, "v": 24.71}
+    "rgb": {
+      "r": 63,
+      "g": 51,
+      "b": 41
+    },
+    "hsv": {
+      "h": 27.27,
+      "s": 34.92,
+      "v": 24.71
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5762,
@@ -370,8 +766,20 @@
     "acquisition": "Dye Vendor",
     "price": 40,
     "currency": "Gil",
-    "rgb": {"r": 235, "g": 211, "b": 160},
-    "hsv": {"h": 40.8, "s": 31.91, "v": 92.16}
+    "rgb": {
+      "r": 235,
+      "g": 211,
+      "b": 160
+    },
+    "hsv": {
+      "h": 40.8,
+      "s": 31.91,
+      "v": 92.16
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5763,
@@ -381,8 +789,20 @@
     "acquisition": "Kobold Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 183, "g": 163, "b": 112},
-    "hsv": {"h": 43.1, "s": 38.8, "v": 71.76}
+    "rgb": {
+      "r": 183,
+      "g": 163,
+      "b": 112
+    },
+    "hsv": {
+      "h": 43.1,
+      "s": 38.8,
+      "v": 71.76
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5764,
@@ -392,8 +812,20 @@
     "acquisition": "Dye Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 219, "g": 180, "b": 87},
-    "hsv": {"h": 42.27, "s": 60.27, "v": 85.88}
+    "rgb": {
+      "r": 219,
+      "g": 180,
+      "b": 87
+    },
+    "hsv": {
+      "h": 42.27,
+      "s": 60.27,
+      "v": 85.88
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5765,
@@ -403,8 +835,20 @@
     "acquisition": "Crafting",
     "price": null,
     "currency": null,
-    "rgb": {"r": 250, "g": 198, "b": 43},
-    "hsv": {"h": 44.93, "s": 82.8, "v": 98.04}
+    "rgb": {
+      "r": 250,
+      "g": 198,
+      "b": 43
+    },
+    "hsv": {
+      "h": 44.93,
+      "s": 82.8,
+      "v": 98.04
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5766,
@@ -414,8 +858,20 @@
     "acquisition": "Crafting",
     "price": null,
     "currency": null,
-    "rgb": {"r": 228, "g": 158, "b": 52},
-    "hsv": {"h": 36.14, "s": 77.19, "v": 89.41}
+    "rgb": {
+      "r": 228,
+      "g": 158,
+      "b": 52
+    },
+    "hsv": {
+      "h": 36.14,
+      "s": 77.19,
+      "v": 89.41
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5767,
@@ -425,8 +881,20 @@
     "acquisition": "Amalj'aa Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 188, "g": 136, "b": 4},
-    "hsv": {"h": 43.04, "s": 97.87, "v": 73.73}
+    "rgb": {
+      "r": 188,
+      "g": 136,
+      "b": 4
+    },
+    "hsv": {
+      "h": 43.04,
+      "s": 97.87,
+      "v": 73.73
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5768,
@@ -436,8 +904,20 @@
     "acquisition": "Dye Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 242, "g": 215, "b": 112},
-    "hsv": {"h": 47.54, "s": 53.72, "v": 94.9}
+    "rgb": {
+      "r": 242,
+      "g": 215,
+      "b": 112
+    },
+    "hsv": {
+      "h": 47.54,
+      "s": 53.72,
+      "v": 94.9
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5769,
@@ -447,8 +927,20 @@
     "acquisition": "Dye Vendor",
     "price": 40,
     "currency": "Gil",
-    "rgb": {"r": 165, "g": 132, "b": 48},
-    "hsv": {"h": 43.08, "s": 70.91, "v": 64.71}
+    "rgb": {
+      "r": 165,
+      "g": 132,
+      "b": 48
+    },
+    "hsv": {
+      "h": 43.08,
+      "s": 70.91,
+      "v": 64.71
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5770,
@@ -458,8 +950,20 @@
     "acquisition": "Amalj'aa Vendor",
     "price": 334,
     "currency": "Gil",
-    "rgb": {"r": 64, "g": 51, "b": 17},
-    "hsv": {"h": 43.4, "s": 73.44, "v": 25.1}
+    "rgb": {
+      "r": 64,
+      "g": 51,
+      "b": 17
+    },
+    "hsv": {
+      "h": 43.4,
+      "s": 73.44,
+      "v": 25.1
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5771,
@@ -469,8 +973,20 @@
     "acquisition": "Dye Vendor",
     "price": 40,
     "currency": "Gil",
-    "rgb": {"r": 88, "g": 82, "b": 48},
-    "hsv": {"h": 51, "s": 45.45, "v": 34.51}
+    "rgb": {
+      "r": 88,
+      "g": 82,
+      "b": 48
+    },
+    "hsv": {
+      "h": 51,
+      "s": 45.45,
+      "v": 34.51
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5772,
@@ -480,8 +996,20 @@
     "acquisition": "Kobold Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 187, "g": 187, "b": 138},
-    "hsv": {"h": 60, "s": 26.2, "v": 73.33}
+    "rgb": {
+      "r": 187,
+      "g": 187,
+      "b": 138
+    },
+    "hsv": {
+      "h": 60,
+      "s": 26.2,
+      "v": 73.33
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5773,
@@ -491,8 +1019,20 @@
     "acquisition": "Sylphic Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 171, "g": 176, "b": 84},
-    "hsv": {"h": 63.26, "s": 52.27, "v": 69.02}
+    "rgb": {
+      "r": 171,
+      "g": 176,
+      "b": 84
+    },
+    "hsv": {
+      "h": 63.26,
+      "s": 52.27,
+      "v": 69.02
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5774,
@@ -502,8 +1042,20 @@
     "acquisition": "Dye Vendor",
     "price": 40,
     "currency": "Gil",
-    "rgb": {"r": 112, "g": 115, "b": 38},
-    "hsv": {"h": 62.34, "s": 66.96, "v": 45.1}
+    "rgb": {
+      "r": 112,
+      "g": 115,
+      "b": 38
+    },
+    "hsv": {
+      "h": 62.34,
+      "s": 66.96,
+      "v": 45.1
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5775,
@@ -513,8 +1065,20 @@
     "acquisition": "Kobold Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 139, "g": 156, "b": 99},
-    "hsv": {"h": 77.89, "s": 36.54, "v": 61.18}
+    "rgb": {
+      "r": 139,
+      "g": 156,
+      "b": 99
+    },
+    "hsv": {
+      "h": 77.89,
+      "s": 36.54,
+      "v": 61.18
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5776,
@@ -524,8 +1088,20 @@
     "acquisition": "Dye Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 75, "g": 82, "b": 50},
-    "hsv": {"h": 73.12, "s": 39.02, "v": 32.16}
+    "rgb": {
+      "r": 75,
+      "g": 82,
+      "b": 50
+    },
+    "hsv": {
+      "h": 73.12,
+      "s": 39.02,
+      "v": 32.16
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5777,
@@ -535,8 +1111,20 @@
     "acquisition": "Sylphic Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 50, "g": 54, "b": 33},
-    "hsv": {"h": 71.43, "s": 38.89, "v": 21.18}
+    "rgb": {
+      "r": 50,
+      "g": 54,
+      "b": 33
+    },
+    "hsv": {
+      "h": 71.43,
+      "s": 38.89,
+      "v": 21.18
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5778,
@@ -546,8 +1134,20 @@
     "acquisition": "Kobold Vendor",
     "price": 334,
     "currency": "Gil",
-    "rgb": {"r": 155, "g": 179, "b": 99},
-    "hsv": {"h": 78, "s": 44.69, "v": 70.2}
+    "rgb": {
+      "r": 155,
+      "g": 179,
+      "b": 99
+    },
+    "hsv": {
+      "h": 78,
+      "s": 44.69,
+      "v": 70.2
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5779,
@@ -557,8 +1157,20 @@
     "acquisition": "Sylphic Vendor",
     "price": 334,
     "currency": "Gil",
-    "rgb": {"r": 101, "g": 130, "b": 65},
-    "hsv": {"h": 86.77, "s": 50, "v": 50.98}
+    "rgb": {
+      "r": 101,
+      "g": 130,
+      "b": 65
+    },
+    "hsv": {
+      "h": 86.77,
+      "s": 50,
+      "v": 50.98
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5780,
@@ -568,8 +1180,20 @@
     "acquisition": "Ixali Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 40, "g": 75, "b": 44},
-    "hsv": {"h": 126.86, "s": 46.67, "v": 29.41}
+    "rgb": {
+      "r": 40,
+      "g": 75,
+      "b": 44
+    },
+    "hsv": {
+      "h": 126.86,
+      "s": 46.67,
+      "v": 29.41
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5781,
@@ -579,8 +1203,20 @@
     "acquisition": "Crafting",
     "price": null,
     "currency": null,
-    "rgb": {"r": 64, "g": 99, "b": 57},
-    "hsv": {"h": 110, "s": 42.42, "v": 38.82}
+    "rgb": {
+      "r": 64,
+      "g": 99,
+      "b": 57
+    },
+    "hsv": {
+      "h": 110,
+      "s": 42.42,
+      "v": 38.82
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5782,
@@ -590,8 +1226,20 @@
     "acquisition": "Kobold Vendor",
     "price": 334,
     "currency": "Gil",
-    "rgb": {"r": 95, "g": 117, "b": 88},
-    "hsv": {"h": 105.52, "s": 24.79, "v": 45.88}
+    "rgb": {
+      "r": 95,
+      "g": 117,
+      "b": 88
+    },
+    "hsv": {
+      "h": 105.52,
+      "s": 24.79,
+      "v": 45.88
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5783,
@@ -601,8 +1249,20 @@
     "acquisition": "Dye Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 59, "g": 77, "b": 60},
-    "hsv": {"h": 123.33, "s": 23.38, "v": 30.2}
+    "rgb": {
+      "r": 59,
+      "g": 77,
+      "b": 60
+    },
+    "hsv": {
+      "h": 123.33,
+      "s": 23.38,
+      "v": 30.2
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5784,
@@ -612,8 +1272,20 @@
     "acquisition": "Crafting",
     "price": null,
     "currency": null,
-    "rgb": {"r": 30, "g": 42, "b": 33},
-    "hsv": {"h": 135, "s": 28.57, "v": 16.47}
+    "rgb": {
+      "r": 30,
+      "g": 42,
+      "b": 33
+    },
+    "hsv": {
+      "h": 135,
+      "s": 28.57,
+      "v": 16.47
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5785,
@@ -623,8 +1295,20 @@
     "acquisition": "Crafting",
     "price": null,
     "currency": null,
-    "rgb": {"r": 150, "g": 189, "b": 185},
-    "hsv": {"h": 173.85, "s": 20.63, "v": 74.12}
+    "rgb": {
+      "r": 150,
+      "g": 189,
+      "b": 185
+    },
+    "hsv": {
+      "h": 173.85,
+      "s": 20.63,
+      "v": 74.12
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5786,
@@ -634,8 +1318,20 @@
     "acquisition": "Sylphic Vendor",
     "price": 334,
     "currency": "Gil",
-    "rgb": {"r": 67, "g": 114, "b": 114},
-    "hsv": {"h": 180, "s": 41.23, "v": 44.71}
+    "rgb": {
+      "r": 67,
+      "g": 114,
+      "b": 114
+    },
+    "hsv": {
+      "h": 180,
+      "s": 41.23,
+      "v": 44.71
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5787,
@@ -645,8 +1341,20 @@
     "acquisition": "Ixali Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 31, "g": 70, "b": 70},
-    "hsv": {"h": 180, "s": 55.71, "v": 27.45}
+    "rgb": {
+      "r": 31,
+      "g": 70,
+      "b": 70
+    },
+    "hsv": {
+      "h": 180,
+      "s": 55.71,
+      "v": 27.45
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5788,
@@ -656,8 +1364,20 @@
     "acquisition": "Dye Vendor",
     "price": 40,
     "currency": "Gil",
-    "rgb": {"r": 178, "g": 196, "b": 206},
-    "hsv": {"h": 201.43, "s": 13.59, "v": 80.78}
+    "rgb": {
+      "r": 178,
+      "g": 196,
+      "b": 206
+    },
+    "hsv": {
+      "h": 201.43,
+      "s": 13.59,
+      "v": 80.78
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5789,
@@ -667,8 +1387,20 @@
     "acquisition": "Dye Vendor",
     "price": 40,
     "currency": "Gil",
-    "rgb": {"r": 131, "g": 176, "b": 210},
-    "hsv": {"h": 205.82, "s": 37.62, "v": 82.35}
+    "rgb": {
+      "r": 131,
+      "g": 176,
+      "b": 210
+    },
+    "hsv": {
+      "h": 205.82,
+      "s": 37.62,
+      "v": 82.35
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5790,
@@ -678,8 +1410,20 @@
     "acquisition": "Amalj'aa Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 100, "g": 129, "b": 160},
-    "hsv": {"h": 211, "s": 37.5, "v": 62.75}
+    "rgb": {
+      "r": 100,
+      "g": 129,
+      "b": 160
+    },
+    "hsv": {
+      "h": 211,
+      "s": 37.5,
+      "v": 62.75
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5791,
@@ -689,8 +1433,20 @@
     "acquisition": "Amalj'aa Vendor",
     "price": 334,
     "currency": "Gil",
-    "rgb": {"r": 59, "g": 104, "b": 134},
-    "hsv": {"h": 204, "s": 55.97, "v": 52.55}
+    "rgb": {
+      "r": 59,
+      "g": 104,
+      "b": 134
+    },
+    "hsv": {
+      "h": 204,
+      "s": 55.97,
+      "v": 52.55
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5792,
@@ -700,8 +1456,20 @@
     "acquisition": "Sahagin Vendor",
     "price": 334,
     "currency": "Gil",
-    "rgb": {"r": 28, "g": 61, "b": 84},
-    "hsv": {"h": 204.64, "s": 66.67, "v": 32.94}
+    "rgb": {
+      "r": 28,
+      "g": 61,
+      "b": 84
+    },
+    "hsv": {
+      "h": 204.64,
+      "s": 66.67,
+      "v": 32.94
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5793,
@@ -711,8 +1479,20 @@
     "acquisition": "Sahagin Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 142, "g": 155, "b": 172},
-    "hsv": {"h": 214, "s": 17.44, "v": 67.45}
+    "rgb": {
+      "r": 142,
+      "g": 155,
+      "b": 172
+    },
+    "hsv": {
+      "h": 214,
+      "s": 17.44,
+      "v": 67.45
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5794,
@@ -722,8 +1502,20 @@
     "acquisition": "Dye Vendor",
     "price": 40,
     "currency": "Gil",
-    "rgb": {"r": 79, "g": 87, "b": 102},
-    "hsv": {"h": 219.13, "s": 22.55, "v": 40}
+    "rgb": {
+      "r": 79,
+      "g": 87,
+      "b": 102
+    },
+    "hsv": {
+      "h": 219.13,
+      "s": 22.55,
+      "v": 40
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5795,
@@ -733,8 +1525,20 @@
     "acquisition": "Crafting",
     "price": null,
     "currency": null,
-    "rgb": {"r": 47, "g": 56, "b": 81},
-    "hsv": {"h": 224.12, "s": 41.98, "v": 31.76}
+    "rgb": {
+      "r": 47,
+      "g": 56,
+      "b": 81
+    },
+    "hsv": {
+      "h": 224.12,
+      "s": 41.98,
+      "v": 31.76
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5796,
@@ -744,8 +1548,20 @@
     "acquisition": "Dye Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 26, "g": 31, "b": 39},
-    "hsv": {"h": 216.92, "s": 33.33, "v": 15.29}
+    "rgb": {
+      "r": 26,
+      "g": 31,
+      "b": 39
+    },
+    "hsv": {
+      "h": 216.92,
+      "s": 33.33,
+      "v": 15.29
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5797,
@@ -755,8 +1571,20 @@
     "acquisition": "Amalj'aa Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 91, "g": 127, "b": 192},
-    "hsv": {"h": 218.61, "s": 52.6, "v": 75.29}
+    "rgb": {
+      "r": 91,
+      "g": 127,
+      "b": 192
+    },
+    "hsv": {
+      "h": 218.61,
+      "s": 52.6,
+      "v": 75.29
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5798,
@@ -766,8 +1594,20 @@
     "acquisition": "Crafting",
     "price": null,
     "currency": null,
-    "rgb": {"r": 47, "g": 88, "b": 137},
-    "hsv": {"h": 212.67, "s": 65.69, "v": 53.73}
+    "rgb": {
+      "r": 47,
+      "g": 88,
+      "b": 137
+    },
+    "hsv": {
+      "h": 212.67,
+      "s": 65.69,
+      "v": 53.73
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5799,
@@ -777,8 +1617,20 @@
     "acquisition": "Crafting",
     "price": null,
     "currency": null,
-    "rgb": {"r": 35, "g": 65, "b": 114},
-    "hsv": {"h": 217.22, "s": 69.3, "v": 44.71}
+    "rgb": {
+      "r": 35,
+      "g": 65,
+      "b": 114
+    },
+    "hsv": {
+      "h": 217.22,
+      "s": 69.3,
+      "v": 44.71
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5800,
@@ -788,8 +1640,20 @@
     "acquisition": "Crafting",
     "price": null,
     "currency": null,
-    "rgb": {"r": 17, "g": 41, "b": 68},
-    "hsv": {"h": 211.76, "s": 75, "v": 26.67}
+    "rgb": {
+      "r": 17,
+      "g": 41,
+      "b": 68
+    },
+    "hsv": {
+      "h": 211.76,
+      "s": 75,
+      "v": 26.67
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5801,
@@ -799,8 +1663,20 @@
     "acquisition": "Ixali Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 39, "g": 48, "b": 103},
-    "hsv": {"h": 231.56, "s": 62.14, "v": 40.39}
+    "rgb": {
+      "r": 39,
+      "g": 48,
+      "b": 103
+    },
+    "hsv": {
+      "h": 231.56,
+      "s": 62.14,
+      "v": 40.39
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5802,
@@ -810,8 +1686,20 @@
     "acquisition": "Dye Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 24, "g": 25, "b": 55},
-    "hsv": {"h": 238.06, "s": 56.36, "v": 21.57}
+    "rgb": {
+      "r": 24,
+      "g": 25,
+      "b": 55
+    },
+    "hsv": {
+      "h": 238.06,
+      "s": 56.36,
+      "v": 21.57
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5803,
@@ -821,8 +1709,20 @@
     "acquisition": "Sahagin Vendor",
     "price": 334,
     "currency": "Gil",
-    "rgb": {"r": 55, "g": 55, "b": 71},
-    "hsv": {"h": 240, "s": 22.54, "v": 27.84}
+    "rgb": {
+      "r": 55,
+      "g": 55,
+      "b": 71
+    },
+    "hsv": {
+      "h": 240,
+      "s": 22.54,
+      "v": 27.84
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5804,
@@ -832,8 +1732,20 @@
     "acquisition": "Crafting",
     "price": null,
     "currency": null,
-    "rgb": {"r": 49, "g": 45, "b": 87},
-    "hsv": {"h": 245.71, "s": 48.28, "v": 34.12}
+    "rgb": {
+      "r": 49,
+      "g": 45,
+      "b": 87
+    },
+    "hsv": {
+      "h": 245.71,
+      "s": 48.28,
+      "v": 34.12
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5805,
@@ -843,8 +1755,20 @@
     "acquisition": "Sahagin Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 135, "g": 127, "b": 174},
-    "hsv": {"h": 250.21, "s": 27.01, "v": 68.24}
+    "rgb": {
+      "r": 135,
+      "g": 127,
+      "b": 174
+    },
+    "hsv": {
+      "h": 250.21,
+      "s": 27.01,
+      "v": 68.24
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5806,
@@ -854,8 +1778,20 @@
     "acquisition": "Dye Vendor",
     "price": 40,
     "currency": "Gil",
-    "rgb": {"r": 81, "g": 69, "b": 96},
-    "hsv": {"h": 266.67, "s": 28.13, "v": 37.65}
+    "rgb": {
+      "r": 81,
+      "g": 69,
+      "b": 96
+    },
+    "hsv": {
+      "h": 266.67,
+      "s": 28.13,
+      "v": 37.65
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5807,
@@ -865,8 +1801,20 @@
     "acquisition": "Amalj'aa Vendor",
     "price": 334,
     "currency": "Gil",
-    "rgb": {"r": 50, "g": 44, "b": 59},
-    "hsv": {"h": 264, "s": 25.42, "v": 23.14}
+    "rgb": {
+      "r": 50,
+      "g": 44,
+      "b": 59
+    },
+    "hsv": {
+      "h": 264,
+      "s": 25.42,
+      "v": 23.14
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5808,
@@ -876,8 +1824,20 @@
     "acquisition": "Sahagin Vendor",
     "price": 334,
     "currency": "Gil",
-    "rgb": {"r": 183, "g": 158, "b": 188},
-    "hsv": {"h": 290, "s": 15.96, "v": 73.73}
+    "rgb": {
+      "r": 183,
+      "g": 158,
+      "b": 188
+    },
+    "hsv": {
+      "h": 290,
+      "s": 15.96,
+      "v": 73.73
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5809,
@@ -887,8 +1847,20 @@
     "acquisition": "Dye Vendor",
     "price": 216,
     "currency": "Gil",
-    "rgb": {"r": 59, "g": 42, "b": 61},
-    "hsv": {"h": 293.68, "s": 31.15, "v": 23.92}
+    "rgb": {
+      "r": 59,
+      "g": 42,
+      "b": 61
+    },
+    "hsv": {
+      "h": 293.68,
+      "s": 31.15,
+      "v": 23.92
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5810,
@@ -898,8 +1870,20 @@
     "acquisition": "Crafting",
     "price": null,
     "currency": null,
-    "rgb": {"r": 254, "g": 206, "b": 245},
-    "hsv": {"h": 311.25, "s": 18.9, "v": 99.61}
+    "rgb": {
+      "r": 254,
+      "g": 206,
+      "b": 245
+    },
+    "hsv": {
+      "h": 311.25,
+      "s": 18.9,
+      "v": 99.61
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5811,
@@ -909,8 +1893,20 @@
     "acquisition": "Crafting",
     "price": null,
     "currency": null,
-    "rgb": {"r": 220, "g": 155, "b": 202},
-    "hsv": {"h": 316.62, "s": 29.55, "v": 86.27}
+    "rgb": {
+      "r": 220,
+      "g": 155,
+      "b": 202
+    },
+    "hsv": {
+      "h": 316.62,
+      "s": 29.55,
+      "v": 86.27
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5812,
@@ -920,8 +1916,20 @@
     "acquisition": "Crafting",
     "price": null,
     "currency": null,
-    "rgb": {"r": 121, "g": 82, "b": 108},
-    "hsv": {"h": 320, "s": 32.23, "v": 47.45}
+    "rgb": {
+      "r": 121,
+      "g": 82,
+      "b": 108
+    },
+    "hsv": {
+      "h": 320,
+      "s": 32.23,
+      "v": 47.45
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 5813,
@@ -931,8 +1939,20 @@
     "acquisition": "Crafting",
     "price": null,
     "currency": null,
-    "rgb": {"r": 102, "g": 48, "b": 78},
-    "hsv": {"h": 326.67, "s": 52.94, "v": 40}
+    "rgb": {
+      "r": 102,
+      "g": 48,
+      "b": 78
+    },
+    "hsv": {
+      "h": 326.67,
+      "s": 52.94,
+      "v": 40
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 13114,
@@ -942,8 +1962,20 @@
     "acquisition": "Venture Coffers",
     "price": null,
     "currency": null,
-    "rgb": {"r": 249, "g": 248, "b": 244},
-    "hsv": {"h": 48, "s": 2.01, "v": 97.65}
+    "rgb": {
+      "r": 249,
+      "g": 248,
+      "b": 244
+    },
+    "hsv": {
+      "h": 48,
+      "s": 2.01,
+      "v": 97.65
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 13115,
@@ -953,8 +1985,20 @@
     "acquisition": "Venture Coffers",
     "price": null,
     "currency": null,
-    "rgb": {"r": 30, "g": 30, "b": 30},
-    "hsv": {"h": 0, "s": 0, "v": 11.76}
+    "rgb": {
+      "r": 30,
+      "g": 30,
+      "b": 30
+    },
+    "hsv": {
+      "h": 0,
+      "s": 0,
+      "v": 11.76
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 13116,
@@ -964,8 +2008,20 @@
     "acquisition": "Venture Coffers",
     "price": null,
     "currency": null,
-    "rgb": {"r": 167, "g": 167, "b": 167},
-    "hsv": {"h": 0, "s": 0, "v": 65.49}
+    "rgb": {
+      "r": 167,
+      "g": 167,
+      "b": 167
+    },
+    "hsv": {
+      "h": 0,
+      "s": 0,
+      "v": 65.49
+    },
+    "isMetallic": true,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 13117,
@@ -975,8 +2031,20 @@
     "acquisition": "Venture Coffers",
     "price": null,
     "currency": null,
-    "rgb": {"r": 237, "g": 230, "b": 61},
-    "hsv": {"h": 57.61, "s": 74.26, "v": 92.94}
+    "rgb": {
+      "r": 237,
+      "g": 230,
+      "b": 61
+    },
+    "hsv": {
+      "h": 57.61,
+      "s": 74.26,
+      "v": 92.94
+    },
+    "isMetallic": true,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 13708,
@@ -986,8 +2054,20 @@
     "acquisition": "Venture Coffers",
     "price": null,
     "currency": null,
-    "rgb": {"r": 253, "g": 200, "b": 198},
-    "hsv": {"h": 2.18, "s": 21.74, "v": 99.22}
+    "rgb": {
+      "r": 253,
+      "g": 200,
+      "b": 198
+    },
+    "hsv": {
+      "h": 2.18,
+      "s": 21.74,
+      "v": 99.22
+    },
+    "isMetallic": false,
+    "isPastel": true,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 13709,
@@ -997,8 +2077,20 @@
     "acquisition": "Venture Coffers",
     "price": null,
     "currency": null,
-    "rgb": {"r": 50, "g": 25, "b": 25},
-    "hsv": {"h": 0, "s": 50, "v": 19.61}
+    "rgb": {
+      "r": 50,
+      "g": 25,
+      "b": 25
+    },
+    "hsv": {
+      "h": 0,
+      "s": 50,
+      "v": 19.61
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": true,
+    "isCosmic": false
   },
   {
     "itemID": 13710,
@@ -1008,8 +2100,20 @@
     "acquisition": "Venture Coffers",
     "price": null,
     "currency": null,
-    "rgb": {"r": 40, "g": 33, "b": 28},
-    "hsv": {"h": 25, "s": 30, "v": 15.69}
+    "rgb": {
+      "r": 40,
+      "g": 33,
+      "b": 28
+    },
+    "hsv": {
+      "h": 25,
+      "s": 30,
+      "v": 15.69
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": true,
+    "isCosmic": false
   },
   {
     "itemID": 13711,
@@ -1019,8 +2123,20 @@
     "acquisition": "Venture Coffers",
     "price": null,
     "currency": null,
-    "rgb": {"r": 186, "g": 207, "b": 170},
-    "hsv": {"h": 94.05, "s": 17.87, "v": 81.18}
+    "rgb": {
+      "r": 186,
+      "g": 207,
+      "b": 170
+    },
+    "hsv": {
+      "h": 94.05,
+      "s": 17.87,
+      "v": 81.18
+    },
+    "isMetallic": false,
+    "isPastel": true,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 13712,
@@ -1030,8 +2146,20 @@
     "acquisition": "Venture Coffers",
     "price": null,
     "currency": null,
-    "rgb": {"r": 21, "g": 44, "b": 44},
-    "hsv": {"h": 180, "s": 52.27, "v": 17.25}
+    "rgb": {
+      "r": 21,
+      "g": 44,
+      "b": 44
+    },
+    "hsv": {
+      "h": 180,
+      "s": 52.27,
+      "v": 17.25
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": true,
+    "isCosmic": false
   },
   {
     "itemID": 13713,
@@ -1041,8 +2169,20 @@
     "acquisition": "Venture Coffers",
     "price": null,
     "currency": null,
-    "rgb": {"r": 150, "g": 164, "b": 217},
-    "hsv": {"h": 227.46, "s": 30.88, "v": 85.1}
+    "rgb": {
+      "r": 150,
+      "g": 164,
+      "b": 217
+    },
+    "hsv": {
+      "h": 227.46,
+      "s": 30.88,
+      "v": 85.1
+    },
+    "isMetallic": false,
+    "isPastel": true,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 13714,
@@ -1052,8 +2192,20 @@
     "acquisition": "Venture Coffers",
     "price": null,
     "currency": null,
-    "rgb": {"r": 18, "g": 31, "b": 45},
-    "hsv": {"h": 211.11, "s": 60, "v": 17.65}
+    "rgb": {
+      "r": 18,
+      "g": 31,
+      "b": 45
+    },
+    "hsv": {
+      "h": 211.11,
+      "s": 60,
+      "v": 17.65
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": true,
+    "isCosmic": false
   },
   {
     "itemID": 13715,
@@ -1063,8 +2215,20 @@
     "acquisition": "Venture Coffers",
     "price": null,
     "currency": null,
-    "rgb": {"r": 187, "g": 181, "b": 218},
-    "hsv": {"h": 249.73, "s": 16.97, "v": 85.49}
+    "rgb": {
+      "r": 187,
+      "g": 181,
+      "b": 218
+    },
+    "hsv": {
+      "h": 249.73,
+      "s": 16.97,
+      "v": 85.49
+    },
+    "isMetallic": false,
+    "isPastel": true,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 13716,
@@ -1074,8 +2238,20 @@
     "acquisition": "Venture Coffers",
     "price": null,
     "currency": null,
-    "rgb": {"r": 35, "g": 32, "b": 38},
-    "hsv": {"h": 270, "s": 15.79, "v": 14.9}
+    "rgb": {
+      "r": 35,
+      "g": 32,
+      "b": 38
+    },
+    "hsv": {
+      "h": 270,
+      "s": 15.79,
+      "v": 14.9
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": true,
+    "isCosmic": false
   },
   {
     "itemID": 13717,
@@ -1085,8 +2261,20 @@
     "acquisition": "Venture Coffers",
     "price": null,
     "currency": null,
-    "rgb": {"r": 182, "g": 29, "b": 75},
-    "hsv": {"h": 341.96, "s": 84.07, "v": 71.37}
+    "rgb": {
+      "r": 182,
+      "g": 29,
+      "b": 75
+    },
+    "hsv": {
+      "h": 341.96,
+      "s": 84.07,
+      "v": 71.37
+    },
+    "isMetallic": true,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 13718,
@@ -1096,8 +2284,20 @@
     "acquisition": "Venture Coffers",
     "price": null,
     "currency": null,
-    "rgb": {"r": 228, "g": 140, "b": 47},
-    "hsv": {"h": 30.83, "s": 79.39, "v": 89.41}
+    "rgb": {
+      "r": 228,
+      "g": 140,
+      "b": 47
+    },
+    "hsv": {
+      "h": 30.83,
+      "s": 79.39,
+      "v": 89.41
+    },
+    "isMetallic": true,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 13719,
@@ -1107,8 +2307,20 @@
     "acquisition": "Venture Coffers",
     "price": null,
     "currency": null,
-    "rgb": {"r": 244, "g": 218, "b": 70},
-    "hsv": {"h": 51.03, "s": 71.31, "v": 95.69}
+    "rgb": {
+      "r": 244,
+      "g": 218,
+      "b": 70
+    },
+    "hsv": {
+      "h": 51.03,
+      "s": 71.31,
+      "v": 95.69
+    },
+    "isMetallic": true,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 13720,
@@ -1118,8 +2330,20 @@
     "acquisition": "Venture Coffers",
     "price": null,
     "currency": null,
-    "rgb": {"r": 34, "g": 167, "b": 87},
-    "hsv": {"h": 143.91, "s": 79.64, "v": 65.49}
+    "rgb": {
+      "r": 34,
+      "g": 167,
+      "b": 87
+    },
+    "hsv": {
+      "h": 143.91,
+      "s": 79.64,
+      "v": 65.49
+    },
+    "isMetallic": true,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 13721,
@@ -1129,8 +2353,20 @@
     "acquisition": "Venture Coffers",
     "price": null,
     "currency": null,
-    "rgb": {"r": 73, "g": 248, "b": 253},
-    "hsv": {"h": 181.67, "s": 71.15, "v": 99.22}
+    "rgb": {
+      "r": 73,
+      "g": 248,
+      "b": 253
+    },
+    "hsv": {
+      "h": 181.67,
+      "s": 71.15,
+      "v": 99.22
+    },
+    "isMetallic": true,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 13722,
@@ -1140,8 +2376,20 @@
     "acquisition": "Venture Coffers",
     "price": null,
     "currency": null,
-    "rgb": {"r": 80, "g": 82, "b": 217},
-    "hsv": {"h": 239.12, "s": 63.13, "v": 85.1}
+    "rgb": {
+      "r": 80,
+      "g": 82,
+      "b": 217
+    },
+    "hsv": {
+      "h": 239.12,
+      "s": 63.13,
+      "v": 85.1
+    },
+    "isMetallic": true,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 13723,
@@ -1151,8 +2399,20 @@
     "acquisition": "Venture Coffers",
     "price": null,
     "currency": null,
-    "rgb": {"r": 211, "g": 97, "b": 255},
-    "hsv": {"h": 283.29, "s": 61.96, "v": 100}
+    "rgb": {
+      "r": 211,
+      "g": 97,
+      "b": 255
+    },
+    "hsv": {
+      "h": 283.29,
+      "s": 61.96,
+      "v": 100
+    },
+    "isMetallic": true,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": 30116,
@@ -1162,8 +2422,20 @@
     "acquisition": "Cosmic Exploration",
     "price": 600,
     "currency": "Cosmocredits",
-    "rgb": {"r": 226, "g": 0, "b": 14},
-    "hsv": {"h": 356.28, "s": 100, "v": 88.63}
+    "rgb": {
+      "r": 226,
+      "g": 0,
+      "b": 14
+    },
+    "hsv": {
+      "h": 356.28,
+      "s": 100,
+      "v": 88.63
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": true
   },
   {
     "itemID": 30117,
@@ -1173,8 +2445,20 @@
     "acquisition": "Cosmic Exploration",
     "price": 600,
     "currency": "Cosmocredits",
-    "rgb": {"r": 244, "g": 49, "b": 149},
-    "hsv": {"h": 329.23, "s": 79.92, "v": 95.69}
+    "rgb": {
+      "r": 244,
+      "g": 49,
+      "b": 149
+    },
+    "hsv": {
+      "h": 329.23,
+      "s": 79.92,
+      "v": 95.69
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": true
   },
   {
     "itemID": 30118,
@@ -1184,8 +2468,20 @@
     "acquisition": "Cosmic Exploration",
     "price": 600,
     "currency": "Cosmocredits",
-    "rgb": {"r": 254, "g": 247, "b": 93},
-    "hsv": {"h": 57.39, "s": 63.39, "v": 99.61}
+    "rgb": {
+      "r": 254,
+      "g": 247,
+      "b": 93
+    },
+    "hsv": {
+      "h": 57.39,
+      "s": 63.39,
+      "v": 99.61
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": true
   },
   {
     "itemID": 30119,
@@ -1195,8 +2491,20 @@
     "acquisition": "Cosmic Exploration",
     "price": 600,
     "currency": "Cosmocredits",
-    "rgb": {"r": 251, "g": 240, "b": 175},
-    "hsv": {"h": 51.32, "s": 30.28, "v": 98.43}
+    "rgb": {
+      "r": 251,
+      "g": 240,
+      "b": 175
+    },
+    "hsv": {
+      "h": 51.32,
+      "s": 30.28,
+      "v": 98.43
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": true
   },
   {
     "itemID": 30120,
@@ -1206,8 +2514,20 @@
     "acquisition": "Cosmic Exploration",
     "price": 600,
     "currency": "Cosmocredits",
-    "rgb": {"r": 0, "g": 11, "b": 157},
-    "hsv": {"h": 235.8, "s": 100, "v": 61.57}
+    "rgb": {
+      "r": 0,
+      "g": 11,
+      "b": 157
+    },
+    "hsv": {
+      "h": 235.8,
+      "s": 100,
+      "v": 61.57
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": true
   },
   {
     "itemID": 30121,
@@ -1217,8 +2537,20 @@
     "acquisition": "Cosmic Exploration",
     "price": 600,
     "currency": "Cosmocredits",
-    "rgb": {"r": 3, "g": 170, "b": 202},
-    "hsv": {"h": 189.65, "s": 98.51, "v": 79.22}
+    "rgb": {
+      "r": 3,
+      "g": 170,
+      "b": 202
+    },
+    "hsv": {
+      "h": 189.65,
+      "s": 98.51,
+      "v": 79.22
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": true
   },
   {
     "itemID": 30122,
@@ -1228,8 +2560,20 @@
     "acquisition": "Cosmic Exploration",
     "price": 1500,
     "currency": "Cosmocredits",
-    "rgb": {"r": 24, "g": 24, "b": 32},
-    "hsv": {"h": 240, "s": 25, "v": 12.55}
+    "rgb": {
+      "r": 24,
+      "g": 24,
+      "b": 32
+    },
+    "hsv": {
+      "h": 240,
+      "s": 25,
+      "v": 12.55
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": true
   },
   {
     "itemID": 30123,
@@ -1239,8 +2583,20 @@
     "acquisition": "Cosmic Exploration",
     "price": 1500,
     "currency": "Cosmocredits",
-    "rgb": {"r": 191, "g": 180, "b": 163},
-    "hsv": {"h": 36.43, "s": 14.66, "v": 74.9}
+    "rgb": {
+      "r": 191,
+      "g": 180,
+      "b": 163
+    },
+    "hsv": {
+      "h": 36.43,
+      "s": 14.66,
+      "v": 74.9
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": true
   },
   {
     "itemID": 30124,
@@ -1250,8 +2606,20 @@
     "acquisition": "Cosmic Exploration",
     "price": 1500,
     "currency": "Cosmocredits",
-    "rgb": {"r": 233, "g": 192, "b": 111},
-    "hsv": {"h": 39.84, "s": 52.36, "v": 91.37}
+    "rgb": {
+      "r": 233,
+      "g": 192,
+      "b": 111
+    },
+    "hsv": {
+      "h": 39.84,
+      "s": 52.36,
+      "v": 91.37
+    },
+    "isMetallic": true,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": true
   },
   {
     "itemID": 48163,
@@ -1261,8 +2629,20 @@
     "acquisition": "Cosmic Exploration",
     "price": 600,
     "currency": "Cosmocredits",
-    "rgb": {"r": 246, "g": 18, "b": 150},
-    "hsv": {"h": 325.26, "s": 92.68, "v": 96.47}
+    "rgb": {
+      "r": 246,
+      "g": 18,
+      "b": 150
+    },
+    "hsv": {
+      "h": 325.26,
+      "s": 92.68,
+      "v": 96.47
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": true
   },
   {
     "itemID": 48164,
@@ -1272,8 +2652,20 @@
     "acquisition": "Cosmic Exploration",
     "price": 600,
     "currency": "Cosmocredits",
-    "rgb": {"r": 249, "g": 85, "b": 19},
-    "hsv": {"h": 17.22, "s": 92.37, "v": 97.65}
+    "rgb": {
+      "r": 249,
+      "g": 85,
+      "b": 19
+    },
+    "hsv": {
+      "h": 17.22,
+      "s": 92.37,
+      "v": 97.65
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": true
   },
   {
     "itemID": 48165,
@@ -1283,8 +2675,20 @@
     "acquisition": "Cosmic Exploration",
     "price": 600,
     "currency": "Cosmocredits",
-    "rgb": {"r": 186, "g": 249, "b": 19},
-    "hsv": {"h": 76.43, "s": 92.37, "v": 97.65}
+    "rgb": {
+      "r": 186,
+      "g": 249,
+      "b": 19
+    },
+    "hsv": {
+      "h": 76.43,
+      "s": 92.37,
+      "v": 97.65
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": true
   },
   {
     "itemID": 48166,
@@ -1294,8 +2698,20 @@
     "acquisition": "Cosmic Exploration",
     "price": 600,
     "currency": "Cosmocredits",
-    "rgb": {"r": 224, "g": 233, "b": 11},
-    "hsv": {"h": 62.43, "s": 95.28, "v": 91.37}
+    "rgb": {
+      "r": 224,
+      "g": 233,
+      "b": 11
+    },
+    "hsv": {
+      "h": 62.43,
+      "s": 95.28,
+      "v": 91.37
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": true
   },
   {
     "itemID": 48167,
@@ -1305,8 +2721,20 @@
     "acquisition": "Cosmic Exploration",
     "price": 600,
     "currency": "Cosmocredits",
-    "rgb": {"r": 111, "g": 90, "b": 162},
-    "hsv": {"h": 257.5, "s": 44.44, "v": 63.53}
+    "rgb": {
+      "r": 111,
+      "g": 90,
+      "b": 162
+    },
+    "hsv": {
+      "h": 257.5,
+      "s": 44.44,
+      "v": 63.53
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": true
   },
   {
     "itemID": 48168,
@@ -1316,8 +2744,20 @@
     "acquisition": "Cosmic Exploration",
     "price": 600,
     "currency": "Cosmocredits",
-    "rgb": {"r": 64, "g": 86, "b": 164},
-    "hsv": {"h": 226.8, "s": 60.98, "v": 64.31}
+    "rgb": {
+      "r": 64,
+      "g": 86,
+      "b": 164
+    },
+    "hsv": {
+      "h": 226.8,
+      "s": 60.98,
+      "v": 64.31
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": true
   },
   {
     "itemID": 48169,
@@ -1327,8 +2767,20 @@
     "acquisition": "Cosmic Fortunes",
     "price": null,
     "currency": null,
-    "rgb": {"r": 255, "g": 161, "b": 194},
-    "hsv": {"h": 338.94, "s": 36.86, "v": 100}
+    "rgb": {
+      "r": 255,
+      "g": 161,
+      "b": 194
+    },
+    "hsv": {
+      "h": 338.94,
+      "s": 36.86,
+      "v": 100
+    },
+    "isMetallic": true,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": true
   },
   {
     "itemID": 48170,
@@ -1338,8 +2790,20 @@
     "acquisition": "Cosmic Fortunes",
     "price": null,
     "currency": null,
-    "rgb": {"r": 71, "g": 1, "b": 3},
-    "hsv": {"h": 358.29, "s": 98.59, "v": 27.84}
+    "rgb": {
+      "r": 71,
+      "g": 1,
+      "b": 3
+    },
+    "hsv": {
+      "h": 358.29,
+      "s": 98.59,
+      "v": 27.84
+    },
+    "isMetallic": true,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": true
   },
   {
     "itemID": 48171,
@@ -1349,8 +2813,20 @@
     "acquisition": "Cosmic Fortunes",
     "price": null,
     "currency": null,
-    "rgb": {"r": 40, "g": 132, "b": 127},
-    "hsv": {"h": 176.74, "s": 69.7, "v": 51.76}
+    "rgb": {
+      "r": 40,
+      "g": 132,
+      "b": 127
+    },
+    "hsv": {
+      "h": 176.74,
+      "s": 69.7,
+      "v": 51.76
+    },
+    "isMetallic": true,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": true
   },
   {
     "itemID": 48172,
@@ -1360,8 +2836,20 @@
     "acquisition": "Cosmic Fortunes",
     "price": null,
     "currency": null,
-    "rgb": {"r": 18, "g": 4, "b": 69},
-    "hsv": {"h": 252.92, "s": 94.2, "v": 27.06}
+    "rgb": {
+      "r": 18,
+      "g": 4,
+      "b": 69
+    },
+    "hsv": {
+      "h": 252.92,
+      "s": 94.2,
+      "v": 27.06
+    },
+    "isMetallic": true,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": true
   },
   {
     "itemID": 48227,
@@ -1371,8 +2859,20 @@
     "acquisition": "Cosmic Exploration",
     "price": 600,
     "currency": "Cosmocredits",
-    "rgb": {"r": 229, "g": 11, "b": 24},
-    "hsv": {"h": 356.42, "s": 95.2, "v": 89.8}
+    "rgb": {
+      "r": 229,
+      "g": 11,
+      "b": 24
+    },
+    "hsv": {
+      "h": 356.42,
+      "s": 95.2,
+      "v": 89.8
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": true
   },
   {
     "itemID": null,
@@ -1382,8 +2882,20 @@
     "acquisition": "Facewear Collection",
     "price": null,
     "currency": null,
-    "rgb": {"r": 192, "g": 192, "b": 192},
-    "hsv": {"h": 0, "s": 0, "v": 75.29}
+    "rgb": {
+      "r": 192,
+      "g": 192,
+      "b": 192
+    },
+    "hsv": {
+      "h": 0,
+      "s": 0,
+      "v": 75.29
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": null,
@@ -1393,8 +2905,20 @@
     "acquisition": "Facewear Collection",
     "price": null,
     "currency": null,
-    "rgb": {"r": 255, "g": 215, "b": 0},
-    "hsv": {"h": 50.59, "s": 100, "v": 100}
+    "rgb": {
+      "r": 255,
+      "g": 215,
+      "b": 0
+    },
+    "hsv": {
+      "h": 50.59,
+      "s": 100,
+      "v": 100
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": null,
@@ -1404,8 +2928,20 @@
     "acquisition": "Facewear Collection",
     "price": null,
     "currency": null,
-    "rgb": {"r": 0, "g": 0, "b": 0},
-    "hsv": {"h": 0, "s": 0, "v": 0}
+    "rgb": {
+      "r": 0,
+      "g": 0,
+      "b": 0
+    },
+    "hsv": {
+      "h": 0,
+      "s": 0,
+      "v": 0
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": null,
@@ -1415,8 +2951,20 @@
     "acquisition": "Facewear Collection",
     "price": null,
     "currency": null,
-    "rgb": {"r": 255, "g": 255, "b": 255},
-    "hsv": {"h": 0, "s": 0, "v": 100}
+    "rgb": {
+      "r": 255,
+      "g": 255,
+      "b": 255
+    },
+    "hsv": {
+      "h": 0,
+      "s": 0,
+      "v": 100
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": null,
@@ -1426,8 +2974,20 @@
     "acquisition": "Facewear Collection",
     "price": null,
     "currency": null,
-    "rgb": {"r": 128, "g": 128, "b": 128},
-    "hsv": {"h": 0, "s": 0, "v": 50.2}
+    "rgb": {
+      "r": 128,
+      "g": 128,
+      "b": 128
+    },
+    "hsv": {
+      "h": 0,
+      "s": 0,
+      "v": 50.2
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": null,
@@ -1437,8 +2997,20 @@
     "acquisition": "Facewear Collection",
     "price": null,
     "currency": null,
-    "rgb": {"r": 255, "g": 0, "b": 0},
-    "hsv": {"h": 0, "s": 100, "v": 100}
+    "rgb": {
+      "r": 255,
+      "g": 0,
+      "b": 0
+    },
+    "hsv": {
+      "h": 0,
+      "s": 100,
+      "v": 100
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": null,
@@ -1448,8 +3020,20 @@
     "acquisition": "Facewear Collection",
     "price": null,
     "currency": null,
-    "rgb": {"r": 0, "g": 0, "b": 255},
-    "hsv": {"h": 240, "s": 100, "v": 100}
+    "rgb": {
+      "r": 0,
+      "g": 0,
+      "b": 255
+    },
+    "hsv": {
+      "h": 240,
+      "s": 100,
+      "v": 100
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": null,
@@ -1459,8 +3043,20 @@
     "acquisition": "Facewear Collection",
     "price": null,
     "currency": null,
-    "rgb": {"r": 0, "g": 128, "b": 0},
-    "hsv": {"h": 120, "s": 100, "v": 50.2}
+    "rgb": {
+      "r": 0,
+      "g": 128,
+      "b": 0
+    },
+    "hsv": {
+      "h": 120,
+      "s": 100,
+      "v": 50.2
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": null,
@@ -1470,8 +3066,20 @@
     "acquisition": "Facewear Collection",
     "price": null,
     "currency": null,
-    "rgb": {"r": 225, "g": 193, "b": 110},
-    "hsv": {"h": 42.43, "s": 51.11, "v": 88.24}
+    "rgb": {
+      "r": 225,
+      "g": 193,
+      "b": 110
+    },
+    "hsv": {
+      "h": 42.43,
+      "s": 51.11,
+      "v": 88.24
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": null,
@@ -1481,8 +3089,20 @@
     "acquisition": "Facewear Collection",
     "price": null,
     "currency": null,
-    "rgb": {"r": 128, "g": 0, "b": 128},
-    "hsv": {"h": 300, "s": 100, "v": 50.2}
+    "rgb": {
+      "r": 128,
+      "g": 0,
+      "b": 128
+    },
+    "hsv": {
+      "h": 300,
+      "s": 100,
+      "v": 50.2
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   },
   {
     "itemID": null,
@@ -1492,7 +3112,19 @@
     "acquisition": "Facewear Collection",
     "price": null,
     "currency": null,
-    "rgb": {"r": 165, "g": 42, "b": 42},
-    "hsv": {"h": 0, "s": 74.55, "v": 64.71}
+    "rgb": {
+      "r": 165,
+      "g": 42,
+      "b": 42
+    },
+    "hsv": {
+      "h": 0,
+      "s": 74.55,
+      "v": 64.71
+    },
+    "isMetallic": false,
+    "isPastel": false,
+    "isDark": false,
+    "isCosmic": false
   }
 ]
