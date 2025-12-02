@@ -329,8 +329,9 @@ export class ColorConverter {
       );
     }
 
-    // Create cache key (round to avoid floating point precision issues)
-    const cacheKey = `${Math.round(h * 100) / 100},${Math.round(s * 100) / 100},${Math.round(v * 100) / 100}`;
+    // Create cache key using consistent rounding (2 decimal places)
+    // Per Issue #17: Use same round() utility as rgbToHsv for consistency
+    const cacheKey = `${round(h, 2)},${round(s, 2)},${round(v, 2)}`;
 
     // Check cache
     const cached = this.hsvToRgbCache.get(cacheKey);

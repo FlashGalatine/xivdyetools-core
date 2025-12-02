@@ -6,7 +6,19 @@
 
 import type { Dye } from '../../types/index.js';
 import { ErrorCode, AppError } from '../../types/index.js';
+import type { Logger } from '../../types/index.js';
+import { NoOpLogger } from '../../types/index.js';
 import { KDTree, type Point3D } from '../../utils/kd-tree.js';
+
+/**
+ * Configuration for DyeDatabase
+ */
+export interface DyeDatabaseConfig {
+  /**
+   * Logger for database operations (default: NoOpLogger)
+   */
+  logger?: Logger;
+}
 
 /**
  * Dye database manager
@@ -22,6 +34,7 @@ export class DyeDatabase {
   private kdTree: KDTree | null = null;
   private isLoaded: boolean = false;
   private lastLoaded: number = 0;
+  private readonly logger: Logger;
 
   // Per P-2: Hue bucket size (10 degrees per bucket for 36 buckets total)
   private static readonly HUE_BUCKET_SIZE = 10;
@@ -32,6 +45,14 @@ export class DyeDatabase {
    * Per Security: Prevents prototype pollution attacks from untrusted data
    */
   private static readonly DANGEROUS_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
+  /**
+   * Constructor with optional configuration
+   * @param config Configuration options including logger
+   */
+  constructor(config: DyeDatabaseConfig = {}) {
+    this.logger = config.logger ?? NoOpLogger;
+  }
 
   /**
    * Create a safe copy of an object, filtering out prototype pollution keys
@@ -54,40 +75,175 @@ export class DyeDatabase {
   }
 
   /**
+   * Validate dye data structure
+   * Per Issue #14: Runtime validation prevents malformed data from causing runtime errors
+   * @param dye - Object to validate as a Dye
+   * @returns true if valid, false otherwise
+   */
+  private isValidDye(dye: Record<string, unknown>): boolean {
+    // Required: id or itemID (can be null for Facewear dyes, which will get generated id)
+    const hasValidId = typeof dye.id === 'number' || typeof dye.itemID === 'number';
+    const hasFacewearNullId = dye.itemID === null && dye.category === 'Facewear';
+
+    if (!hasValidId && !hasFacewearNullId) {
+      this.logger.warn('Dye missing required id or itemID field');
+      return false;
+    }
+
+    // Required: name must be a non-empty string
+    if (typeof dye.name !== 'string' || dye.name.length === 0) {
+      const idForLog =
+        typeof dye.id === 'number'
+          ? String(dye.id)
+          : typeof dye.itemID === 'number'
+            ? String(dye.itemID)
+            : 'unknown';
+      this.logger.warn(`Dye ${idForLog} has invalid name`);
+      return false;
+    }
+
+    // Validate hex format if present
+    if (dye.hex !== undefined && dye.hex !== null) {
+      if (typeof dye.hex !== 'string' || !/^#[A-Fa-f0-9]{6}$/.test(dye.hex)) {
+        const idForLog =
+          typeof dye.id === 'number'
+            ? String(dye.id)
+            : typeof dye.itemID === 'number'
+              ? String(dye.itemID)
+              : String(dye.name ?? 'unknown');
+        const hexForLog = typeof dye.hex === 'string' ? dye.hex : String(dye.hex);
+        this.logger.warn(`Dye ${idForLog} has invalid hex format: ${hexForLog}`);
+        return false;
+      }
+    }
+
+    // Validate RGB if present
+    if (dye.rgb !== undefined && dye.rgb !== null) {
+      const rgb = dye.rgb as Record<string, unknown>;
+      if (
+        typeof rgb.r !== 'number' ||
+        rgb.r < 0 ||
+        rgb.r > 255 ||
+        typeof rgb.g !== 'number' ||
+        rgb.g < 0 ||
+        rgb.g > 255 ||
+        typeof rgb.b !== 'number' ||
+        rgb.b < 0 ||
+        rgb.b > 255
+      ) {
+        const idForLog =
+          typeof dye.id === 'number'
+            ? String(dye.id)
+            : typeof dye.itemID === 'number'
+              ? String(dye.itemID)
+              : String(dye.name ?? 'unknown');
+        this.logger.warn(`Dye ${idForLog} has invalid RGB values`);
+        return false;
+      }
+    }
+
+    // Validate HSV if present
+    if (dye.hsv !== undefined && dye.hsv !== null) {
+      const hsv = dye.hsv as Record<string, unknown>;
+      if (
+        typeof hsv.h !== 'number' ||
+        hsv.h < 0 ||
+        hsv.h > 360 ||
+        typeof hsv.s !== 'number' ||
+        hsv.s < 0 ||
+        hsv.s > 100 ||
+        typeof hsv.v !== 'number' ||
+        hsv.v < 0 ||
+        hsv.v > 100
+      ) {
+        const idForLog =
+          typeof dye.id === 'number'
+            ? String(dye.id)
+            : typeof dye.itemID === 'number'
+              ? String(dye.itemID)
+              : String(dye.name ?? 'unknown');
+        this.logger.warn(`Dye ${idForLog} has invalid HSV values`);
+        return false;
+      }
+    }
+
+    // Validate category if present
+    if (dye.category !== undefined && dye.category !== null && typeof dye.category !== 'string') {
+      const idForLog =
+        typeof dye.id === 'number'
+          ? String(dye.id)
+          : typeof dye.itemID === 'number'
+            ? String(dye.itemID)
+            : String(dye.name ?? 'unknown');
+      this.logger.warn(`Dye ${idForLog} has invalid category type`);
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
    * Initialize dye database from data
    * Per Security: Includes prototype pollution protection for untrusted data sources
    */
   initialize(dyeData: unknown): void {
     try {
+      // Validate input type
+      if (dyeData === null || dyeData === undefined) {
+        throw new Error('Invalid dye database format: null or undefined');
+      }
+      if (
+        typeof dyeData === 'string' ||
+        typeof dyeData === 'number' ||
+        typeof dyeData === 'boolean'
+      ) {
+        throw new Error('Invalid dye database format: expected array or object');
+      }
+
       // Support both array and object formats
       const loadedDyes = Array.isArray(dyeData) ? dyeData : Object.values(dyeData as object);
 
       if (!Array.isArray(loadedDyes) || loadedDyes.length === 0) {
-        throw new Error('Invalid dye database format');
+        throw new Error('Invalid dye database format: empty or not an array');
       }
 
       // Normalize dyes: map itemID to id, price to cost, with prototype pollution protection
-      this.dyes = loadedDyes.map((dye: unknown) => {
-        // Per Security: Create a safe clone to prevent prototype pollution
-        const normalizedDye = this.safeClone(dye as Record<string, unknown>);
+      // Per Issue #14: Filter out invalid dyes during loading
+      this.dyes = loadedDyes
+        .map((dye: unknown) => {
+          // Per Security: Create a safe clone to prevent prototype pollution
+          const normalizedDye = this.safeClone(dye as Record<string, unknown>);
 
-        // If the dye has itemID but no id, use itemID as the id
-        if (normalizedDye.itemID && !normalizedDye.id) {
-          normalizedDye.id = normalizedDye.itemID;
-        }
+          // If the dye has itemID but no id, use itemID as the id
+          if (normalizedDye.itemID && !normalizedDye.id) {
+            normalizedDye.id = normalizedDye.itemID;
+          }
 
-        // Per Bug Fix: Map 'price' field to 'cost' for Dye interface compatibility
-        // JSON data uses 'price' but Dye interface expects 'cost'
-        if (normalizedDye.price !== undefined && normalizedDye.cost === undefined) {
-          normalizedDye.cost = normalizedDye.price ?? 0;
-        }
-        // Ensure cost is always a number (handle null values in JSON)
-        if (normalizedDye.cost === null || normalizedDye.cost === undefined) {
-          normalizedDye.cost = 0;
-        }
+          // Generate synthetic ID for Facewear dyes with null itemID
+          // Uses negative numbers to avoid collision with real itemIDs
+          if (normalizedDye.itemID === null && normalizedDye.category === 'Facewear') {
+            // Use hash of name as synthetic ID (negative to distinguish from real IDs)
+            const nameHash = String(normalizedDye.name)
+              .split('')
+              .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            normalizedDye.id = -(1000 + nameHash);
+            normalizedDye.itemID = normalizedDye.id;
+          }
 
-        return normalizedDye as unknown as Dye;
-      });
+          // Per Bug Fix: Map 'price' field to 'cost' for Dye interface compatibility
+          // JSON data uses 'price' but Dye interface expects 'cost'
+          if (normalizedDye.price !== undefined && normalizedDye.cost === undefined) {
+            normalizedDye.cost = normalizedDye.price ?? 0;
+          }
+          // Ensure cost is always a number (handle null values in JSON)
+          if (normalizedDye.cost === null || normalizedDye.cost === undefined) {
+            normalizedDye.cost = 0;
+          }
+
+          return normalizedDye;
+        })
+        .filter((dye) => this.isValidDye(dye))
+        .map((dye) => dye as unknown as Dye);
 
       // Build ID map for fast lookups
       this.dyesByIdMap.clear();
@@ -127,7 +283,7 @@ export class DyeDatabase {
       this.isLoaded = true;
       this.lastLoaded = Date.now();
 
-      console.info(`✅ Dye database loaded: ${this.dyes.length} dyes`);
+      this.logger.info(`Dye database loaded: ${this.dyes.length} dyes`);
     } catch (error) {
       this.isLoaded = false;
       throw new AppError(
@@ -257,6 +413,23 @@ export class DyeDatabase {
 
   /**
    * Get all dyes (internal access, no defensive copy)
+   *
+   * **Internal Use Only** - Returns a direct reference to the internal dyes array.
+   * Modifications to the returned array will affect the database state.
+   *
+   * For public API access, use {@link getAllDyes} which returns a defensive copy.
+   *
+   * @internal
+   * @returns Direct reference to internal dyes array - DO NOT MODIFY
+   *
+   * @example
+   * ```typescript
+   * // Internal usage in DyeSearch (optimized for read-only iteration)
+   * const dyes = this.database.getDyesInternal();
+   * for (const dye of dyes) {
+   *     // Read-only operations
+   * }
+   * ```
    */
   getDyesInternal(): Dye[] {
     this.ensureLoaded();

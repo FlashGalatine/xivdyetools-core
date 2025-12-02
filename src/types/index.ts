@@ -6,6 +6,10 @@
  * @module types
  */
 
+// Re-export logger types
+export type { Logger } from './logger.js';
+export { NoOpLogger, ConsoleLogger } from './logger.js';
+
 // ============================================================================
 // Color Type System
 // ============================================================================

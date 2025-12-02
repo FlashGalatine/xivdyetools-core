@@ -25,11 +25,22 @@
  * ```
  */
 
-import type { Dye, LocalizedDye } from '../types/index.js';
+import type { Dye, LocalizedDye, Logger } from '../types/index.js';
+import { NoOpLogger } from '../types/index.js';
 import { DyeDatabase } from './dye/DyeDatabase.js';
 import { DyeSearch } from './dye/DyeSearch.js';
 import { HarmonyGenerator } from './dye/HarmonyGenerator.js';
 import { LocalizationService } from './LocalizationService.js';
+
+/**
+ * Configuration options for DyeService
+ */
+export interface DyeServiceOptions {
+  /**
+   * Logger for service operations (defaults to NoOpLogger)
+   */
+  logger?: Logger;
+}
 
 /**
  * Service for managing FFXIV dye database (Facade)
@@ -44,6 +55,10 @@ import { LocalizationService } from './LocalizationService.js';
  * // Browser (Vite auto-imports JSON)
  * import { DyeService, dyeDatabase } from '@xivdyetools/core';
  * const dyeService = new DyeService(dyeDatabase);
+ *
+ * // With custom logger
+ * import { ConsoleLogger } from '@xivdyetools/core';
+ * const dyeService = new DyeService(dyeDatabase, { logger: ConsoleLogger });
  */
 export class DyeService {
   private database: DyeDatabase;
@@ -53,9 +68,11 @@ export class DyeService {
   /**
    * Initialize the dye database
    * @param dyeData - Array of dyes or JSON object with dye array
+   * @param options - Optional configuration including logger
    */
-  constructor(dyeData?: unknown) {
-    this.database = new DyeDatabase();
+  constructor(dyeData?: unknown, options: DyeServiceOptions = {}) {
+    const logger = options.logger ?? NoOpLogger;
+    this.database = new DyeDatabase({ logger });
     this.search = new DyeSearch(this.database);
     this.harmony = new HarmonyGenerator(this.database, this.search);
 

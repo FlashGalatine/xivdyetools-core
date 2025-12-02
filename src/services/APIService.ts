@@ -7,8 +7,8 @@
  * @module services/APIService
  */
 
-import type { PriceData, CachedData } from '../types/index.js';
-import { ErrorCode, AppError } from '../types/index.js';
+import type { PriceData, CachedData, Logger } from '../types/index.js';
+import { ErrorCode, AppError, NoOpLogger } from '../types/index.js';
 import {
   UNIVERSALIS_API_BASE,
   UNIVERSALIS_API_TIMEOUT,
@@ -160,6 +160,31 @@ export class MemoryCacheBackend implements ICacheBackend {
 // ============================================================================
 
 /**
+ * Configuration options for APIService
+ */
+export interface APIServiceOptions {
+  /**
+   * Cache backend implementation (defaults to memory cache)
+   */
+  cacheBackend?: ICacheBackend;
+
+  /**
+   * Fetch client implementation (defaults to global fetch)
+   */
+  fetchClient?: FetchClient;
+
+  /**
+   * Rate limiter implementation (defaults to standard rate limiting)
+   */
+  rateLimiter?: RateLimiter;
+
+  /**
+   * Logger for API operations (defaults to NoOpLogger)
+   */
+  logger?: Logger;
+}
+
+/**
  * Service for Universalis API integration
  * Handles price data fetching with caching and debouncing
  *
@@ -183,23 +208,41 @@ export class MemoryCacheBackend implements ICacheBackend {
  *
  * // Fetch price data
  * const priceData = await apiService.getPriceData(itemID, worldID, dataCenterID);
+ *
+ * // With custom logger for debugging
+ * import { ConsoleLogger } from 'xivdyetools-core';
+ * const apiService = new APIService({ logger: ConsoleLogger });
  */
 export class APIService {
   private cache: ICacheBackend;
   private fetchClient: FetchClient;
   private rateLimiter: RateLimiter;
   private pendingRequests: Map<string, Promise<PriceData | null>> = new Map();
+  private readonly logger: Logger;
 
   /**
    * Constructor with optional dependency injection
-   * @param cacheBackend Cache backend implementation (defaults to memory cache)
-   * @param fetchClient Fetch client implementation (defaults to global fetch)
-   * @param rateLimiter Rate limiter implementation (defaults to standard rate limiting)
+   * @param options Configuration options or legacy cache backend
    */
-  constructor(cacheBackend?: ICacheBackend, fetchClient?: FetchClient, rateLimiter?: RateLimiter) {
-    this.cache = cacheBackend || new MemoryCacheBackend();
-    this.fetchClient = fetchClient || new DefaultFetchClient();
-    this.rateLimiter = rateLimiter || new DefaultRateLimiter();
+  constructor(
+    options?: ICacheBackend | APIServiceOptions,
+    fetchClient?: FetchClient,
+    rateLimiter?: RateLimiter
+  ) {
+    // Support both legacy positional arguments and new options object
+    if (options && 'logger' in options) {
+      // New options-based API
+      this.cache = options.cacheBackend ?? new MemoryCacheBackend();
+      this.fetchClient = options.fetchClient ?? new DefaultFetchClient();
+      this.rateLimiter = options.rateLimiter ?? new DefaultRateLimiter();
+      this.logger = options.logger ?? NoOpLogger;
+    } else {
+      // Legacy positional arguments API
+      this.cache = (options as ICacheBackend) ?? new MemoryCacheBackend();
+      this.fetchClient = fetchClient ?? new DefaultFetchClient();
+      this.rateLimiter = rateLimiter ?? new DefaultRateLimiter();
+      this.logger = NoOpLogger;
+    }
   }
 
   // ============================================================================
@@ -233,7 +276,7 @@ export class APIService {
     if (cached.checksum) {
       const computedChecksum = generateChecksum(cached.data);
       if (computedChecksum !== cached.checksum) {
-        console.warn(`Cache corruption detected for key: ${cacheKey}`);
+        this.logger.warn(`Cache corruption detected for key: ${cacheKey}`);
         await this.cache.delete(cacheKey);
         return null;
       }
@@ -261,7 +304,7 @@ export class APIService {
    */
   async clearCache(): Promise<void> {
     await this.cache.clear();
-    console.info('✅ Price cache cleared');
+    this.logger.info('Price cache cleared');
   }
 
   /**
@@ -292,13 +335,13 @@ export class APIService {
       // Check cache first
       const cached = await this.getCachedPrice(cacheKey);
       if (cached) {
-        console.info(`📦 Price cache hit for item ${itemID}`);
+        this.logger.info(`Price cache hit for item ${itemID}`);
         return cached;
       }
 
       // Check if request is already pending (deduplication)
       if (this.pendingRequests.has(cacheKey)) {
-        console.info(`⏳ Using pending request for item ${itemID}`);
+        this.logger.info(`Using pending request for item ${itemID}`);
         return await this.pendingRequests.get(cacheKey)!;
       }
 
@@ -320,7 +363,7 @@ export class APIService {
       this.pendingRequests.set(cacheKey, promise);
       return await promise;
     } catch (error) {
-      console.error('Failed to fetch price data:', error);
+      this.logger.error('Failed to fetch price data', error);
       return null;
     }
   }
@@ -481,25 +524,25 @@ export class APIService {
     try {
       // Validate response structure
       if (!data || typeof data !== 'object') {
-        console.warn(`Invalid API response structure for item ${itemID}`);
+        this.logger.warn(`Invalid API response structure for item ${itemID}`);
         return null;
       }
 
       // Parse aggregated endpoint response format
       if (!data.results || !Array.isArray(data.results) || data.results.length === 0) {
-        console.warn(`No price data available for item ${itemID}`);
+        this.logger.warn(`No price data available for item ${itemID}`);
         return null;
       }
 
       const result = data.results[0];
       if (!result || typeof result !== 'object') {
-        console.warn(`Invalid result structure for item ${itemID}`);
+        this.logger.warn(`Invalid result structure for item ${itemID}`);
         return null;
       }
 
       // Validate itemId type and match
       if (typeof result.itemId !== 'number' || result.itemId !== itemID) {
-        console.warn(`Item ID mismatch: expected ${itemID}, got ${result.itemId}`);
+        this.logger.warn(`Item ID mismatch: expected ${itemID}, got ${result.itemId}`);
         return null;
       }
 
@@ -533,7 +576,7 @@ export class APIService {
       }
 
       if (!price) {
-        console.warn(`No price data available for item ${itemID}`);
+        this.logger.warn(`No price data available for item ${itemID}`);
         return null;
       }
 
@@ -545,7 +588,7 @@ export class APIService {
         lastUpdate: Date.now(),
       };
     } catch (error) {
-      console.error(`Failed to parse price data for item ${itemID}:`, error);
+      this.logger.error(`Failed to parse price data for item ${itemID}`, error);
       return null;
     }
   }

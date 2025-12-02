@@ -2,7 +2,7 @@
 export { ColorService } from './services/ColorService.js';
 export { DyeService } from './services/DyeService.js';
 export { APIService, MemoryCacheBackend } from './services/APIService.js';
-export type { ICacheBackend } from './services/APIService.js';
+export type { ICacheBackend, APIServiceOptions } from './services/APIService.js';
 export { LocalizationService } from './services/LocalizationService.js';
 
 // Types
@@ -23,8 +23,9 @@ export type {
   HarmonyTypeKey,
   LocaleData,
   LocalePreference,
+  Logger,
 } from './types/index.js';
-export { AppError, ErrorCode, createHexColor } from './types/index.js';
+export { AppError, ErrorCode, createHexColor, NoOpLogger, ConsoleLogger } from './types/index.js';
 
 // Constants
 export {
@@ -79,5 +80,5 @@ export {
 // Data (for browser environments - to be injected)
 export { default as dyeDatabase } from './data/colors_xiv.json' with { type: 'json' };
 
-// Version
-export const VERSION = '1.0.0';
+// Version (auto-generated from package.json during build)
+export { VERSION } from './version.js';
