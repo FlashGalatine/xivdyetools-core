@@ -10,7 +10,7 @@ describe('KDTree', () => {
   describe('Construction', () => {
     it('should build tree from points', () => {
       const points: Point3D[] = [
-        { x: 255, y: 0, b: 0, data: 'red' },
+        { x: 255, y: 0, z: 0, data: 'red' },
         { x: 0, y: 255, z: 0, data: 'green' },
         { x: 0, y: 0, z: 255, data: 'blue' },
       ];

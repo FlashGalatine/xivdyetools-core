@@ -37,6 +37,10 @@ export class HarmonyGenerator {
   /**
    * Find analogous dyes (adjacent on color wheel)
    * Returns dyes at ±angle degrees from the base color
+   *
+   * @remarks
+   * May return fewer dyes than expected if no suitable matches exist
+   * at the target hue positions or if all candidates are excluded.
    */
   findAnalogousDyes(hex: string, angle: number = 30): Dye[] {
     // Use harmony helper to find dyes at +angle and -angle positions
@@ -45,6 +49,10 @@ export class HarmonyGenerator {
 
   /**
    * Find triadic color scheme (colors 120° apart on color wheel)
+   *
+   * @remarks
+   * May return 0, 1, or 2 dyes depending on available matches.
+   * Use the length of the returned array to determine actual results.
    */
   findTriadicDyes(hex: string): Dye[] {
     return this.findHarmonyDyesByOffsets(hex, [120, 240]);
@@ -52,6 +60,9 @@ export class HarmonyGenerator {
 
   /**
    * Find square color scheme (colors 90° apart on color wheel)
+   *
+   * @remarks
+   * May return fewer than 3 dyes if suitable matches are not found.
    */
   findSquareDyes(hex: string): Dye[] {
     return this.findHarmonyDyesByOffsets(hex, [90, 180, 270]);
@@ -59,6 +70,9 @@ export class HarmonyGenerator {
 
   /**
    * Find tetradic color scheme (two complementary pairs)
+   *
+   * @remarks
+   * May return fewer than 3 dyes if suitable matches are not found.
    */
   findTetradicDyes(hex: string): Dye[] {
     // Two adjacent hues + their complements (e.g., base+60 and base+240)
@@ -101,6 +115,9 @@ export class HarmonyGenerator {
 
   /**
    * Find compound harmony (analogous + complementary)
+   *
+   * @remarks
+   * May return fewer than 3 dyes if suitable matches are not found.
    */
   findCompoundDyes(hex: string): Dye[] {
     // ±30° from base + complement
@@ -109,6 +126,9 @@ export class HarmonyGenerator {
 
   /**
    * Find split-complementary harmony (±30° from the complementary hue)
+   *
+   * @remarks
+   * May return 0, 1, or 2 dyes depending on available matches.
    */
   findSplitComplementaryDyes(hex: string): Dye[] {
     return this.findHarmonyDyesByOffsets(hex, [150, 210]);
@@ -116,6 +136,9 @@ export class HarmonyGenerator {
 
   /**
    * Find shades (similar tones, ±15°)
+   *
+   * @remarks
+   * May return 0, 1, or 2 dyes depending on available matches.
    */
   findShadesDyes(hex: string): Dye[] {
     this.database.ensureLoaded();
@@ -126,6 +149,21 @@ export class HarmonyGenerator {
 
   /**
    * Generic helper for hue-based harmonies
+   *
+   * @remarks
+   * This method may return fewer dyes than the number of offsets provided.
+   * This can happen when:
+   * - No dyes exist near the target hue position
+   * - All candidate dyes are in the 'Facewear' category (excluded)
+   * - The same dye would be selected multiple times (prevented by usedDyeIds)
+   *
+   * Consumers should check the returned array length rather than assuming
+   * a fixed number of results.
+   *
+   * @param hex - Base hex color
+   * @param offsets - Array of hue offsets in degrees
+   * @param options - Options including tolerance (default: 45°)
+   * @returns Array of matched dyes (may be shorter than offsets array)
    */
   private findHarmonyDyesByOffsets(
     hex: string,

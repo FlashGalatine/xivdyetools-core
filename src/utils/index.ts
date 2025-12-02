@@ -493,6 +493,32 @@ export function sleep(ms: number): Promise<void> {
 }
 
 /**
+ * Check if an error is an AbortError (from AbortController timeout)
+ *
+ * @param error - Error to check
+ * @returns true if error is an AbortError, false otherwise
+ *
+ * @example
+ * ```typescript
+ * try {
+ *   await fetch(url, { signal: controller.signal });
+ * } catch (error) {
+ *   if (isAbortError(error)) {
+ *     console.log('Request timed out or was aborted');
+ *   }
+ * }
+ * ```
+ */
+export function isAbortError(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    (error.name === 'AbortError' ||
+      error.name === 'TimeoutError' ||
+      (error instanceof DOMException && error.code === DOMException.ABORT_ERR))
+  );
+}
+
+/**
  * Retry a function multiple times with exponential backoff
  *
  * @param fn - Async function to retry
@@ -529,6 +555,10 @@ export function sleep(ms: number): Promise<void> {
  * - Attempt 3: delayMs * 2^1 = delayMs * 2
  * - Attempt 4: delayMs * 2^2 = delayMs * 4
  * - etc.
+ *
+ * @remarks
+ * Retries on all errors including AbortError (timeout), allowing
+ * transient network issues to be recovered from.
  */
 export async function retry<T>(
   fn: () => Promise<T>,
@@ -543,6 +573,12 @@ export async function retry<T>(
       return await fn();
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
+
+      // Log timeout errors specifically for debugging
+      if (isAbortError(error)) {
+        console.warn(`Request timed out (attempt ${i + 1}/${attempts})`);
+      }
+
       if (i < attempts - 1) {
         await sleep(delayMs * Math.pow(2, i)); // Exponential backoff
       }

@@ -35,11 +35,12 @@ export class ColorManipulator {
 
   /**
    * Rotate hue of a color
-   * @param degrees 0-360 (amount to rotate hue)
+   * @param degrees Amount to rotate hue (can be negative or positive)
    */
   static rotateHue(hex: string, degrees: number): HexColor {
     const hsv = ColorConverter.hexToHsv(hex);
-    hsv.h = (hsv.h + degrees) % 360;
+    // Normalize to 0-360 to handle negative values properly
+    hsv.h = (((hsv.h + degrees) % 360) + 360) % 360;
     return ColorConverter.hsvToHex(hsv.h, hsv.s, hsv.v);
   }
 

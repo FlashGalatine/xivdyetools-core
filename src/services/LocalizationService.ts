@@ -465,4 +465,23 @@ export class LocalizationService {
   static clear(): void {
     this.getDefault().clear();
   }
+
+  /**
+   * Reset the static singleton instance
+   * Useful for testing to prevent test pollution between test suites
+   *
+   * @example
+   * ```typescript
+   * // In test cleanup
+   * afterEach(() => {
+   *     LocalizationService.resetInstance();
+   * });
+   * ```
+   */
+  static resetInstance(): void {
+    if (this.defaultInstance) {
+      this.defaultInstance.clear();
+    }
+    this.defaultInstance = undefined as unknown as LocalizationService;
+  }
 }

@@ -72,6 +72,7 @@ export {
   isNullish,
   sleep,
   retry,
+  isAbortError,
   generateChecksum,
 } from './utils/index.js';
 
