@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2025-12-02
+
+### Fixed
+- **Security**: Added prototype pollution protection in `DyeDatabase.initialize()` for untrusted data sources
+- **Data Integrity**: Fixed `price` vs `cost` field mismatch - JSON data uses `price` but `Dye` interface expects `cost`
+- **Memory**: Removed duplicate ID mapping in `DyeDatabase` - now only maps `itemID` separately if it differs from `id`
+- **Concurrency**: Fixed race condition in singleton patterns by using eager initialization for `ColorConverter` and `LocalizationService`
+- **Integer Operations**: Fixed `generateChecksum` to use proper 32-bit integer conversion (`|0` instead of `&hash`)
+- **Color Manipulation**: Fixed negative hue values in `rotateHue` - now properly normalizes to 0-360 range
+- **Floating Point**: Consistent rounding strategy in `ColorConverter` between `rgbToHsv` and `hsvToRgb`
+- **Tests**: Fixed Point3D typo in `kd-tree.test.ts` (`b` → `z`)
+
+### Added
+- **Logger Interface**: Injectable `Logger` interface with `NoOpLogger` (default) and `ConsoleLogger` implementations
+- **Dye Validation**: Runtime validation for dye data with `isValidDye()` method
+- **Test Isolation**: `LocalizationService.resetInstance()` for preventing test pollution
+- **AbortError Detection**: `isAbortError()` utility function for timeout error handling in retry logic
+- **Documentation**: Comprehensive `docs/ERROR_HANDLING.md` guide for error handling patterns
+
+### Changed
+- **API Retry**: `retry()` now includes AbortError/TimeoutError in retry loop for transient network issues
+- **Harmony Methods**: Documented that `findTriadicDyes`, `findSquareDyes`, `findTetradicDyes` may return fewer results than expected
+- **VERSION Sync**: VERSION constant now auto-generated from package.json during build
+
 ## [1.3.0] - 2025-12-01
 
 ### Added
