@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.2] - 2025-12-04
+
+### Added
+- **Logger Test Coverage**: Comprehensive test suite for `logger.ts` (25% → 100% coverage)
+  - 23 new tests covering `NoOpLogger`, `ConsoleLogger`, and custom `Logger` implementations
+  - Tests for all log levels (info, warn, error, debug)
+  - Branch coverage for error handling with and without error objects
+  - Validation of Logger interface contract
+
 ## [1.3.1] - 2025-12-02
 
 ### Fixed
