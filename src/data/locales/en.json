@@ -2,7 +2,7 @@
   "locale": "en",
   "meta": {
     "version": "1.0.0",
-    "generated": "2025-12-05T07:52:41.918Z",
+    "generated": "2025-12-05T09:29:21.498Z",
     "dyeCount": 125
   },
   "labels": {
@@ -198,5 +198,34 @@
     "protanopia": "Protanopia (Red-Green Colorblindness)",
     "tritanopia": "Tritanopia (Blue-Yellow Colorblindness)",
     "achromatopsia": "Achromatopsia (Total Colorblindness)"
+  },
+  "jobNames": {
+    "paladin": "Paladin",
+    "warrior": "Warrior",
+    "darkKnight": "Dark Knight",
+    "gunbreaker": "Gunbreaker",
+    "whiteMage": "White Mage",
+    "scholar": "Scholar",
+    "astrologian": "Astrologian",
+    "sage": "Sage",
+    "monk": "Monk",
+    "dragoon": "Dragoon",
+    "ninja": "Ninja",
+    "samurai": "Samurai",
+    "reaper": "Reaper",
+    "viper": "Viper",
+    "bard": "Bard",
+    "machinist": "Machinist",
+    "dancer": "Dancer",
+    "blackMage": "Black Mage",
+    "summoner": "Summoner",
+    "redMage": "Red Mage",
+    "pictomancer": "Pictomancer",
+    "blueMage": "Blue Mage"
+  },
+  "grandCompanyNames": {
+    "maelstrom": "The Maelstrom",
+    "twinAdder": "The Order of the Twin Adder",
+    "immortalFlames": "The Immortal Flames"
   }
 }

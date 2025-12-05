@@ -200,5 +200,34 @@
     "protanopia": "红色盲（红绿色盲）",
     "tritanopia": "蓝色盲（蓝黄色盲）",
     "achromatopsia": "全色盲"
+  },
+  "jobNames": {
+    "paladin": "騎士",
+    "warrior": "戰士",
+    "darkKnight": "暗黑騎士",
+    "gunbreaker": "絕槍戰士",
+    "whiteMage": "白魔道士",
+    "scholar": "學者",
+    "astrologian": "占星術師",
+    "sage": "賢者",
+    "monk": "武僧",
+    "dragoon": "龍騎士",
+    "ninja": "忍者",
+    "samurai": "武士",
+    "reaper": "奪魂者",
+    "viper": "毒蛇劍士",
+    "bard": "吟遊詩人",
+    "machinist": "機工士",
+    "dancer": "舞者",
+    "blackMage": "黑魔道士",
+    "summoner": "召喚士",
+    "redMage": "赤魔道士",
+    "pictomancer": "繪靈法師",
+    "blueMage": "青魔道士"
+  },
+  "grandCompanyNames": {
+    "maelstrom": "黑涡团",
+    "twinAdder": "双蛇党",
+    "immortalFlames": "恒辉队"
   }
 }

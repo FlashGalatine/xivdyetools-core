@@ -2,7 +2,7 @@
   "locale": "de",
   "meta": {
     "version": "1.0.0",
-    "generated": "2025-12-05T07:52:41.920Z",
+    "generated": "2025-12-05T09:29:21.501Z",
     "dyeCount": 125
   },
   "labels": {
@@ -198,5 +198,34 @@
     "protanopia": "Protanopie (Rot-Grün-Farbenblindheit)",
     "tritanopia": "Tritanopie (Blau-Gelb-Farbenblindheit)",
     "achromatopsia": "Achromatopsie (Totale Farbenblindheit)"
+  },
+  "jobNames": {
+    "paladin": "Paladin",
+    "warrior": "Krieger",
+    "darkKnight": "Dunkelritter",
+    "gunbreaker": "Revolverklinge",
+    "whiteMage": "Weißmagier",
+    "scholar": "Gelehrter",
+    "astrologian": "Astrologe",
+    "sage": "Weiser",
+    "monk": "Mönch",
+    "dragoon": "Dragoon",
+    "ninja": "Ninja",
+    "samurai": "Samurai",
+    "reaper": "Schnitter",
+    "viper": "Viper",
+    "bard": "Barde",
+    "machinist": "Maschinist",
+    "dancer": "Tänzer",
+    "blackMage": "Schwarzmagier",
+    "summoner": "Beschwörer",
+    "redMage": "Rotmagier",
+    "pictomancer": "Piktomant",
+    "blueMage": "Blaumagier"
+  },
+  "grandCompanyNames": {
+    "maelstrom": "Der Mahlstrom",
+    "twinAdder": "Die Bruderschaft der Morgenviper",
+    "immortalFlames": "Die Legion der Unsterblichen"
   }
 }

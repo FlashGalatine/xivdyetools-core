@@ -12,6 +12,8 @@ import type {
   TranslationKey,
   HarmonyTypeKey,
   VisionType,
+  JobKey,
+  GrandCompanyKey,
   LocalePreference,
 } from '../types/index.js';
 import { LocaleLoader } from './localization/LocaleLoader.js';
@@ -413,6 +415,40 @@ export class LocalizationService {
    */
   static getVisionType(key: VisionType): string {
     return this.getDefault().getVisionType(key);
+  }
+
+  /**
+   * Get localized job name
+   *
+   * @param key - Job key
+   * @returns Localized job name
+   */
+  getJobName(key: JobKey): string {
+    return this.translator.getJobName(key, this.currentLocale);
+  }
+
+  /**
+   * Static method: Get localized job name using default instance
+   */
+  static getJobName(key: JobKey): string {
+    return this.getDefault().getJobName(key);
+  }
+
+  /**
+   * Get localized Grand Company name
+   *
+   * @param key - Grand Company key
+   * @returns Localized Grand Company name
+   */
+  getGrandCompanyName(key: GrandCompanyKey): string {
+    return this.translator.getGrandCompanyName(key, this.currentLocale);
+  }
+
+  /**
+   * Static method: Get localized Grand Company name using default instance
+   */
+  static getGrandCompanyName(key: GrandCompanyKey): string {
+    return this.getDefault().getGrandCompanyName(key);
   }
 
   /**

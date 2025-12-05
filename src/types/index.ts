@@ -203,6 +203,38 @@ export type HarmonyTypeKey =
   | 'shades';
 
 /**
+ * FFXIV Job keys for localization
+ */
+export type JobKey =
+  | 'paladin'
+  | 'warrior'
+  | 'darkKnight'
+  | 'gunbreaker'
+  | 'whiteMage'
+  | 'scholar'
+  | 'astrologian'
+  | 'sage'
+  | 'monk'
+  | 'dragoon'
+  | 'ninja'
+  | 'samurai'
+  | 'reaper'
+  | 'viper'
+  | 'bard'
+  | 'machinist'
+  | 'dancer'
+  | 'blackMage'
+  | 'summoner'
+  | 'redMage'
+  | 'pictomancer'
+  | 'blueMage';
+
+/**
+ * FFXIV Grand Company keys for localization
+ */
+export type GrandCompanyKey = 'maelstrom' | 'twinAdder' | 'immortalFlames';
+
+/**
  * Locale data structure matching generated JSON files
  */
 export interface LocaleData {
@@ -219,6 +251,8 @@ export interface LocaleData {
   metallicDyeIds: number[];
   harmonyTypes: Record<HarmonyTypeKey, string>;
   visionTypes: Record<VisionType, string>;
+  jobNames: Record<JobKey, string>;
+  grandCompanyNames: Record<GrandCompanyKey, string>;
 }
 
 /**

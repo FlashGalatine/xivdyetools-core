@@ -120,6 +120,8 @@ function buildLocaleData(
     metallicDyeIds,
     harmonyTypes: buildHarmonyTypes(locale),
     visionTypes: buildVisionTypes(locale),
+    jobNames: buildJobNames(locale),
+    grandCompanyNames: buildGrandCompanyNames(locale),
   };
 }
 
@@ -365,6 +367,138 @@ function buildVisionTypes(locale: LocaleCode): Record<string, string> {
       protanopia: 'Protanopie (Daltonisme rouge-vert)',
       tritanopia: 'Tritanopie (Daltonisme bleu-jaune)',
       achromatopsia: 'Achromatopsie (Daltonisme total)',
+    },
+  };
+
+  return translations[locale];
+}
+
+function buildJobNames(locale: LocaleCode): Record<string, string> {
+  // Hardcoded FFXIV job name translations
+  const translations: Record<LocaleCode, Record<string, string>> = {
+    en: {
+      paladin: 'Paladin',
+      warrior: 'Warrior',
+      darkKnight: 'Dark Knight',
+      gunbreaker: 'Gunbreaker',
+      whiteMage: 'White Mage',
+      scholar: 'Scholar',
+      astrologian: 'Astrologian',
+      sage: 'Sage',
+      monk: 'Monk',
+      dragoon: 'Dragoon',
+      ninja: 'Ninja',
+      samurai: 'Samurai',
+      reaper: 'Reaper',
+      viper: 'Viper',
+      bard: 'Bard',
+      machinist: 'Machinist',
+      dancer: 'Dancer',
+      blackMage: 'Black Mage',
+      summoner: 'Summoner',
+      redMage: 'Red Mage',
+      pictomancer: 'Pictomancer',
+      blueMage: 'Blue Mage',
+    },
+    ja: {
+      paladin: 'ナイト',
+      warrior: '戦士',
+      darkKnight: '暗黒騎士',
+      gunbreaker: 'ガンブレイカー',
+      whiteMage: '白魔道士',
+      scholar: '学者',
+      astrologian: '占星術師',
+      sage: '賢者',
+      monk: 'モンク',
+      dragoon: '竜騎士',
+      ninja: '忍者',
+      samurai: '侍',
+      reaper: 'リーパー',
+      viper: 'ヴァイパー',
+      bard: '吟遊詩人',
+      machinist: '機工士',
+      dancer: '踊り子',
+      blackMage: '黒魔道士',
+      summoner: '召喚士',
+      redMage: '赤魔道士',
+      pictomancer: 'ピクトマンサー',
+      blueMage: '青魔道士',
+    },
+    de: {
+      paladin: 'Paladin',
+      warrior: 'Krieger',
+      darkKnight: 'Dunkelritter',
+      gunbreaker: 'Revolverklinge',
+      whiteMage: 'Weißmagier',
+      scholar: 'Gelehrter',
+      astrologian: 'Astrologe',
+      sage: 'Weiser',
+      monk: 'Mönch',
+      dragoon: 'Dragoon',
+      ninja: 'Ninja',
+      samurai: 'Samurai',
+      reaper: 'Schnitter',
+      viper: 'Viper',
+      bard: 'Barde',
+      machinist: 'Maschinist',
+      dancer: 'Tänzer',
+      blackMage: 'Schwarzmagier',
+      summoner: 'Beschwörer',
+      redMage: 'Rotmagier',
+      pictomancer: 'Piktomant',
+      blueMage: 'Blaumagier',
+    },
+    fr: {
+      paladin: 'Paladin',
+      warrior: 'Guerrier',
+      darkKnight: 'Chevalier noir',
+      gunbreaker: 'Pistosabreur',
+      whiteMage: 'Mage blanc',
+      scholar: 'Érudit',
+      astrologian: 'Astromancien',
+      sage: 'Sage',
+      monk: 'Moine',
+      dragoon: 'Chevalier dragon',
+      ninja: 'Ninja',
+      samurai: 'Samouraï',
+      reaper: 'Faucheur',
+      viper: 'Rôdeur vipère',
+      bard: 'Barde',
+      machinist: 'Machiniste',
+      dancer: 'Danseur',
+      blackMage: 'Mage noir',
+      summoner: 'Invocateur',
+      redMage: 'Mage rouge',
+      pictomancer: 'Pictomancien',
+      blueMage: 'Mage bleu',
+    },
+  };
+
+  return translations[locale];
+}
+
+function buildGrandCompanyNames(locale: LocaleCode): Record<string, string> {
+  // Hardcoded FFXIV Grand Company name translations
+  const translations: Record<LocaleCode, Record<string, string>> = {
+    en: {
+      maelstrom: 'The Maelstrom',
+      twinAdder: 'The Order of the Twin Adder',
+      immortalFlames: 'The Immortal Flames',
+    },
+    ja: {
+      maelstrom: '黒渦団',
+      twinAdder: '双蛇党',
+      immortalFlames: '不滅隊',
+    },
+    de: {
+      maelstrom: 'Der Mahlstrom',
+      twinAdder: 'Die Bruderschaft der Morgenviper',
+      immortalFlames: 'Die Legion der Unsterblichen',
+    },
+    fr: {
+      maelstrom: 'Le Maelstrom',
+      twinAdder: "L'ordre des Deux Vipères",
+      immortalFlames: 'Les Immortels',
     },
   };
 

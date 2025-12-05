@@ -2,7 +2,7 @@
   "locale": "fr",
   "meta": {
     "version": "1.0.0",
-    "generated": "2025-12-05T07:52:41.921Z",
+    "generated": "2025-12-05T09:29:21.502Z",
     "dyeCount": 125
   },
   "labels": {
@@ -198,5 +198,34 @@
     "protanopia": "Protanopie (Daltonisme rouge-vert)",
     "tritanopia": "Tritanopie (Daltonisme bleu-jaune)",
     "achromatopsia": "Achromatopsie (Daltonisme total)"
+  },
+  "jobNames": {
+    "paladin": "Paladin",
+    "warrior": "Guerrier",
+    "darkKnight": "Chevalier noir",
+    "gunbreaker": "Pistosabreur",
+    "whiteMage": "Mage blanc",
+    "scholar": "Érudit",
+    "astrologian": "Astromancien",
+    "sage": "Sage",
+    "monk": "Moine",
+    "dragoon": "Chevalier dragon",
+    "ninja": "Ninja",
+    "samurai": "Samouraï",
+    "reaper": "Faucheur",
+    "viper": "Rôdeur vipère",
+    "bard": "Barde",
+    "machinist": "Machiniste",
+    "dancer": "Danseur",
+    "blackMage": "Mage noir",
+    "summoner": "Invocateur",
+    "redMage": "Mage rouge",
+    "pictomancer": "Pictomancien",
+    "blueMage": "Mage bleu"
+  },
+  "grandCompanyNames": {
+    "maelstrom": "Le Maelstrom",
+    "twinAdder": "L'ordre des Deux Vipères",
+    "immortalFlames": "Les Immortels"
   }
 }
