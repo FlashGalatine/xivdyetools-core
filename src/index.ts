@@ -4,6 +4,7 @@ export { DyeService } from './services/DyeService.js';
 export { APIService, MemoryCacheBackend } from './services/APIService.js';
 export type { ICacheBackend, APIServiceOptions } from './services/APIService.js';
 export { LocalizationService } from './services/LocalizationService.js';
+export { PresetService } from './services/PresetService.js';
 
 // Types
 export type {
@@ -24,6 +25,12 @@ export type {
   LocaleData,
   LocalePreference,
   Logger,
+  // Preset types
+  PresetCategory,
+  CategoryMeta,
+  PresetPalette,
+  ResolvedPreset,
+  PresetData,
 } from './types/index.js';
 export { AppError, ErrorCode, createHexColor, NoOpLogger, ConsoleLogger } from './types/index.js';
 
@@ -79,6 +86,7 @@ export {
 
 // Data (for browser environments - to be injected)
 export { default as dyeDatabase } from './data/colors_xiv.json' with { type: 'json' };
+export { default as presetData } from './data/presets.json' with { type: 'json' };
 
 // Version (auto-generated from package.json during build)
 export { VERSION } from './version.js';

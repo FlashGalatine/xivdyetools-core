@@ -263,6 +263,79 @@ export interface CachedData<T> {
 }
 
 // ============================================================================
+// Preset Palette Types
+// ============================================================================
+
+/**
+ * Preset palette category identifiers
+ */
+export type PresetCategory =
+  | 'jobs'
+  | 'grand-companies'
+  | 'seasons'
+  | 'events'
+  | 'aesthetics'
+  | 'community';
+
+/**
+ * Metadata for a preset category
+ */
+export interface CategoryMeta {
+  /** Category identifier */
+  id?: string;
+  /** Display name (localized) */
+  name: string;
+  /** Category description */
+  description: string;
+  /** Optional icon/emoji */
+  icon?: string;
+}
+
+/**
+ * A preset color palette
+ */
+export interface PresetPalette {
+  /** Unique identifier (e.g., "job-rdm", "season-autumn") */
+  id: string;
+  /** Display name (e.g., "Red Mage") */
+  name: string;
+  /** Category this preset belongs to */
+  category: PresetCategory;
+  /** Brief description of the palette */
+  description: string;
+  /** Array of dye itemIDs (3-5 dyes) */
+  dyes: number[];
+  /** Searchable tags */
+  tags: string[];
+  /** Credit for community submissions */
+  author?: string;
+  /** Version for future updates */
+  version?: string;
+}
+
+/**
+ * Preset with resolved Dye objects
+ */
+export interface ResolvedPreset extends PresetPalette {
+  /** Full Dye objects for each dye ID */
+  resolvedDyes: (Dye | null)[];
+}
+
+/**
+ * Full preset data structure
+ */
+export interface PresetData {
+  /** Data format version */
+  version: string;
+  /** Last update timestamp */
+  lastUpdated: string;
+  /** Category metadata */
+  categories: Record<PresetCategory, CategoryMeta>;
+  /** All preset palettes */
+  palettes: PresetPalette[];
+}
+
+// ============================================================================
 // Error Types
 // ============================================================================
 
