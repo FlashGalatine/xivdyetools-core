@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.5] - 2025-12-05
+
+### Added
+- **PaletteService**: New service for multi-color palette extraction from images
+  - K-means++ clustering algorithm for accurate dominant color detection
+  - `extractPalette(pixels, options)` - Extract N dominant colors with dominance percentages
+  - `extractAndMatchPalette(pixels, dyeService, options)` - Extract and match to closest FFXIV dyes
+  - Configurable: `colorCount` (3-5), `maxIterations`, `convergenceThreshold`, `maxSamples`
+  - Helper functions: `pixelDataToRGB()`, `pixelDataToRGBFiltered()` for Canvas data conversion
+
+### Usage Example
+```typescript
+import { PaletteService, DyeService, dyeDatabase } from 'xivdyetools-core';
+
+const paletteService = new PaletteService();
+const dyeService = new DyeService(dyeDatabase);
+
+// Extract from Canvas ImageData
+const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+const pixels = PaletteService.pixelDataToRGBFiltered(imageData.data);
+
+// Get palette with matched dyes
+const matches = paletteService.extractAndMatchPalette(pixels, dyeService, {
+  colorCount: 4,
+  maxIterations: 25
+});
+
+// Each match includes: extracted, matchedDye, distance, dominance
+```
+
+---
+
 ## [1.3.2] - 2025-12-04
 
 ### Added

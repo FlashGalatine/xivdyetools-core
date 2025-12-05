@@ -12,6 +12,7 @@
 🎨 **136 FFXIV Dyes** - Complete database with RGB/HSV/metadata
 🎯 **Dye Matching** - Find closest dyes to any color
 🌈 **Color Harmonies** - Triadic, complementary, analogous, and more
+🖼️ **Palette Extraction** - K-means++ clustering for multi-color extraction from images
 ♿ **Accessibility** - Colorblindness simulation (Brettel 1997)
 📡 **Universalis API** - Price data integration with caching
 🔌 **Pluggable Cache** - Memory, localStorage, Redis support
@@ -143,6 +144,40 @@ const filtered = dyeService.filterDyes({
   minPrice: 0,
   maxPrice: 10000
 });
+```
+
+### PaletteService
+
+Multi-color palette extraction from images using K-means++ clustering.
+
+```typescript
+import { PaletteService, DyeService, dyeDatabase } from 'xivdyetools-core';
+
+const paletteService = new PaletteService();
+const dyeService = new DyeService(dyeDatabase);
+
+// Extract from Canvas ImageData
+const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+const pixels = PaletteService.pixelDataToRGBFiltered(imageData.data);
+
+// Extract dominant colors only
+const palette = paletteService.extractPalette(pixels, { colorCount: 4 });
+// Returns: Array<{ color: RGB, dominance: number }>
+
+// Extract and match to FFXIV dyes
+const matches = paletteService.extractAndMatchPalette(pixels, dyeService, {
+  colorCount: 4,
+  maxIterations: 25,
+  convergenceThreshold: 1.0,
+  maxSamples: 10000
+});
+// Returns: Array<{ extracted: RGB, matchedDye: Dye, distance: number, dominance: number }>
+
+// Helper: Convert raw pixel buffer (RGB, 3 bytes per pixel)
+const pixelsFromBuffer = PaletteService.pixelDataToRGB(buffer);
+
+// Helper: Convert RGBA ImageData, filtering transparent pixels
+const pixelsFromCanvas = PaletteService.pixelDataToRGBFiltered(imageData.data);
 ```
 
 ### APIService
