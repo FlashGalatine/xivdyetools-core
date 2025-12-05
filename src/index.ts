@@ -5,6 +5,13 @@ export { APIService, MemoryCacheBackend } from './services/APIService.js';
 export type { ICacheBackend, APIServiceOptions } from './services/APIService.js';
 export { LocalizationService } from './services/LocalizationService.js';
 export { PresetService } from './services/PresetService.js';
+export { PaletteService } from './services/PaletteService.js';
+export type {
+  PaletteExtractionOptions,
+  ExtractedColor,
+  PaletteMatch,
+  PaletteServiceOptions,
+} from './services/PaletteService.js';
 
 // Types
 export type {
@@ -22,6 +29,8 @@ export type {
   LocaleCode,
   TranslationKey,
   HarmonyTypeKey,
+  JobKey,
+  GrandCompanyKey,
   LocaleData,
   LocalePreference,
   Logger,
