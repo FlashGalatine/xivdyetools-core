@@ -26,6 +26,11 @@
       "name": "Aesthetics",
       "description": "General aesthetic themes",
       "icon": "🎨"
+    },
+    "community": {
+      "name": "Community",
+      "description": "Community-submitted palettes",
+      "icon": "👥"
     }
   },
   "palettes": [
