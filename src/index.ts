@@ -40,6 +40,14 @@ export type {
   PresetPalette,
   ResolvedPreset,
   PresetData,
+  // Community preset types (for API integration)
+  PresetStatus,
+  CommunityPreset,
+  PresetSubmission,
+  PresetListResponse,
+  PresetSubmitResponse,
+  VoteResponse,
+  PresetFilters,
 } from './types/index.js';
 export { AppError, ErrorCode, createHexColor, NoOpLogger, ConsoleLogger } from './types/index.js';
 

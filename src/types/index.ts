@@ -370,6 +370,132 @@ export interface PresetData {
 }
 
 // ============================================================================
+// Community Preset Types (for API integration)
+// ============================================================================
+
+/**
+ * Status of a community preset submission
+ */
+export type PresetStatus = 'pending' | 'approved' | 'rejected' | 'flagged';
+
+/**
+ * Community preset with voting and moderation data
+ * Extended version of PresetPalette for API responses
+ */
+export interface CommunityPreset {
+  /** Unique identifier (UUID) */
+  id: string;
+  /** Display name */
+  name: string;
+  /** Brief description */
+  description: string;
+  /** Category this preset belongs to */
+  category_id: PresetCategory;
+  /** Array of dye item IDs (2-5 dyes) */
+  dyes: number[];
+  /** Searchable tags */
+  tags: string[];
+  /** Discord user ID of author (null for curated) */
+  author_discord_id: string | null;
+  /** Display name of author at submission time */
+  author_name: string | null;
+  /** Number of votes */
+  vote_count: number;
+  /** Moderation status */
+  status: PresetStatus;
+  /** True for official/curated presets */
+  is_curated: boolean;
+  /** ISO 8601 creation timestamp */
+  created_at: string;
+  /** ISO 8601 last update timestamp */
+  updated_at: string;
+}
+
+/**
+ * Data required to submit a new preset
+ */
+export interface PresetSubmission {
+  /** Name (2-50 characters) */
+  name: string;
+  /** Description (10-200 characters) */
+  description: string;
+  /** Category */
+  category_id: PresetCategory;
+  /** Array of dye item IDs (2-5 dyes) */
+  dyes: number[];
+  /** Tags (0-10 tags, max 30 chars each) */
+  tags: string[];
+  /** Submitter's Discord user ID */
+  author_discord_id: string;
+  /** Submitter's display name */
+  author_name: string;
+}
+
+/**
+ * Response when listing presets
+ */
+export interface PresetListResponse {
+  /** Array of presets */
+  presets: CommunityPreset[];
+  /** Total count (for pagination) */
+  total: number;
+  /** Current page number */
+  page: number;
+  /** Results per page */
+  limit: number;
+  /** True if more pages available */
+  has_more: boolean;
+}
+
+/**
+ * Response when submitting a preset
+ */
+export interface PresetSubmitResponse {
+  /** Whether the operation succeeded */
+  success: boolean;
+  /** The created preset (if new) */
+  preset?: CommunityPreset;
+  /** The existing preset (if duplicate) */
+  duplicate?: CommunityPreset;
+  /** Whether a vote was added to duplicate */
+  vote_added?: boolean;
+  /** Moderation result */
+  moderation_status?: 'approved' | 'pending';
+}
+
+/**
+ * Response when voting on a preset
+ */
+export interface VoteResponse {
+  /** Whether the operation succeeded */
+  success: boolean;
+  /** Updated vote count */
+  new_vote_count: number;
+  /** True if user already voted */
+  already_voted?: boolean;
+}
+
+/**
+ * Filters for listing presets
+ */
+export interface PresetFilters {
+  /** Filter by category */
+  category?: PresetCategory;
+  /** Search term */
+  search?: string;
+  /** Filter by status */
+  status?: PresetStatus;
+  /** Sort order */
+  sort?: 'popular' | 'recent' | 'name';
+  /** Page number */
+  page?: number;
+  /** Results per page */
+  limit?: number;
+  /** Filter by curated status */
+  is_curated?: boolean;
+}
+
+// ============================================================================
 // Error Types
 // ============================================================================
 
