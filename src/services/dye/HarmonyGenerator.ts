@@ -21,17 +21,41 @@ export class HarmonyGenerator {
 
   /**
    * Find dyes that form a complementary color pair
+   * Excludes Facewear dyes (generic names like "Red", "Blue")
    */
   findComplementaryPair(hex: string): Dye | null {
     this.database.ensureLoaded();
 
     try {
       const complementaryHex = ColorManipulator.invert(hex);
-      return this.search.findClosestDye(complementaryHex);
+      // Find closest dye, excluding Facewear
+      return this.findClosestNonFacewearDye(complementaryHex);
     } catch {
       // Invalid hex color
       return null;
     }
+  }
+
+  /**
+   * Find the closest dye that is not Facewear
+   * Iteratively searches until a non-Facewear dye is found
+   */
+  private findClosestNonFacewearDye(hex: string, excludeIds: number[] = []): Dye | null {
+    const allExcluded = [...excludeIds];
+
+    for (let i = 0; i < 10; i++) {
+      const candidate = this.search.findClosestDye(hex, allExcluded);
+      if (!candidate) return null;
+
+      if (candidate.category !== 'Facewear') {
+        return candidate;
+      }
+
+      // This candidate is Facewear, exclude it and try again
+      allExcluded.push(candidate.id);
+    }
+
+    return null;
   }
 
   /**
@@ -81,11 +105,12 @@ export class HarmonyGenerator {
 
   /**
    * Find monochromatic dyes (same hue, varying saturation/brightness)
+   * Excludes Facewear dyes (generic names like "Red", "Blue")
    */
   findMonochromaticDyes(hex: string, limit: number = 6): Dye[] {
     this.database.ensureLoaded();
 
-    const baseDye = this.search.findClosestDye(hex);
+    const baseDye = this.findClosestNonFacewearDye(hex);
     if (!baseDye) return [];
 
     const baseHue = baseDye.hsv.h;
@@ -94,6 +119,9 @@ export class HarmonyGenerator {
 
     // Find dyes with similar hue but different saturation/value
     for (const dye of dyes) {
+      // Skip Facewear dyes (generic names)
+      if (dye.category === 'Facewear') continue;
+
       const hueDiff = Math.min(Math.abs(dye.hsv.h - baseHue), 360 - Math.abs(dye.hsv.h - baseHue));
 
       // Hue must be very close (within ±15°)
