@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.6] - 2025-12-07
+
+### Added
+- **CommunityPreset Types**: TypeScript types for community preset API integration
+  - `PresetStatus`: pending | approved | rejected | flagged
+  - `CommunityPreset`: Full preset with voting and moderation data
+  - `PresetSubmission`: Data required to submit a new preset
+  - `PresetListResponse`, `PresetSubmitResponse`, `VoteResponse`, `PresetFilters`
+- **Facewear Filtering**: Native exclusion of Facewear dyes in harmony functions
+  - `findComplementaryPair` now excludes Facewear dyes
+  - `findMonochromaticDyes` now excludes Facewear dyes
+  - `findClosestNonFacewearDye` helper method for explicit filtering
+
+---
+
 ## [1.3.5] - 2025-12-05
 
 ### Added
