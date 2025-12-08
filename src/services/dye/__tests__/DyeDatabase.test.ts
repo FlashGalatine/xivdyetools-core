@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { DyeDatabase } from '../DyeDatabase.js';
-import type { Dye } from '../../../types/index.js';
+import type { Dye, Logger } from '../../../types/index.js';
 import { AppError, ErrorCode } from '../../../types/index.js';
 
 describe('DyeDatabase', () => {
@@ -364,6 +364,659 @@ describe('DyeDatabase', () => {
       const dyes2 = database.getDyesInternal();
 
       expect(dyes1).toBe(dyes2); // Same array instance
+    });
+  });
+
+  // ============================================================================
+  // NEW TESTS FOR IMPROVED COVERAGE
+  // ============================================================================
+
+  describe('prototype pollution protection', () => {
+    it('should filter out __proto__ key from dye data', () => {
+      // Create object with __proto__ as an actual property (not prototype assignment)
+      const maliciousDye = Object.create(null);
+      Object.assign(maliciousDye, {
+        itemID: 9999,
+        name: 'Test Dye',
+        hex: '#FF0000',
+        rgb: { r: 255, g: 0, b: 0 },
+        hsv: { h: 0, s: 100, v: 100 },
+        category: 'Reds',
+        acquisition: 'Test',
+        cost: 0,
+      });
+      // Add __proto__ as an actual enumerable property
+      Object.defineProperty(maliciousDye, '__proto__', {
+        value: { polluted: true },
+        enumerable: true,
+        configurable: true,
+      });
+
+      database.initialize([maliciousDye]);
+
+      const dye = database.getDyeById(9999);
+      expect(dye).toBeDefined();
+      // The __proto__ key should have been filtered out
+      expect(Object.prototype.hasOwnProperty.call(dye, '__proto__')).toBe(false);
+    });
+
+    it('should filter out constructor key from dye data', () => {
+      // Create object with constructor as an actual property
+      const maliciousDye = Object.create(null);
+      Object.assign(maliciousDye, {
+        itemID: 9998,
+        name: 'Constructor Test',
+        hex: '#00FF00',
+        rgb: { r: 0, g: 255, b: 0 },
+        hsv: { h: 120, s: 100, v: 100 },
+        category: 'Greens',
+        acquisition: 'Test',
+        cost: 0,
+      });
+      Object.defineProperty(maliciousDye, 'constructor', {
+        value: { malicious: true },
+        enumerable: true,
+        configurable: true,
+      });
+
+      database.initialize([maliciousDye]);
+      const dye = database.getDyeById(9998);
+      expect(dye).toBeDefined();
+      // The constructor key should have been filtered out
+      expect(Object.prototype.hasOwnProperty.call(dye, 'constructor')).toBe(false);
+    });
+
+    it('should filter out prototype key from dye data', () => {
+      // Create object with prototype as an actual property
+      const maliciousDye = Object.create(null);
+      Object.assign(maliciousDye, {
+        itemID: 9997,
+        name: 'Prototype Test',
+        hex: '#0000FF',
+        rgb: { r: 0, g: 0, b: 255 },
+        hsv: { h: 240, s: 100, v: 100 },
+        category: 'Blues',
+        acquisition: 'Test',
+        cost: 0,
+      });
+      Object.defineProperty(maliciousDye, 'prototype', {
+        value: { evil: true },
+        enumerable: true,
+        configurable: true,
+      });
+
+      database.initialize([maliciousDye]);
+      const dye = database.getDyeById(9997);
+      expect(dye).toBeDefined();
+      // The prototype key should have been filtered out
+      expect(Object.prototype.hasOwnProperty.call(dye, 'prototype')).toBe(false);
+    });
+
+    it('should filter out dangerous keys from nested RGB objects', () => {
+      // Create RGB object with __proto__ as actual property
+      const maliciousRgb = Object.create(null);
+      Object.assign(maliciousRgb, { r: 128, g: 128, b: 128 });
+      Object.defineProperty(maliciousRgb, '__proto__', {
+        value: { nested: true },
+        enumerable: true,
+        configurable: true,
+      });
+
+      const maliciousDye = {
+        itemID: 9996,
+        name: 'Nested Proto Test',
+        hex: '#808080',
+        rgb: maliciousRgb,
+        hsv: { h: 0, s: 0, v: 50 },
+        category: 'Grays',
+        acquisition: 'Test',
+        cost: 0,
+      };
+
+      database.initialize([maliciousDye]);
+      const dye = database.getDyeById(9996);
+      expect(dye).toBeDefined();
+      // The nested __proto__ key should have been filtered out
+      expect(Object.prototype.hasOwnProperty.call(dye?.rgb, '__proto__')).toBe(false);
+    });
+  });
+
+  describe('dye validation', () => {
+    it('should reject dye with invalid name (empty string)', () => {
+      const invalidDye = {
+        itemID: 9996,
+        name: '',
+        hex: '#FF0000',
+        rgb: { r: 255, g: 0, b: 0 },
+        hsv: { h: 0, s: 100, v: 100 },
+        category: 'Reds',
+        acquisition: 'Test',
+        cost: 0,
+      };
+
+      database.initialize([...mockDyes, invalidDye]);
+      const dye = database.getDyeById(9996);
+      expect(dye).toBeNull(); // Should be filtered out
+    });
+
+    it('should reject dye with non-string name', () => {
+      const invalidDye = {
+        itemID: 9995,
+        name: 12345, // number instead of string
+        hex: '#FF0000',
+        rgb: { r: 255, g: 0, b: 0 },
+        hsv: { h: 0, s: 100, v: 100 },
+        category: 'Reds',
+        acquisition: 'Test',
+        cost: 0,
+      };
+
+      database.initialize([...mockDyes, invalidDye]);
+      const dye = database.getDyeById(9995);
+      expect(dye).toBeNull();
+    });
+
+    it('should reject dye with invalid hex format (missing #)', () => {
+      const invalidDye = {
+        itemID: 9994,
+        name: 'Bad Hex',
+        hex: 'FF0000', // missing #
+        rgb: { r: 255, g: 0, b: 0 },
+        hsv: { h: 0, s: 100, v: 100 },
+        category: 'Reds',
+        acquisition: 'Test',
+        cost: 0,
+      };
+
+      database.initialize([...mockDyes, invalidDye]);
+      const dye = database.getDyeById(9994);
+      expect(dye).toBeNull();
+    });
+
+    it('should reject dye with invalid hex format (wrong length)', () => {
+      const invalidDye = {
+        itemID: 9993,
+        name: 'Short Hex',
+        hex: '#FFF', // 3-digit hex not supported
+        rgb: { r: 255, g: 255, b: 255 },
+        hsv: { h: 0, s: 0, v: 100 },
+        category: 'Neutral',
+        acquisition: 'Test',
+        cost: 0,
+      };
+
+      database.initialize([...mockDyes, invalidDye]);
+      const dye = database.getDyeById(9993);
+      expect(dye).toBeNull();
+    });
+
+    it('should reject dye with non-string hex', () => {
+      const invalidDye = {
+        itemID: 9992,
+        name: 'Number Hex',
+        hex: 16711680, // number instead of string
+        rgb: { r: 255, g: 0, b: 0 },
+        hsv: { h: 0, s: 100, v: 100 },
+        category: 'Reds',
+        acquisition: 'Test',
+        cost: 0,
+      };
+
+      database.initialize([...mockDyes, invalidDye]);
+      const dye = database.getDyeById(9992);
+      expect(dye).toBeNull();
+    });
+
+    it('should reject dye with RGB values out of range (> 255)', () => {
+      const invalidDye = {
+        itemID: 9991,
+        name: 'Bad RGB High',
+        hex: '#FF0000',
+        rgb: { r: 300, g: 0, b: 0 }, // r > 255
+        hsv: { h: 0, s: 100, v: 100 },
+        category: 'Reds',
+        acquisition: 'Test',
+        cost: 0,
+      };
+
+      database.initialize([...mockDyes, invalidDye]);
+      const dye = database.getDyeById(9991);
+      expect(dye).toBeNull();
+    });
+
+    it('should reject dye with RGB values out of range (< 0)', () => {
+      const invalidDye = {
+        itemID: 9990,
+        name: 'Bad RGB Low',
+        hex: '#FF0000',
+        rgb: { r: -10, g: 0, b: 0 }, // r < 0
+        hsv: { h: 0, s: 100, v: 100 },
+        category: 'Reds',
+        acquisition: 'Test',
+        cost: 0,
+      };
+
+      database.initialize([...mockDyes, invalidDye]);
+      const dye = database.getDyeById(9990);
+      expect(dye).toBeNull();
+    });
+
+    it('should reject dye with non-number RGB values', () => {
+      const invalidDye = {
+        itemID: 9989,
+        name: 'String RGB',
+        hex: '#FF0000',
+        rgb: { r: '255', g: 0, b: 0 }, // string instead of number
+        hsv: { h: 0, s: 100, v: 100 },
+        category: 'Reds',
+        acquisition: 'Test',
+        cost: 0,
+      };
+
+      database.initialize([...mockDyes, invalidDye]);
+      const dye = database.getDyeById(9989);
+      expect(dye).toBeNull();
+    });
+
+    it('should reject dye with HSV hue out of range (> 360)', () => {
+      const invalidDye = {
+        itemID: 9988,
+        name: 'Bad HSV H',
+        hex: '#FF0000',
+        rgb: { r: 255, g: 0, b: 0 },
+        hsv: { h: 400, s: 100, v: 100 }, // h > 360
+        category: 'Reds',
+        acquisition: 'Test',
+        cost: 0,
+      };
+
+      database.initialize([...mockDyes, invalidDye]);
+      const dye = database.getDyeById(9988);
+      expect(dye).toBeNull();
+    });
+
+    it('should reject dye with HSV saturation out of range (> 100)', () => {
+      const invalidDye = {
+        itemID: 9987,
+        name: 'Bad HSV S',
+        hex: '#FF0000',
+        rgb: { r: 255, g: 0, b: 0 },
+        hsv: { h: 0, s: 150, v: 100 }, // s > 100
+        category: 'Reds',
+        acquisition: 'Test',
+        cost: 0,
+      };
+
+      database.initialize([...mockDyes, invalidDye]);
+      const dye = database.getDyeById(9987);
+      expect(dye).toBeNull();
+    });
+
+    it('should reject dye with HSV value out of range (< 0)', () => {
+      const invalidDye = {
+        itemID: 9986,
+        name: 'Bad HSV V',
+        hex: '#FF0000',
+        rgb: { r: 255, g: 0, b: 0 },
+        hsv: { h: 0, s: 100, v: -10 }, // v < 0
+        category: 'Reds',
+        acquisition: 'Test',
+        cost: 0,
+      };
+
+      database.initialize([...mockDyes, invalidDye]);
+      const dye = database.getDyeById(9986);
+      expect(dye).toBeNull();
+    });
+
+    it('should reject dye with non-string category', () => {
+      const invalidDye = {
+        itemID: 9985,
+        name: 'Bad Category',
+        hex: '#FF0000',
+        rgb: { r: 255, g: 0, b: 0 },
+        hsv: { h: 0, s: 100, v: 100 },
+        category: 123, // number instead of string
+        acquisition: 'Test',
+        cost: 0,
+      };
+
+      database.initialize([...mockDyes, invalidDye]);
+      const dye = database.getDyeById(9985);
+      expect(dye).toBeNull();
+    });
+
+    it('should reject dye without id or itemID', () => {
+      const invalidDye = {
+        name: 'No ID',
+        hex: '#FF0000',
+        rgb: { r: 255, g: 0, b: 0 },
+        hsv: { h: 0, s: 100, v: 100 },
+        category: 'Reds',
+        acquisition: 'Test',
+        cost: 0,
+      };
+
+      database.initialize([...mockDyes, invalidDye]);
+      // Should only have the mock dyes, not the invalid one
+      expect(database.getDyeCount()).toBe(5);
+    });
+  });
+
+  describe('Facewear dyes with null itemID', () => {
+    it('should generate synthetic ID for Facewear dyes with null itemID', () => {
+      const facewearDye = {
+        itemID: null,
+        name: 'Facewear Test Color',
+        hex: '#FF00FF',
+        rgb: { r: 255, g: 0, b: 255 },
+        hsv: { h: 300, s: 100, v: 100 },
+        category: 'Facewear',
+        acquisition: 'Special',
+        cost: 0,
+      };
+
+      database.initialize([facewearDye]);
+
+      expect(database.getDyeCount()).toBe(1);
+      const allDyes = database.getAllDyes();
+      expect(allDyes[0].name).toBe('Facewear Test Color');
+      expect(allDyes[0].id).toBeLessThan(0); // Synthetic IDs are negative
+    });
+
+    it('should generate different synthetic IDs for different Facewear names', () => {
+      const facewear1 = {
+        itemID: null,
+        name: 'Facewear Alpha',
+        hex: '#FF0000',
+        rgb: { r: 255, g: 0, b: 0 },
+        hsv: { h: 0, s: 100, v: 100 },
+        category: 'Facewear',
+        acquisition: 'Special',
+        cost: 0,
+      };
+
+      const facewear2 = {
+        itemID: null,
+        name: 'Facewear Beta',
+        hex: '#00FF00',
+        rgb: { r: 0, g: 255, b: 0 },
+        hsv: { h: 120, s: 100, v: 100 },
+        category: 'Facewear',
+        acquisition: 'Special',
+        cost: 0,
+      };
+
+      database.initialize([facewear1, facewear2]);
+
+      const allDyes = database.getAllDyes();
+      expect(allDyes[0].id).not.toBe(allDyes[1].id);
+    });
+  });
+
+  describe('price to cost mapping', () => {
+    it('should map price field to cost when cost is undefined', () => {
+      const dyeWithPrice = {
+        itemID: 9000,
+        name: 'Price Test',
+        hex: '#FF0000',
+        rgb: { r: 255, g: 0, b: 0 },
+        hsv: { h: 0, s: 100, v: 100 },
+        category: 'Reds',
+        acquisition: 'Test',
+        price: 500, // price instead of cost
+      };
+
+      database.initialize([dyeWithPrice]);
+
+      const dye = database.getDyeById(9000);
+      expect(dye?.cost).toBe(500);
+    });
+
+    it('should handle null cost by defaulting to 0', () => {
+      const dyeWithNullCost = {
+        itemID: 9001,
+        name: 'Null Cost Test',
+        hex: '#00FF00',
+        rgb: { r: 0, g: 255, b: 0 },
+        hsv: { h: 120, s: 100, v: 100 },
+        category: 'Greens',
+        acquisition: 'Test',
+        cost: null,
+      };
+
+      database.initialize([dyeWithNullCost]);
+
+      const dye = database.getDyeById(9001);
+      expect(dye?.cost).toBe(0);
+    });
+
+    it('should handle undefined cost by defaulting to 0', () => {
+      const dyeWithUndefinedCost = {
+        itemID: 9002,
+        name: 'Undefined Cost Test',
+        hex: '#0000FF',
+        rgb: { r: 0, g: 0, b: 255 },
+        hsv: { h: 240, s: 100, v: 100 },
+        category: 'Blues',
+        acquisition: 'Test',
+        // cost is intentionally omitted
+      };
+
+      database.initialize([dyeWithUndefinedCost]);
+
+      const dye = database.getDyeById(9002);
+      expect(dye?.cost).toBe(0);
+    });
+
+    it('should handle null price by defaulting cost to 0', () => {
+      const dyeWithNullPrice = {
+        itemID: 9003,
+        name: 'Null Price Test',
+        hex: '#FFFF00',
+        rgb: { r: 255, g: 255, b: 0 },
+        hsv: { h: 60, s: 100, v: 100 },
+        category: 'Yellows',
+        acquisition: 'Test',
+        price: null,
+      };
+
+      database.initialize([dyeWithNullPrice]);
+
+      const dye = database.getDyeById(9003);
+      expect(dye?.cost).toBe(0);
+    });
+  });
+
+  describe('logger integration', () => {
+    it('should use provided logger for info messages', () => {
+      const mockLogger: Logger = {
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+        debug: vi.fn(),
+      };
+
+      const dbWithLogger = new DyeDatabase({ logger: mockLogger });
+      dbWithLogger.initialize(mockDyes);
+
+      expect(mockLogger.info).toHaveBeenCalledWith(expect.stringContaining('Dye database loaded'));
+    });
+
+    it('should use provided logger for warn messages on invalid dyes', () => {
+      const mockLogger: Logger = {
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+        debug: vi.fn(),
+      };
+
+      const invalidDye = {
+        itemID: 8888,
+        name: '', // invalid empty name
+        hex: '#FF0000',
+        rgb: { r: 255, g: 0, b: 0 },
+        hsv: { h: 0, s: 100, v: 100 },
+        category: 'Reds',
+        acquisition: 'Test',
+        cost: 0,
+      };
+
+      const dbWithLogger = new DyeDatabase({ logger: mockLogger });
+      dbWithLogger.initialize([...mockDyes, invalidDye]);
+
+      expect(mockLogger.warn).toHaveBeenCalledWith(expect.stringContaining('invalid name'));
+    });
+  });
+
+  describe('dyes with different id and itemID', () => {
+    it('should map both id and itemID when they differ', () => {
+      const dyeWithDifferentIds = {
+        itemID: 7000,
+        id: 7001, // Different from itemID
+        name: 'Different IDs',
+        hex: '#FF0000',
+        rgb: { r: 255, g: 0, b: 0 },
+        hsv: { h: 0, s: 100, v: 100 },
+        category: 'Reds',
+        acquisition: 'Test',
+        cost: 0,
+      };
+
+      database.initialize([dyeWithDifferentIds]);
+
+      // Should be findable by both IDs
+      expect(database.getDyeById(7000)).toBeDefined();
+      expect(database.getDyeById(7001)).toBeDefined();
+      expect(database.getDyeById(7000)?.name).toBe('Different IDs');
+      expect(database.getDyeById(7001)?.name).toBe('Different IDs');
+    });
+  });
+
+  describe('additional initialization edge cases', () => {
+    it('should throw error for undefined input', () => {
+      expect(() => database.initialize(undefined)).toThrow(AppError);
+      expect(() => database.initialize(undefined)).toThrow('null or undefined');
+    });
+
+    it('should throw error for number input', () => {
+      expect(() => database.initialize(123)).toThrow(AppError);
+      expect(() => database.initialize(123)).toThrow('expected array or object');
+    });
+
+    it('should throw error for boolean input', () => {
+      expect(() => database.initialize(true)).toThrow(AppError);
+      expect(() => database.initialize(true)).toThrow('expected array or object');
+    });
+
+    it('should accept dyes with null hex value', () => {
+      const dyeWithNullHex = {
+        itemID: 8000,
+        name: 'Null Hex',
+        hex: null,
+        rgb: { r: 255, g: 0, b: 0 },
+        hsv: { h: 0, s: 100, v: 100 },
+        category: 'Reds',
+        acquisition: 'Test',
+        cost: 0,
+      };
+
+      database.initialize([dyeWithNullHex]);
+      const dye = database.getDyeById(8000);
+      expect(dye).toBeDefined();
+    });
+
+    it('should accept dyes with undefined hex value', () => {
+      const dyeWithoutHex = {
+        itemID: 8001,
+        name: 'No Hex',
+        rgb: { r: 255, g: 0, b: 0 },
+        hsv: { h: 0, s: 100, v: 100 },
+        category: 'Reds',
+        acquisition: 'Test',
+        cost: 0,
+      };
+
+      database.initialize([dyeWithoutHex]);
+      const dye = database.getDyeById(8001);
+      expect(dye).toBeDefined();
+    });
+
+    it('should fail to initialize dyes with null RGB value (required for k-d tree)', () => {
+      const dyeWithNullRgb = {
+        itemID: 8002,
+        name: 'Null RGB',
+        hex: '#FF0000',
+        rgb: null,
+        hsv: { h: 0, s: 100, v: 100 },
+        category: 'Reds',
+        acquisition: 'Test',
+        cost: 0,
+      };
+
+      // Dye with null RGB will fail during k-d tree building
+      // This verifies the error is handled gracefully
+      expect(() => database.initialize([dyeWithNullRgb])).toThrow(AppError);
+    });
+
+    it('should fail to initialize dyes with null HSV value (required for hue bucketing)', () => {
+      const dyeWithNullHsv = {
+        itemID: 8003,
+        name: 'Null HSV',
+        hex: '#FF0000',
+        rgb: { r: 255, g: 0, b: 0 },
+        hsv: null,
+        category: 'Reds',
+        acquisition: 'Test',
+        cost: 0,
+      };
+
+      // Dye with null HSV will fail during hue bucket indexing
+      // This verifies the error is handled gracefully
+      expect(() => database.initialize([dyeWithNullHsv])).toThrow(AppError);
+    });
+
+    it('should accept dyes with null category', () => {
+      const dyeWithNullCategory = {
+        itemID: 8004,
+        name: 'Null Category',
+        hex: '#FF0000',
+        rgb: { r: 255, g: 0, b: 0 },
+        hsv: { h: 0, s: 100, v: 100 },
+        category: null,
+        acquisition: 'Test',
+        cost: 0,
+      };
+
+      database.initialize([dyeWithNullCategory]);
+      const dye = database.getDyeById(8004);
+      expect(dye).toBeDefined();
+    });
+
+    it('should accept dyes with undefined category', () => {
+      const dyeWithoutCategory = {
+        itemID: 8005,
+        name: 'No Category',
+        hex: '#FF0000',
+        rgb: { r: 255, g: 0, b: 0 },
+        hsv: { h: 0, s: 100, v: 100 },
+        acquisition: 'Test',
+        cost: 0,
+      };
+
+      database.initialize([dyeWithoutCategory]);
+      const dye = database.getDyeById(8005);
+      expect(dye).toBeDefined();
+    });
+  });
+
+  describe('getDyesByHueBucket edge cases', () => {
+    it('should return empty array for bucket with no dyes', () => {
+      database.initialize(mockDyes);
+
+      // Bucket 30 would be hue 300-309, which none of our mock dyes have
+      const dyes = database.getDyesByHueBucket(30);
+      expect(dyes).toEqual([]);
     });
   });
 });

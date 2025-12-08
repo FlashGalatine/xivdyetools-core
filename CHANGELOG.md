@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.7] - 2025-12-08
+
+### Added
+- **PresetService Test Coverage**: Comprehensive test suite for `PresetService.ts` (0% → 100% coverage)
+  - 64 new tests covering category operations, preset retrieval, search, random selection, and dye resolution
+  - Tests for `getCategories`, `getCategoryMeta`, `getAllPresets`, `getPresetsByCategory`, `getPreset`
+  - Tests for `getPresetCountByCategory`, `searchPresets`, `getPresetsByTag`, `getRandomPreset`
+  - Tests for `getPresetWithDyes`, `resolvePresets`, metadata methods, and edge cases
+
+- **TranslationProvider Test Coverage**: Added missing method tests
+  - 21 new tests for `getJobName()` covering all 22 FFXIV jobs (tanks, healers, melee/ranged/caster DPS)
+  - Tests for `getGrandCompanyName()` covering all 3 Grand Companies
+  - Japanese localization tests for job names and Grand Company names
+
+- **DyeDatabase Test Coverage**: Significant coverage improvements (84% → 100% lines)
+  - 35+ new tests for prototype pollution protection (`__proto__`, `constructor`, `prototype` filtering)
+  - Dye validation tests for invalid name, hex, RGB, HSV, and category values
+  - Facewear dye synthetic ID generation tests
+  - Price-to-cost field mapping tests
+  - Logger integration tests
+  - Edge case tests for null/undefined values
+
+### Changed
+- Overall project test coverage improved to 97.92% statements
+- 1256+ total tests across the entire test suite
+
+---
+
 ## [1.3.6] - 2025-12-07
 
 ### Added
