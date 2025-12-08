@@ -599,8 +599,17 @@ export class APIService {
   private buildApiUrl(itemID: number, _worldID?: number, dataCenterID?: string): string {
     // Universalis API endpoint: /api/v2/aggregated/{dataCenter or worldName}/{itemIDs}
     // Note: worldID parameter reserved for future use (world-specific queries)
-    const pathSegment = dataCenterID || 'universal'; // 'universal' gets global average
+    // Sanitize dataCenterID to prevent URL path injection
+    const pathSegment = dataCenterID ? this.sanitizeDataCenterId(dataCenterID) : 'universal';
     return `${UNIVERSALIS_API_BASE}/aggregated/${pathSegment}/${itemID}`;
+  }
+
+  /**
+   * Sanitize datacenter ID to prevent cache key injection.
+   * Only allows alphanumeric characters (a-z, A-Z, 0-9).
+   */
+  private sanitizeDataCenterId(dataCenterID: string): string {
+    return dataCenterID.replace(/[^a-zA-Z0-9]/g, '');
   }
 
   /**
@@ -608,7 +617,9 @@ export class APIService {
    */
   private buildCacheKey(itemID: number, worldID?: number, dataCenterID?: string): string {
     if (dataCenterID) {
-      return `${itemID}_${dataCenterID}`;
+      // Sanitize dataCenterID to prevent cache key injection
+      const sanitized = this.sanitizeDataCenterId(dataCenterID);
+      return `${itemID}_${sanitized}`;
     }
     if (worldID) {
       return `${itemID}_${worldID}`;
