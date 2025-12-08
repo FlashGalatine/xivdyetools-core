@@ -633,14 +633,25 @@ export class APIService {
 
   /**
    * Fetch prices for multiple items
+   * PERFORMANCE: Uses Promise.allSettled for parallel requests
+   * Failed requests are logged but don't block other results
    */
   async getPricesForItems(itemIDs: number[]): Promise<Map<number, PriceData>> {
     const results = new Map<number, PriceData>();
 
-    for (const itemID of itemIDs) {
+    // Fire all requests in parallel
+    const promises = itemIDs.map(async (itemID) => {
       const price = await this.getPriceData(itemID);
-      if (price) {
-        results.set(itemID, price);
+      return { itemID, price };
+    });
+
+    // Wait for all to settle (don't fail on individual errors)
+    const settled = await Promise.allSettled(promises);
+
+    // Collect successful results
+    for (const result of settled) {
+      if (result.status === 'fulfilled' && result.value.price) {
+        results.set(result.value.itemID, result.value.price);
       }
     }
 
@@ -649,6 +660,7 @@ export class APIService {
 
   /**
    * Fetch prices for dyes in a specific data center
+   * PERFORMANCE: Uses Promise.allSettled for parallel requests
    */
   async getPricesForDataCenter(
     itemIDs: number[],
@@ -656,10 +668,19 @@ export class APIService {
   ): Promise<Map<number, PriceData>> {
     const results = new Map<number, PriceData>();
 
-    for (const itemID of itemIDs) {
+    // Fire all requests in parallel
+    const promises = itemIDs.map(async (itemID) => {
       const price = await this.getPriceData(itemID, undefined, dataCenterID);
-      if (price) {
-        results.set(itemID, price);
+      return { itemID, price };
+    });
+
+    // Wait for all to settle (don't fail on individual errors)
+    const settled = await Promise.allSettled(promises);
+
+    // Collect successful results
+    for (const result of settled) {
+      if (result.status === 'fulfilled' && result.value.price) {
+        results.set(result.value.itemID, result.value.price);
       }
     }
 
