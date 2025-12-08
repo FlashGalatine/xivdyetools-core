@@ -345,6 +345,9 @@ export class PaletteService {
     // Validate colorCount
     const colorCount = Math.max(1, Math.min(10, opts.colorCount));
 
+    // SECURITY: Clamp maxIterations to prevent DoS via algorithmic complexity
+    const maxIterations = Math.max(1, Math.min(100, opts.maxIterations));
+
     if (pixels.length === 0) {
       this.logger.warn('PaletteService.extractPalette: Empty pixel array');
       return [];
@@ -359,7 +362,7 @@ export class PaletteService {
     const { centroids, clusterSizes } = kMeansClustering(
       sampledPixels,
       colorCount,
-      opts.maxIterations,
+      maxIterations,
       opts.convergenceThreshold
     );
 
