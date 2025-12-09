@@ -367,10 +367,14 @@ See [LICENSE](./LICENSE) for full details.
 
 **This is a fan-made tool and is not affiliated with or endorsed by Square Enix Co., Ltd. FINAL FANTASY is a registered trademark of Square Enix Holdings Co., Ltd.**
 
+## Coming Soon
+
+**Budget-Aware Dye Suggestions** - Find affordable alternatives to expensive dyes based on current market prices. See [specification](../xivdyetools-docs/BUDGET_AWARE_SUGGESTIONS.md) for details.
+
 ## Related Projects
 
-- [XIV Dye Tools Web App](https://github.com/FlashGalatine/xivdyetools) - Interactive color tools for FFXIV
-- [XIV Dye Tools Discord Bot](https://github.com/FlashGalatine/xivdyetools-discord-bot) - Discord bot using this package
+- [XIV Dye Tools Web App](https://github.com/FlashGalatine/xivdyetools-web-app) - Interactive color tools for FFXIV
+- [XIV Dye Tools Discord Worker](https://github.com/FlashGalatine/xivdyetools-discord-worker) - Cloudflare Worker Discord bot using this package
 
 ## Support
 
