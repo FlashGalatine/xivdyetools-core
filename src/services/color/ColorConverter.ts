@@ -315,6 +315,16 @@ export class ColorConverter {
   }
 
   /**
+   * Normalize hue to [0, 360) range.
+   * CORE-BUG-001: Ensures consistent cache keys for equivalent hue values
+   * (e.g., h=359.9999 and h=0.0001 both produce similar cache keys after rounding)
+   * Also handles negative values and values >= 360.
+   */
+  private normalizeHue(h: number): number {
+    return ((h % HUE_MAX) + HUE_MAX) % HUE_MAX;
+  }
+
+  /**
    * Convert HSV to RGB
    * Per P-1: Cached for performance
    * @example hsvToRgb(0, 100, 100) -> { r: 255, g: 0, b: 0 }
@@ -328,9 +338,14 @@ export class ColorConverter {
       );
     }
 
+    // CORE-BUG-001: Normalize hue BEFORE creating cache key
+    // This ensures h=359.9999 and h=0.0001 produce consistent cache keys
+    // after rounding, preventing cache thrashing for equivalent colors
+    const hNormalized = this.normalizeHue(h);
+
     // Create cache key using consistent rounding (2 decimal places)
     // Per Issue #17: Use same round() utility as rgbToHsv for consistency
-    const cacheKey = `${round(h, 2)},${round(s, 2)},${round(v, 2)}`;
+    const cacheKey = `${round(hNormalized, 2)},${round(s, 2)},${round(v, 2)}`;
 
     // Check cache
     const cached = this.hsvToRgbCache.get(cacheKey);
@@ -338,8 +353,8 @@ export class ColorConverter {
       return cached;
     }
 
-    // Normalize HSV
-    const hNorm = (h % HUE_MAX) / 60;
+    // Normalize HSV (use already normalized hue)
+    const hNorm = hNormalized / 60;
     const sNorm = s / 100;
     const vNorm = v / 100;
 
