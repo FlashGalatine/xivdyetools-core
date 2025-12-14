@@ -614,17 +614,26 @@ export class APIService {
 
   /**
    * Build cache key from parameters
+   * SECURITY: Uses type prefixes to prevent cache key collisions
+   * Format: itemID:type:value where type is 'dc', 'world', or 'global'
+   * This prevents crafted dataCenterID values from colliding with other key patterns
    */
   private buildCacheKey(itemID: number, worldID?: number, dataCenterID?: string): string {
+    const parts: (string | number)[] = [itemID];
+
     if (dataCenterID) {
-      // Sanitize dataCenterID to prevent cache key injection
+      // Type prefix 'dc' ensures datacenter keys don't collide with world/global keys
       const sanitized = this.sanitizeDataCenterId(dataCenterID);
-      return `${itemID}_${sanitized}`;
+      parts.push('dc', sanitized);
+    } else if (worldID) {
+      // Type prefix 'world' ensures world keys don't collide with datacenter/global keys
+      parts.push('world', worldID);
+    } else {
+      parts.push('global');
     }
-    if (worldID) {
-      return `${itemID}_${worldID}`;
-    }
-    return `${itemID}_global`;
+
+    // Use colon delimiter (not in sanitized values) for unambiguous parsing
+    return parts.join(':');
   }
 
   // ============================================================================
