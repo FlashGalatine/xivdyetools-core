@@ -119,6 +119,7 @@ function rgbMean(colors: RGB[]): RGB {
 /**
  * K-means++ initialization for better starting centroids
  * Selects initial centroids that are well-distributed
+ * CORE-PERF-003: Optimized from O(n*k²) to O(n*k) by caching minimum distances
  */
 function kMeansPlusPlusInit(pixels: RGB[], k: number): RGB[] {
   if (pixels.length === 0 || k <= 0) {
@@ -131,43 +132,48 @@ function kMeansPlusPlusInit(pixels: RGB[], k: number): RGB[] {
   const firstIndex = Math.floor(Math.random() * pixels.length);
   centroids.push({ ...pixels[firstIndex] });
 
+  // CORE-PERF-003: Cache minimum distances to avoid O(k) inner loop
+  // Initialize with distance to first centroid
+  const minDistances: number[] = new Array(pixels.length);
+  for (let j = 0; j < pixels.length; j++) {
+    minDistances[j] = rgbDistance(pixels[j], centroids[0]);
+  }
+
   // Remaining centroids: weighted probability by distance squared
   for (let i = 1; i < k; i++) {
-    const distances: number[] = [];
-    let totalDistance = 0;
-
-    // Calculate distance to nearest existing centroid for each pixel
-    for (const pixel of pixels) {
-      let minDist = Infinity;
-      for (const centroid of centroids) {
-        const dist = rgbDistance(pixel, centroid);
-        if (dist < minDist) {
-          minDist = dist;
-        }
-      }
-      // Use squared distance for probability weighting
-      const distSquared = minDist * minDist;
-      distances.push(distSquared);
-      totalDistance += distSquared;
+    // Calculate total distance (squared) for probability distribution
+    let totalDistanceSquared = 0;
+    for (let j = 0; j < pixels.length; j++) {
+      totalDistanceSquared += minDistances[j] * minDistances[j];
     }
 
     // Select next centroid with probability proportional to distance squared
-    if (totalDistance === 0) {
+    let selectedIndex = 0;
+    if (totalDistanceSquared === 0) {
       // All remaining pixels are duplicates of centroids
-      centroids.push({ ...pixels[Math.floor(Math.random() * pixels.length)] });
+      selectedIndex = Math.floor(Math.random() * pixels.length);
     } else {
-      let threshold = Math.random() * totalDistance;
-      let selectedIndex = 0;
+      let threshold = Math.random() * totalDistanceSquared;
 
-      for (let j = 0; j < distances.length; j++) {
-        threshold -= distances[j];
+      for (let j = 0; j < pixels.length; j++) {
+        threshold -= minDistances[j] * minDistances[j];
         if (threshold <= 0) {
           selectedIndex = j;
           break;
         }
       }
+    }
 
-      centroids.push({ ...pixels[selectedIndex] });
+    centroids.push({ ...pixels[selectedIndex] });
+
+    // CORE-PERF-003: Only compute distance to the NEW centroid and update minimums
+    // This reduces complexity from O(n*k) per iteration to O(n) per iteration
+    const newCentroid = centroids[centroids.length - 1];
+    for (let j = 0; j < pixels.length; j++) {
+      const distToNew = rgbDistance(pixels[j], newCentroid);
+      if (distToNew < minDistances[j]) {
+        minDistances[j] = distToNew;
+      }
     }
   }
 

@@ -24,12 +24,13 @@ class LRUCache<K, V> {
   }
 
   get(key: K): V | undefined {
-    const value = this.cache.get(key);
-    if (value !== undefined) {
-      // Move to end (most recently used)
-      this.cache.delete(key);
-      this.cache.set(key, value);
-    }
+    // CORE-PERF-001: Use has() check first to properly handle undefined values
+    // and ensure atomic move-to-end operation for LRU ordering
+    if (!this.cache.has(key)) return undefined;
+    const value = this.cache.get(key)!;
+    // Move to end (most recently used) - delete + set is atomic in synchronous JS
+    this.cache.delete(key);
+    this.cache.set(key, value);
     return value;
   }
 

@@ -45,45 +45,54 @@ export class KDTree {
    */
   constructor(points: Point3D[]) {
     if (points.length > 0) {
-      this.root = this.buildTree(points, 0);
+      // CORE-PERF-002: Use index-based construction to reduce memory allocations
+      // Instead of slicing point arrays (O(n) copy each time), we pass index arrays
+      // which are much smaller and reduce GC pressure
+      const indices = points.map((_, i) => i);
+      this.root = this.buildTreeOptimized(points, indices, 0);
       this.size = points.length;
     }
   }
 
   /**
-   * Recursively build k-d tree
-   * @param points - Points to insert
+   * Recursively build k-d tree using index arrays
+   * CORE-PERF-002: Optimized to reduce temporary array allocations
+   * @param points - Full points array (never copied)
+   * @param indices - Indices into points array for current subtree
    * @param depth - Current depth (determines splitting dimension)
    */
-  private buildTree(points: Point3D[], depth: number): KDNode | null {
-    if (points.length === 0) {
+  private buildTreeOptimized(points: Point3D[], indices: number[], depth: number): KDNode | null {
+    if (indices.length === 0) {
       return null;
     }
 
-    if (points.length === 1) {
-      return new KDNode(points[0], depth % 3);
+    if (indices.length === 1) {
+      return new KDNode(points[indices[0]], depth % 3);
     }
 
     // Select dimension to split on (alternate R, G, B)
     const dimension = depth % 3;
 
-    // Sort points by current dimension
-    const sorted = [...points].sort((a, b) => {
-      const aVal = dimension === 0 ? a.x : dimension === 1 ? a.y : a.z;
-      const bVal = dimension === 0 ? b.x : dimension === 1 ? b.y : b.z;
+    // Sort indices by the value at that dimension (smaller allocations than sorting full points)
+    indices.sort((a, b) => {
+      const aPoint = points[a];
+      const bPoint = points[b];
+      const aVal = dimension === 0 ? aPoint.x : dimension === 1 ? aPoint.y : aPoint.z;
+      const bVal = dimension === 0 ? bPoint.x : dimension === 1 ? bPoint.y : bPoint.z;
       return aVal - bVal;
     });
 
     // Find median
-    const median = Math.floor(sorted.length / 2);
-    const medianPoint = sorted[median];
+    const median = Math.floor(indices.length / 2);
+    const medianPoint = points[indices[median]];
 
     // Create node
     const node = new KDNode(medianPoint, dimension);
 
-    // Recursively build left and right subtrees
-    node.left = this.buildTree(sorted.slice(0, median), depth + 1);
-    node.right = this.buildTree(sorted.slice(median + 1), depth + 1);
+    // Recursively build left and right subtrees using index slices
+    // Index arrays are much smaller than point arrays (just numbers vs objects)
+    node.left = this.buildTreeOptimized(points, indices.slice(0, median), depth + 1);
+    node.right = this.buildTreeOptimized(points, indices.slice(median + 1), depth + 1);
 
     return node;
   }
