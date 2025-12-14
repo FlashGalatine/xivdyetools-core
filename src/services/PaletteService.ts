@@ -308,6 +308,7 @@ export class PaletteService {
   /**
    * Sample pixels from an array if it exceeds maxSamples
    * Uses uniform sampling to maintain color distribution
+   * CORE-PERF-004: Fixed potential out-of-bounds access on last iteration
    */
   private samplePixels(pixels: RGB[], maxSamples: number): RGB[] {
     if (pixels.length <= maxSamples) {
@@ -318,7 +319,8 @@ export class PaletteService {
     const samples: RGB[] = [];
 
     for (let i = 0; i < maxSamples; i++) {
-      const index = Math.floor(i * step);
+      // Clamp index to prevent out-of-bounds access due to floating-point rounding
+      const index = Math.min(Math.floor(i * step), pixels.length - 1);
       samples.push(pixels[index]);
     }
 

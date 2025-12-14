@@ -97,9 +97,10 @@ export class DyeSearch {
       const kdTree = this.database.getKdTree();
       if (kdTree && !kdTree.isEmpty()) {
         const excludeSet = new Set(excludeIds);
+        // CORE-BUG-005: Also exclude Facewear dyes in k-d tree path for consistency with fallback
         const nearest = kdTree.nearestNeighbor(targetPoint, (data) => {
           const dye = data as Dye;
-          return excludeSet.has(dye.id);
+          return excludeSet.has(dye.id) || dye.category === 'Facewear';
         });
 
         if (nearest && nearest.data) {
