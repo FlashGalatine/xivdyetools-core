@@ -75,6 +75,10 @@
     "engines": {
         "node": ">=18.0.0"
     },
+    "dependencies": {
+        "@xivdyetools/types": "^1.0.0",
+        "@xivdyetools/logger": "^1.0.0"
+    },
     "lint-staged": {
         "*.ts": [
             "eslint --fix",
