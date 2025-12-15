@@ -1,5 +1,5 @@
 {
-    "name": "xivdyetools-core",
+    "name": "@xivdyetools/core",
     "version": "1.3.7",
     "description": "Core color algorithms and dye database for XIV Dye Tools",
     "main": "dist/index.js",
