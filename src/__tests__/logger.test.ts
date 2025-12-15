@@ -75,18 +75,26 @@ describe('Logger', () => {
       it('should call console.info with prefixed message', () => {
         ConsoleLogger.info('test message');
         expect(consoleInfoSpy).toHaveBeenCalledTimes(1);
-        expect(consoleInfoSpy).toHaveBeenCalledWith('[xivdyetools] test message');
+        expect(consoleInfoSpy).toHaveBeenCalledWith(
+          expect.stringMatching(
+            /^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] \[xivdyetools\] test message$/
+          )
+        );
       });
 
       it('should handle empty message', () => {
         ConsoleLogger.info('');
-        expect(consoleInfoSpy).toHaveBeenCalledWith('[xivdyetools] ');
+        expect(consoleInfoSpy).toHaveBeenCalledWith(
+          expect.stringMatching(
+            /^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] \[xivdyetools\] $/
+          )
+        );
       });
 
       it('should handle messages with special characters', () => {
         ConsoleLogger.info('Message with "quotes" and <brackets>');
         expect(consoleInfoSpy).toHaveBeenCalledWith(
-          '[xivdyetools] Message with "quotes" and <brackets>'
+          expect.stringContaining('[xivdyetools] Message with "quotes" and <brackets>')
         );
       });
     });
@@ -95,12 +103,20 @@ describe('Logger', () => {
       it('should call console.warn with prefixed message', () => {
         ConsoleLogger.warn('test warning');
         expect(consoleWarnSpy).toHaveBeenCalledTimes(1);
-        expect(consoleWarnSpy).toHaveBeenCalledWith('[xivdyetools] test warning');
+        expect(consoleWarnSpy).toHaveBeenCalledWith(
+          expect.stringMatching(
+            /^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] \[xivdyetools\] test warning$/
+          )
+        );
       });
 
       it('should handle empty message', () => {
         ConsoleLogger.warn('');
-        expect(consoleWarnSpy).toHaveBeenCalledWith('[xivdyetools] ');
+        expect(consoleWarnSpy).toHaveBeenCalledWith(
+          expect.stringMatching(
+            /^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] \[xivdyetools\] $/
+          )
+        );
       });
     });
 
@@ -108,36 +124,60 @@ describe('Logger', () => {
       it('should call console.error with prefixed message when no error object provided', () => {
         ConsoleLogger.error('test error');
         expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-        expect(consoleErrorSpy).toHaveBeenCalledWith('[xivdyetools] test error');
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          expect.stringMatching(
+            /^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] \[xivdyetools\] test error$/
+          )
+        );
       });
 
       it('should call console.error with message and error object when error is provided', () => {
         const error = new Error('details');
         ConsoleLogger.error('test error', error);
         expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-        expect(consoleErrorSpy).toHaveBeenCalledWith('[xivdyetools] test error', error);
+        // New logger formats errors as {name, message} objects
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          expect.stringContaining('[xivdyetools] test error'),
+          expect.objectContaining({ name: 'Error', message: 'details' })
+        );
       });
 
       it('should handle undefined error object', () => {
         ConsoleLogger.error('test error', undefined);
         expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-        expect(consoleErrorSpy).toHaveBeenCalledWith('[xivdyetools] test error');
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          expect.stringMatching(
+            /^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] \[xivdyetools\] test error$/
+          )
+        );
       });
 
       it('should handle non-Error objects as error parameter', () => {
         const errorLike = { code: 'ERR_001', message: 'Something went wrong' };
         ConsoleLogger.error('test error', errorLike);
-        expect(consoleErrorSpy).toHaveBeenCalledWith('[xivdyetools] test error', errorLike);
+        // Non-Error objects are formatted as {name: 'Unknown', message: '[object Object]'}
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          expect.stringContaining('[xivdyetools] test error'),
+          expect.objectContaining({ name: 'Unknown' })
+        );
       });
 
       it('should handle string as error parameter', () => {
         ConsoleLogger.error('test error', 'string error');
-        expect(consoleErrorSpy).toHaveBeenCalledWith('[xivdyetools] test error', 'string error');
+        // Strings are formatted as {name: 'Unknown', message: 'string error'}
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          expect.stringContaining('[xivdyetools] test error'),
+          expect.objectContaining({ name: 'Unknown', message: 'string error' })
+        );
       });
 
       it('should handle null as error parameter (truthy check)', () => {
         ConsoleLogger.error('test error', null);
-        expect(consoleErrorSpy).toHaveBeenCalledWith('[xivdyetools] test error');
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          expect.stringMatching(
+            /^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] \[xivdyetools\] test error$/
+          )
+        );
       });
     });
 
@@ -145,12 +185,20 @@ describe('Logger', () => {
       it('should call console.debug with prefixed message', () => {
         ConsoleLogger.debug?.('test debug');
         expect(consoleDebugSpy).toHaveBeenCalledTimes(1);
-        expect(consoleDebugSpy).toHaveBeenCalledWith('[xivdyetools] test debug');
+        expect(consoleDebugSpy).toHaveBeenCalledWith(
+          expect.stringMatching(
+            /^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] \[xivdyetools\] test debug$/
+          )
+        );
       });
 
       it('should handle empty message', () => {
         ConsoleLogger.debug?.('');
-        expect(consoleDebugSpy).toHaveBeenCalledWith('[xivdyetools] ');
+        expect(consoleDebugSpy).toHaveBeenCalledWith(
+          expect.stringMatching(
+            /^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] \[xivdyetools\] $/
+          )
+        );
       });
     });
   });

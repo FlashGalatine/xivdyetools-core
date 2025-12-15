@@ -1076,7 +1076,8 @@ describe('APIService', () => {
 
       await apiService.getPriceData(itemID);
       const stats = await apiService.getCacheStats();
-      expect(stats.keys).toContain(`${itemID}_global`);
+      // Cache key format: itemID:global
+      expect(stats.keys).toContain(`${itemID}:global`);
     });
 
     it('should create DC key for data center', async () => {
@@ -1091,7 +1092,8 @@ describe('APIService', () => {
 
       await apiService.getPriceData(itemID, undefined, dataCenterID);
       const stats = await apiService.getCacheStats();
-      expect(stats.keys).toContain(`${itemID}_${dataCenterID}`);
+      // Cache key format: itemID:dc:dataCenterID
+      expect(stats.keys).toContain(`${itemID}:dc:${dataCenterID}`);
     });
 
     it('should create worldID key when only worldID provided (line 571)', async () => {
@@ -1108,7 +1110,8 @@ describe('APIService', () => {
 
       await apiService.getPriceData(itemID, worldID, undefined);
       const stats = await apiService.getCacheStats();
-      expect(stats.keys).toContain(`${itemID}_${worldID}`);
+      // Cache key format: itemID:world:worldID
+      expect(stats.keys).toContain(`${itemID}:world:${worldID}`);
     });
   });
 
