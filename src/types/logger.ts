@@ -11,6 +11,13 @@
  * @module types/logger
  */
 
-// Re-export everything from @xivdyetools/logger/library for backward compatibility
+/**
+ * @deprecated Import directly from '@xivdyetools/logger/library' instead.
+ * These re-exports will be removed in the next major version.
+ */
 export type { Logger } from '@xivdyetools/logger/library';
+/**
+ * @deprecated Import directly from '@xivdyetools/logger/library' instead.
+ * These re-exports will be removed in the next major version.
+ */
 export { NoOpLogger, ConsoleLogger, createLibraryLogger } from '@xivdyetools/logger/library';

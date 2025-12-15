@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.8] - 2025-12-14
+
+### Deprecated
+
+#### Type Re-exports
+The following re-exports from `@xivdyetools/core` are deprecated and will be removed in the next major version:
+
+- **Logger Types**: Import from `@xivdyetools/logger/library` instead
+- **Color Types** (RGB, HSV, HexColor, etc.): Import from `@xivdyetools/types` instead
+- **Dye Types** (Dye, DyeDatabase, etc.): Import from `@xivdyetools/types` instead
+- **Preset Types**: Import from `@xivdyetools/types` instead
+- **Auth Types**: Import from `@xivdyetools/types` instead
+- **API Types**: Import from `@xivdyetools/types` instead
+- **Localization Types**: Import from `@xivdyetools/types` instead
+- **Error Types**: Import from `@xivdyetools/types` instead
+- **Utility Types** (Result, isOk, isErr): Import from `@xivdyetools/types` instead
+
+**Migration Guide:**
+```typescript
+// Before (deprecated)
+import { RGB, Dye, ErrorCode, NoOpLogger } from '@xivdyetools/core';
+
+// After (recommended)
+import type { RGB, Dye } from '@xivdyetools/types';
+import { ErrorCode } from '@xivdyetools/types';
+import { NoOpLogger } from '@xivdyetools/logger/library';
+```
+
+---
+
 ## [1.3.7] - 2025-12-08
 
 ### Added

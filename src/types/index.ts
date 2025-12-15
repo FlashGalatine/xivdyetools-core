@@ -10,23 +10,47 @@
  * @module types
  */
 
-// Re-export logger types from @xivdyetools/logger/library
+/**
+ * @deprecated Import directly from '@xivdyetools/logger/library' instead.
+ * These re-exports will be removed in the next major version.
+ */
 export type { Logger } from '@xivdyetools/logger/library';
+/**
+ * @deprecated Import directly from '@xivdyetools/logger/library' instead.
+ * These re-exports will be removed in the next major version.
+ */
 export { NoOpLogger, ConsoleLogger } from '@xivdyetools/logger/library';
 
 // ============================================================================
 // Re-export all types from @xivdyetools/types
 // ============================================================================
 
-// Color Types
+/**
+ * @deprecated Import directly from '@xivdyetools/types' instead.
+ * These re-exports will be removed in the next major version.
+ */
 export type { RGB, HSV, HexColor, DyeId, Hue, Saturation } from '@xivdyetools/types';
+/**
+ * @deprecated Import directly from '@xivdyetools/types' instead.
+ * These re-exports will be removed in the next major version.
+ */
 export { createHexColor, createDyeId, createHue, createSaturation } from '@xivdyetools/types';
+/**
+ * @deprecated Import directly from '@xivdyetools/types' instead.
+ * These re-exports will be removed in the next major version.
+ */
 export type { VisionType, Matrix3x3, ColorblindMatrices } from '@xivdyetools/types';
 
-// Dye Types
+/**
+ * @deprecated Import directly from '@xivdyetools/types' instead.
+ * These re-exports will be removed in the next major version.
+ */
 export type { Dye, LocalizedDye, DyeWithDistance, DyeDatabase } from '@xivdyetools/types';
 
-// Preset Types
+/**
+ * @deprecated Import directly from '@xivdyetools/types' instead.
+ * These re-exports will be removed in the next major version.
+ */
 export type {
   PresetCategory,
   PresetStatus,
@@ -48,7 +72,10 @@ export type {
   CategoryListResponse,
 } from '@xivdyetools/types';
 
-// Auth Types
+/**
+ * @deprecated Import directly from '@xivdyetools/types' instead.
+ * These re-exports will be removed in the next major version.
+ */
 export type {
   AuthProvider,
   AuthSource,
@@ -69,7 +96,10 @@ export type {
   UserInfoResponse,
 } from '@xivdyetools/types';
 
-// API Types
+/**
+ * @deprecated Import directly from '@xivdyetools/types' instead.
+ * These re-exports will be removed in the next major version.
+ */
 export type {
   APIResponse,
   CachedData,
@@ -80,7 +110,10 @@ export type {
   RateLimitResult,
 } from '@xivdyetools/types';
 
-// Localization Types
+/**
+ * @deprecated Import directly from '@xivdyetools/types' instead.
+ * These re-exports will be removed in the next major version.
+ */
 export type {
   LocaleCode,
   TranslationKey,
@@ -91,10 +124,24 @@ export type {
   LocalePreference,
 } from '@xivdyetools/types';
 
-// Error Types
+/**
+ * @deprecated Import directly from '@xivdyetools/types' instead.
+ * These re-exports will be removed in the next major version.
+ */
 export { ErrorCode, AppError } from '@xivdyetools/types';
+/**
+ * @deprecated Import directly from '@xivdyetools/types' instead.
+ * These re-exports will be removed in the next major version.
+ */
 export type { ErrorSeverity } from '@xivdyetools/types';
 
-// Utility Types
+/**
+ * @deprecated Import directly from '@xivdyetools/types' instead.
+ * These re-exports will be removed in the next major version.
+ */
 export type { Result, AsyncResult, Nullable, Optional } from '@xivdyetools/types';
+/**
+ * @deprecated Import directly from '@xivdyetools/types' instead.
+ * These re-exports will be removed in the next major version.
+ */
 export { isOk, isErr } from '@xivdyetools/types';
