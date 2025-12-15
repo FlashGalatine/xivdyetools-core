@@ -5,7 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.3.8] - 2025-12-14
+## [1.4.0] - 2025-12-14
+
+### Added
+
+- **Shared Package Integration**: Integrated `@xivdyetools/types` and `@xivdyetools/logger` as dependencies for ecosystem-wide type and logging consistency
+
+### Changed
+
+- **Package Rename**: Package renamed from `xivdyetools-core` to `@xivdyetools/core` for npm organization consistency
+
+### Fixed
+
+- **Security**: Prevented cache key collisions by adding type prefixes to cache keys
+- **Performance**: Addressed HIGH severity performance audit findings
+- **Color Handling**: Fixed hue normalization before caching to prevent cache thrashing (CORE-BUG-001)
+- **Medium Severity**: Addressed MEDIUM severity audit findings
 
 ### Deprecated
 
