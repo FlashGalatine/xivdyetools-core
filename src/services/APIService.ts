@@ -182,6 +182,19 @@ export interface APIServiceOptions {
    * Logger for API operations (defaults to NoOpLogger)
    */
   logger?: Logger;
+
+  /**
+   * Base URL for the Universalis API (defaults to UNIVERSALIS_API_BASE constant)
+   * Use this to route through a CORS proxy when calling from browsers
+   *
+   * @example
+   * // Direct API access (server-side or when CORS is not an issue)
+   * baseUrl: 'https://universalis.app/api/v2'
+   *
+   * // Through CORS proxy (browser clients)
+   * baseUrl: 'https://universalis-proxy.xivdyetools.workers.dev/api/v2'
+   */
+  baseUrl?: string;
 }
 
 /**
@@ -212,6 +225,11 @@ export interface APIServiceOptions {
  * // With custom logger for debugging
  * import { ConsoleLogger } from 'xivdyetools-core';
  * const apiService = new APIService({ logger: ConsoleLogger });
+ *
+ * // With custom base URL (e.g., CORS proxy for browser clients)
+ * const apiService = new APIService({
+ *   baseUrl: 'https://universalis-proxy.xivdyetools.workers.dev/api/v2'
+ * });
  */
 export class APIService {
   private cache: ICacheBackend;
@@ -219,6 +237,7 @@ export class APIService {
   private rateLimiter: RateLimiter;
   private pendingRequests: Map<string, Promise<PriceData | null>> = new Map();
   private readonly logger: Logger;
+  private readonly baseUrl: string;
 
   /**
    * Constructor with optional dependency injection
@@ -236,12 +255,14 @@ export class APIService {
       this.fetchClient = options.fetchClient ?? new DefaultFetchClient();
       this.rateLimiter = options.rateLimiter ?? new DefaultRateLimiter();
       this.logger = options.logger ?? NoOpLogger;
+      this.baseUrl = options.baseUrl ?? UNIVERSALIS_API_BASE;
     } else {
       // Legacy positional arguments API
       this.cache = (options as ICacheBackend) ?? new MemoryCacheBackend();
       this.fetchClient = fetchClient ?? new DefaultFetchClient();
       this.rateLimiter = rateLimiter ?? new DefaultRateLimiter();
       this.logger = NoOpLogger;
+      this.baseUrl = UNIVERSALIS_API_BASE;
     }
   }
 
@@ -740,7 +761,7 @@ export class APIService {
     // Note: worldID parameter reserved for future use (world-specific queries)
     // Sanitize dataCenterID to prevent URL path injection
     const pathSegment = dataCenterID ? this.sanitizeDataCenterId(dataCenterID) : 'universal';
-    return `${UNIVERSALIS_API_BASE}/aggregated/${pathSegment}/${itemID}`;
+    return `${this.baseUrl}/aggregated/${pathSegment}/${itemID}`;
   }
 
   /**
@@ -753,7 +774,7 @@ export class APIService {
     const pathSegment = dataCenterID ? this.sanitizeDataCenterId(dataCenterID) : 'universal';
     // Join item IDs with commas for batch request
     const itemsSegment = itemIDs.join(',');
-    return `${UNIVERSALIS_API_BASE}/aggregated/${pathSegment}/${itemsSegment}`;
+    return `${this.baseUrl}/aggregated/${pathSegment}/${itemsSegment}`;
   }
 
   /**
@@ -915,7 +936,7 @@ export class APIService {
    */
   async isAPIAvailable(): Promise<boolean> {
     try {
-      const response = await this.fetchClient.fetch(`${UNIVERSALIS_API_BASE}/data-centers`);
+      const response = await this.fetchClient.fetch(`${this.baseUrl}/data-centers`);
       return response.ok;
     } catch {
       return false;
