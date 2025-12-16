@@ -249,13 +249,15 @@ export class APIService {
     rateLimiter?: RateLimiter
   ) {
     // Support both legacy positional arguments and new options object
-    if (options && 'logger' in options) {
+    // Check for any known options property to detect options-based API
+    if (options && this.isOptionsObject(options)) {
       // New options-based API
-      this.cache = options.cacheBackend ?? new MemoryCacheBackend();
-      this.fetchClient = options.fetchClient ?? new DefaultFetchClient();
-      this.rateLimiter = options.rateLimiter ?? new DefaultRateLimiter();
-      this.logger = options.logger ?? NoOpLogger;
-      this.baseUrl = options.baseUrl ?? UNIVERSALIS_API_BASE;
+      const opts = options;
+      this.cache = opts.cacheBackend ?? new MemoryCacheBackend();
+      this.fetchClient = opts.fetchClient ?? new DefaultFetchClient();
+      this.rateLimiter = opts.rateLimiter ?? new DefaultRateLimiter();
+      this.logger = opts.logger ?? NoOpLogger;
+      this.baseUrl = opts.baseUrl ?? UNIVERSALIS_API_BASE;
     } else {
       // Legacy positional arguments API
       this.cache = (options as ICacheBackend) ?? new MemoryCacheBackend();
@@ -264,6 +266,22 @@ export class APIService {
       this.logger = NoOpLogger;
       this.baseUrl = UNIVERSALIS_API_BASE;
     }
+  }
+
+  /**
+   * Type guard to check if the options parameter is an APIServiceOptions object
+   * Checks for any known property of APIServiceOptions
+   */
+  private isOptionsObject(options: unknown): options is APIServiceOptions {
+    if (!options || typeof options !== 'object') return false;
+    const obj = options as Record<string, unknown>;
+    return (
+      'logger' in obj ||
+      'cacheBackend' in obj ||
+      'baseUrl' in obj ||
+      'fetchClient' in obj ||
+      'rateLimiter' in obj
+    );
   }
 
   // ============================================================================
