@@ -878,18 +878,17 @@ describe('APIService', () => {
     it('should fetch prices for multiple items', async () => {
       const itemIDs = [5729, 5730, 5731];
 
-      itemIDs.forEach((id) => {
-        mockFetch.setResponse(`https://universalis.app/api/v2/aggregated/universal/${id}`, {
-          status: 200,
-          body: {
-            results: [
-              {
-                itemId: id,
-                nq: { minListing: { dc: { price: id * 100 } } },
-              },
-            ],
-          },
-        });
+      // Mock the batched API request (comma-separated item IDs)
+      mockFetch.setResponse(`https://universalis.app/api/v2/aggregated/universal/5729,5730,5731`, {
+        status: 200,
+        body: {
+          results: [
+            { itemId: 5729, nq: { minListing: { dc: { price: 572900 } } } },
+            { itemId: 5730, nq: { minListing: { dc: { price: 573000 } } } },
+            { itemId: 5731, nq: { minListing: { dc: { price: 573100 } } } },
+          ],
+          failedItems: [],
+        },
       });
 
       const results = await apiService.getPricesForItems(itemIDs);
@@ -902,20 +901,16 @@ describe('APIService', () => {
     it('should skip items with no price data', async () => {
       const itemIDs = [5729, 5730];
 
-      mockFetch.setResponse(`https://universalis.app/api/v2/aggregated/universal/5729`, {
+      // Mock batched request - 5730 has no price data (empty minListing)
+      mockFetch.setResponse(`https://universalis.app/api/v2/aggregated/universal/5729,5730`, {
         status: 200,
         body: {
           results: [
-            {
-              itemId: 5729,
-              nq: { minListing: { dc: { price: 1000 } } },
-            },
+            { itemId: 5729, nq: { minListing: { dc: { price: 1000 } } } },
+            { itemId: 5730, nq: { minListing: {} } }, // No price
           ],
+          failedItems: [],
         },
-      });
-      mockFetch.setResponse(`https://universalis.app/api/v2/aggregated/universal/5730`, {
-        status: 200,
-        body: { results: [] },
       });
 
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -931,18 +926,16 @@ describe('APIService', () => {
       const itemIDs = [5729, 5730];
       const dataCenterID = 'Crystal';
 
-      itemIDs.forEach((id) => {
-        mockFetch.setResponse(`https://universalis.app/api/v2/aggregated/${dataCenterID}/${id}`, {
-          status: 200,
-          body: {
-            results: [
-              {
-                itemId: id,
-                nq: { minListing: { dc: { price: id * 10 } } },
-              },
-            ],
-          },
-        });
+      // Mock the batched API request for data center
+      mockFetch.setResponse(`https://universalis.app/api/v2/aggregated/${dataCenterID}/5729,5730`, {
+        status: 200,
+        body: {
+          results: [
+            { itemId: 5729, nq: { minListing: { dc: { price: 57290 } } } },
+            { itemId: 5730, nq: { minListing: { dc: { price: 57300 } } } },
+          ],
+          failedItems: [],
+        },
       });
 
       const results = await apiService.getPricesForDataCenter(itemIDs, dataCenterID);

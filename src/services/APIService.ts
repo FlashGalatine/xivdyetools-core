@@ -406,6 +406,50 @@ export class APIService {
   }
 
   /**
+   * Fetch batch price data from API for multiple items in a single request
+   * This is more efficient than making individual requests for each item
+   *
+   * @param itemIDs - Array of item IDs to fetch prices for
+   * @param dataCenterID - Optional data center ID (e.g., "Crystal")
+   * @returns Map of itemID -> PriceData for all successfully fetched items
+   */
+  private async fetchBatchPriceData(
+    itemIDs: number[],
+    dataCenterID?: string
+  ): Promise<Map<number, PriceData>> {
+    if (itemIDs.length === 0) {
+      return new Map();
+    }
+
+    // Rate limiting: single request for the batch
+    await this.rateLimiter.waitIfNeeded();
+    this.rateLimiter.recordRequest();
+
+    // Build batch API URL
+    const url = this.buildBatchApiUrl(itemIDs, dataCenterID);
+
+    try {
+      const data = await retry(
+        () => this.fetchWithTimeout(url, UNIVERSALIS_API_TIMEOUT),
+        UNIVERSALIS_API_RETRY_COUNT,
+        UNIVERSALIS_API_RETRY_DELAY
+      );
+
+      if (!data) {
+        return new Map();
+      }
+
+      // Parse batch response
+      return this.parseBatchApiResponse(data);
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch batch price data for ${itemIDs.length} items: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+      return new Map();
+    }
+  }
+
+  /**
    * Fetch with timeout and size limits
    * Uses injected fetch client for better testability
    */
@@ -594,6 +638,101 @@ export class APIService {
   }
 
   /**
+   * Parse batch API response containing multiple items
+   * Returns a Map of itemID -> PriceData for all successfully parsed items
+   */
+  private parseBatchApiResponse(data: {
+    results?: Array<{
+      itemId: number;
+      nq?: {
+        minListing?: {
+          dc?: { price: number };
+          world?: { price: number };
+          region?: { price: number };
+        };
+      };
+      hq?: {
+        minListing?: {
+          dc?: { price: number };
+          world?: { price: number };
+          region?: { price: number };
+        };
+      };
+    }>;
+    failedItems?: number[];
+  }): Map<number, PriceData> {
+    const results = new Map<number, PriceData>();
+
+    try {
+      // Validate response structure
+      if (!data || typeof data !== 'object') {
+        this.logger.warn('Invalid batch API response structure');
+        return results;
+      }
+
+      if (!data.results || !Array.isArray(data.results)) {
+        this.logger.warn('No results array in batch API response');
+        return results;
+      }
+
+      // Parse each item in the results array
+      for (const result of data.results) {
+        if (!result || typeof result !== 'object' || typeof result.itemId !== 'number') {
+          continue;
+        }
+
+        const itemID = result.itemId;
+
+        // Try to get price from nq.minListing (prefer DC, then world, then region)
+        let price: number | null = null;
+
+        if (result.nq?.minListing) {
+          if (result.nq.minListing.dc?.price) {
+            price = result.nq.minListing.dc.price;
+          } else if (result.nq.minListing.world?.price) {
+            price = result.nq.minListing.world.price;
+          } else if (result.nq.minListing.region?.price) {
+            price = result.nq.minListing.region.price;
+          }
+        }
+
+        // If no NQ price, try HQ
+        if (!price && result.hq?.minListing) {
+          if (result.hq.minListing.dc?.price) {
+            price = result.hq.minListing.dc.price;
+          } else if (result.hq.minListing.world?.price) {
+            price = result.hq.minListing.world.price;
+          } else if (result.hq.minListing.region?.price) {
+            price = result.hq.minListing.region.price;
+          }
+        }
+
+        if (price) {
+          results.set(itemID, {
+            itemID,
+            currentAverage: Math.round(price),
+            currentMinPrice: Math.round(price),
+            currentMaxPrice: Math.round(price),
+            lastUpdate: Date.now(),
+          });
+        }
+      }
+
+      // Log any failed items
+      if (data.failedItems && data.failedItems.length > 0) {
+        this.logger.warn(
+          `Batch request had ${data.failedItems.length} failed items: ${data.failedItems.join(', ')}`
+        );
+      }
+
+      return results;
+    } catch (error) {
+      this.logger.error('Failed to parse batch price data', error);
+      return results;
+    }
+  }
+
+  /**
    * Build API URL for item price query
    */
   private buildApiUrl(itemID: number, _worldID?: number, dataCenterID?: string): string {
@@ -602,6 +741,19 @@ export class APIService {
     // Sanitize dataCenterID to prevent URL path injection
     const pathSegment = dataCenterID ? this.sanitizeDataCenterId(dataCenterID) : 'universal';
     return `${UNIVERSALIS_API_BASE}/aggregated/${pathSegment}/${itemID}`;
+  }
+
+  /**
+   * Build API URL for batch item price query
+   * Universalis supports comma-separated item IDs in a single request
+   * Example: /api/v2/aggregated/Crystal/5729,5730,5731
+   */
+  private buildBatchApiUrl(itemIDs: number[], dataCenterID?: string): string {
+    // Sanitize dataCenterID to prevent URL path injection
+    const pathSegment = dataCenterID ? this.sanitizeDataCenterId(dataCenterID) : 'universal';
+    // Join item IDs with commas for batch request
+    const itemsSegment = itemIDs.join(',');
+    return `${UNIVERSALIS_API_BASE}/aggregated/${pathSegment}/${itemsSegment}`;
   }
 
   /**
@@ -641,57 +793,114 @@ export class APIService {
   // ============================================================================
 
   /**
-   * Fetch prices for multiple items
-   * PERFORMANCE: Uses Promise.allSettled for parallel requests
-   * Failed requests are logged but don't block other results
+   * Fetch prices for multiple items (global/universal pricing)
+   * PERFORMANCE: Uses batched API requests to minimize rate limiting
+   *
+   * Strategy:
+   * 1. Check cache for each item
+   * 2. Collect uncached items
+   * 3. Fetch uncached items in a single batched request
+   * 4. Store fetched items in cache
    */
   async getPricesForItems(itemIDs: number[]): Promise<Map<number, PriceData>> {
     const results = new Map<number, PriceData>();
+    const uncachedItemIDs: number[] = [];
 
-    // Fire all requests in parallel
-    const promises = itemIDs.map(async (itemID) => {
-      const price = await this.getPriceData(itemID);
-      return { itemID, price };
-    });
+    // Step 1: Check cache for each item (in parallel for async backends)
+    const cacheChecks = await Promise.all(
+      itemIDs.map(async (itemID) => {
+        const cacheKey = this.buildCacheKey(itemID);
+        const cached = await this.getCachedPrice(cacheKey);
+        return { itemID, cached };
+      })
+    );
 
-    // Wait for all to settle (don't fail on individual errors)
-    const settled = await Promise.allSettled(promises);
-
-    // Collect successful results
-    for (const result of settled) {
-      if (result.status === 'fulfilled' && result.value.price) {
-        results.set(result.value.itemID, result.value.price);
+    for (const { itemID, cached } of cacheChecks) {
+      if (cached) {
+        results.set(itemID, cached);
+      } else {
+        uncachedItemIDs.push(itemID);
       }
     }
+
+    // Step 2: If all items are cached, return immediately
+    if (uncachedItemIDs.length === 0) {
+      this.logger.debug(`All ${itemIDs.length} items found in cache`);
+      return results;
+    }
+
+    this.logger.debug(`Fetching ${uncachedItemIDs.length} uncached items (${results.size} cached)`);
+
+    // Step 3: Fetch uncached items in a single batched request
+    const batchResults = await this.fetchBatchPriceData(uncachedItemIDs);
+
+    // Step 4: Store fetched items in cache and add to results
+    const cacheWrites: Promise<void>[] = [];
+    for (const [itemID, priceData] of batchResults) {
+      const cacheKey = this.buildCacheKey(itemID);
+      cacheWrites.push(this.setCachedPrice(cacheKey, priceData));
+      results.set(itemID, priceData);
+    }
+    await Promise.all(cacheWrites);
 
     return results;
   }
 
   /**
    * Fetch prices for dyes in a specific data center
-   * PERFORMANCE: Uses Promise.allSettled for parallel requests
+   * PERFORMANCE: Uses batched API requests to minimize rate limiting
+   *
+   * Strategy:
+   * 1. Check cache for each item
+   * 2. Collect uncached items
+   * 3. Fetch uncached items in a single batched request
+   * 4. Store fetched items in cache
    */
   async getPricesForDataCenter(
     itemIDs: number[],
     dataCenterID: string
   ): Promise<Map<number, PriceData>> {
     const results = new Map<number, PriceData>();
+    const uncachedItemIDs: number[] = [];
 
-    // Fire all requests in parallel
-    const promises = itemIDs.map(async (itemID) => {
-      const price = await this.getPriceData(itemID, undefined, dataCenterID);
-      return { itemID, price };
-    });
+    // Step 1: Check cache for each item (in parallel for async backends)
+    const cacheChecks = await Promise.all(
+      itemIDs.map(async (itemID) => {
+        const cacheKey = this.buildCacheKey(itemID, undefined, dataCenterID);
+        const cached = await this.getCachedPrice(cacheKey);
+        return { itemID, cached };
+      })
+    );
 
-    // Wait for all to settle (don't fail on individual errors)
-    const settled = await Promise.allSettled(promises);
-
-    // Collect successful results
-    for (const result of settled) {
-      if (result.status === 'fulfilled' && result.value.price) {
-        results.set(result.value.itemID, result.value.price);
+    for (const { itemID, cached } of cacheChecks) {
+      if (cached) {
+        results.set(itemID, cached);
+      } else {
+        uncachedItemIDs.push(itemID);
       }
     }
+
+    // Step 2: If all items are cached, return immediately
+    if (uncachedItemIDs.length === 0) {
+      this.logger.debug(`All ${itemIDs.length} items found in cache for ${dataCenterID}`);
+      return results;
+    }
+
+    this.logger.debug(
+      `Fetching ${uncachedItemIDs.length} uncached items (${results.size} cached) for ${dataCenterID}`
+    );
+
+    // Step 3: Fetch uncached items in a single batched request
+    const batchResults = await this.fetchBatchPriceData(uncachedItemIDs, dataCenterID);
+
+    // Step 4: Store fetched items in cache and add to results
+    const cacheWrites: Promise<void>[] = [];
+    for (const [itemID, priceData] of batchResults) {
+      const cacheKey = this.buildCacheKey(itemID, undefined, dataCenterID);
+      cacheWrites.push(this.setCachedPrice(cacheKey, priceData));
+      results.set(itemID, priceData);
+    }
+    await Promise.all(cacheWrites);
 
     return results;
   }
