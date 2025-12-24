@@ -19,6 +19,89 @@ import {
 } from '../constants/index.js';
 
 // ============================================================================
+// Cache Utilities
+// ============================================================================
+
+/**
+ * Simple LRU (Least Recently Used) cache implementation
+ *
+ * Per P-1: Caching for color conversions (60-80% speedup)
+ *
+ * @example
+ * ```typescript
+ * const cache = new LRUCache<string, number>(100);
+ * cache.set('key1', 42);
+ * const value = cache.get('key1'); // Returns 42
+ * cache.clear(); // Clear all entries
+ * ```
+ *
+ * Implementation notes:
+ * - Uses Map for O(1) operations
+ * - Move-to-end on access for LRU ordering
+ * - Evicts least recently used when at capacity
+ */
+export class LRUCache<K, V> {
+  private cache: Map<K, V>;
+  private maxSize: number;
+
+  constructor(maxSize: number = 1000) {
+    this.cache = new Map();
+    this.maxSize = maxSize;
+  }
+
+  /**
+   * Get a value from the cache
+   *
+   * @param key - The key to look up
+   * @returns The cached value or undefined if not found
+   */
+  get(key: K): V | undefined {
+    // Use has() check first to properly handle undefined values
+    // and ensure atomic move-to-end operation for LRU ordering
+    if (!this.cache.has(key)) return undefined;
+    const value = this.cache.get(key)!;
+    // Move to end (most recently used) - delete + set is atomic in synchronous JS
+    this.cache.delete(key);
+    this.cache.set(key, value);
+    return value;
+  }
+
+  /**
+   * Set a value in the cache
+   *
+   * @param key - The key to store
+   * @param value - The value to cache
+   */
+  set(key: K, value: V): void {
+    if (this.cache.has(key)) {
+      // Update existing - move to end
+      this.cache.delete(key);
+    } else if (this.cache.size >= this.maxSize) {
+      // Remove least recently used (first item)
+      const firstKey = this.cache.keys().next().value;
+      if (firstKey !== undefined) {
+        this.cache.delete(firstKey);
+      }
+    }
+    this.cache.set(key, value);
+  }
+
+  /**
+   * Clear all entries from the cache
+   */
+  clear(): void {
+    this.cache.clear();
+  }
+
+  /**
+   * Get the current number of cached entries
+   */
+  get size(): number {
+    return this.cache.size;
+  }
+}
+
+// ============================================================================
 // Math Utilities
 // ============================================================================
 

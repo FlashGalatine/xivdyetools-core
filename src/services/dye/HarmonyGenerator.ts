@@ -38,27 +38,14 @@ export class HarmonyGenerator {
 
   /**
    * Find the closest dye that is not Facewear
-   * Iteratively searches until a non-Facewear dye is found
-   * CORE-BUG-003: Removed hard-coded limit of 10 iterations
+   *
+   * PERF-003: Simplified to O(log n) by leveraging DyeSearch.findClosestDye
+   * which already excludes Facewear dyes internally (CORE-BUG-005).
+   * The previous O(n²) loop was redundant since findClosestDye never returns Facewear.
    */
   private findClosestNonFacewearDye(hex: string, excludeIds: number[] = []): Dye | null {
-    const allExcluded = [...excludeIds];
-    // Get total dye count to avoid infinite loops while ensuring we check all dyes if needed
-    const totalDyes = this.database.getDyesInternal().length;
-
-    for (let i = 0; i < totalDyes; i++) {
-      const candidate = this.search.findClosestDye(hex, allExcluded);
-      if (!candidate) return null;
-
-      if (candidate.category !== 'Facewear') {
-        return candidate;
-      }
-
-      // This candidate is Facewear, exclude it and try again
-      allExcluded.push(candidate.id);
-    }
-
-    return null;
+    // DyeSearch.findClosestDye already excludes Facewear dyes (CORE-BUG-005)
+    return this.search.findClosestDye(hex, excludeIds);
   }
 
   /**

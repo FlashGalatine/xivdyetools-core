@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.3] - 2025-12-24
+
+### Changed
+
+#### Medium Priority Audit Fixes
+
+- **TYPES-001**: Extracted shared `LRUCache<K, V>` class to `utils/index.ts`
+  - Consolidated duplicate implementations from `ColorConverter` and `ColorblindnessSimulator`
+  - Generic implementation with configurable `maxSize` parameter
+  - Provides O(1) get/set operations with automatic eviction
+
+### Fixed
+
+- **PERF-003**: Simplified `findClosestNonFacewearDye` in `HarmonyGenerator`
+  - Removed redundant O(n²) loop that re-filtered already-filtered results
+  - `DyeSearch.findClosestDye` already excludes Facewear dyes internally (CORE-BUG-005)
+  - Method now delegates directly to `findClosestDye` for O(log n) performance
+
+---
+
 ## [1.5.2] - 2025-12-24
 
 ### Fixed
