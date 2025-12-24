@@ -786,8 +786,34 @@ export class APIService {
    * Build API URL for batch item price query
    * Universalis supports comma-separated item IDs in a single request
    * Example: /api/v2/aggregated/Crystal/5729,5730,5731
+   *
+   * INPUT-001: Added validation for array contents and length
    */
   private buildBatchApiUrl(itemIDs: number[], dataCenterID?: string): string {
+    // INPUT-001: Validate array is not empty
+    if (!itemIDs || itemIDs.length === 0) {
+      throw new AppError(ErrorCode.INVALID_INPUT, 'itemIDs array cannot be empty', 'warning');
+    }
+
+    // INPUT-001: Validate array size (Universalis recommends max 100 items per request)
+    if (itemIDs.length > 100) {
+      throw new AppError(
+        ErrorCode.INVALID_INPUT,
+        `Cannot fetch more than 100 items in one batch (got ${itemIDs.length})`,
+        'warning'
+      );
+    }
+
+    // INPUT-001: Validate each item ID is a positive integer
+    const invalidIds = itemIDs.filter((id) => !Number.isInteger(id) || id < 1);
+    if (invalidIds.length > 0) {
+      throw new AppError(
+        ErrorCode.INVALID_INPUT,
+        `Invalid item IDs: all IDs must be positive integers (invalid: ${invalidIds.slice(0, 5).join(', ')}${invalidIds.length > 5 ? '...' : ''})`,
+        'warning'
+      );
+    }
+
     // Sanitize dataCenterID to prevent URL path injection
     const pathSegment = dataCenterID ? this.sanitizeDataCenterId(dataCenterID) : 'universal';
     // Join item IDs with commas for batch request
