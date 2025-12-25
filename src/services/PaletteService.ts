@@ -350,10 +350,21 @@ export class PaletteService {
   extractPalette(pixels: RGB[], options: PaletteExtractionOptions = {}): ExtractedColor[] {
     const opts = { ...PaletteService.DEFAULT_OPTIONS, ...options };
 
-    // Validate colorCount
+    // Validate colorCount - INPUT-003: Log warning when clamping occurs
+    if (opts.colorCount < 1 || opts.colorCount > 10) {
+      this.logger.warn(
+        `PaletteService.extractPalette: colorCount ${opts.colorCount} clamped to [1, 10] range`
+      );
+    }
     const colorCount = Math.max(1, Math.min(10, opts.colorCount));
 
     // SECURITY: Clamp maxIterations to prevent DoS via algorithmic complexity
+    // INPUT-003: Log warning when clamping occurs
+    if (opts.maxIterations < 1 || opts.maxIterations > 100) {
+      this.logger.warn(
+        `PaletteService.extractPalette: maxIterations ${opts.maxIterations} clamped to [1, 100] range`
+      );
+    }
     const maxIterations = Math.max(1, Math.min(100, opts.maxIterations));
 
     if (pixels.length === 0) {

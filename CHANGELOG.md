@@ -22,6 +22,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Generic implementation with configurable `maxSize` parameter
   - Provides O(1) get/set operations with automatic eviction
 
+### Improved
+
+- **INPUT-003**: Added warning logs when PaletteService clamps option values
+  - Logs warning when `colorCount` is clamped to [1, 10] range
+  - Logs warning when `maxIterations` is clamped to [1, 100] range
+  - Helps developers understand when their values are being adjusted
+
 ### Performance
 
 - **MEM-001**: Pre-computed lowercase name and category for search optimization
