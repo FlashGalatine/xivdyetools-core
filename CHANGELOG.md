@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+#### Low Priority Audit Fixes
+
+- **REEXP-001**: Added explicit v2.0.0 removal timeline to all deprecated re-exports
+  - Updated 11 deprecation notices in `types/index.ts` to specify removal version
+  - Helps consumers plan their migration to `@xivdyetools/types`
+
 #### Medium Priority Audit Fixes
 
 - **TYPES-001**: Extracted shared `LRUCache<K, V>` class to `utils/index.ts`
