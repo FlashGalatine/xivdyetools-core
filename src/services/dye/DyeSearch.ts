@@ -18,6 +18,7 @@ export class DyeSearch {
 
   /**
    * Search dyes by name (case-insensitive, partial match)
+   * Per MEM-001: Uses pre-computed nameLower to avoid repeated toLowerCase() calls
    */
   searchByName(query: string): Dye[] {
     this.database.ensureLoaded();
@@ -28,18 +29,21 @@ export class DyeSearch {
     }
 
     const dyes = this.database.getDyesInternal();
-    return dyes.filter((dye) => dye.name.toLowerCase().includes(lowerQuery));
+    // MEM-001: Use pre-computed nameLower instead of dye.name.toLowerCase()
+    return dyes.filter((dye) => dye.nameLower.includes(lowerQuery));
   }
 
   /**
    * Search dyes by category
+   * Per MEM-001: Uses pre-computed categoryLower to avoid repeated toLowerCase() calls
    */
   searchByCategory(category: string): Dye[] {
     this.database.ensureLoaded();
     const lowerCategory = category.toLowerCase();
 
     const dyes = this.database.getDyesInternal();
-    return dyes.filter((dye) => dye.category.toLowerCase() === lowerCategory);
+    // MEM-001: Use pre-computed categoryLower instead of dye.category.toLowerCase()
+    return dyes.filter((dye) => dye.categoryLower === lowerCategory);
   }
 
   /**

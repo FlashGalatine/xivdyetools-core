@@ -11,6 +11,18 @@ import { NoOpLogger } from '../../types/index.js';
 import { KDTree, type Point3D } from '../../utils/kd-tree.js';
 
 /**
+ * Internal dye type with pre-computed lowercase fields for search optimization
+ * Per MEM-001: Avoids repeated toLowerCase() calls during searches
+ * @internal
+ */
+export interface DyeInternal extends Dye {
+  /** Pre-computed lowercase name for search optimization */
+  nameLower: string;
+  /** Pre-computed lowercase category for search optimization */
+  categoryLower: string;
+}
+
+/**
  * Configuration for DyeDatabase
  */
 export interface DyeDatabaseConfig {
@@ -25,11 +37,12 @@ export interface DyeDatabaseConfig {
  * Per R-4: Single Responsibility - database management only
  */
 export class DyeDatabase {
-  private dyes: Dye[] = [];
-  private dyesByIdMap: Map<number, Dye> = new Map();
+  // Per MEM-001: Store DyeInternal with pre-computed lowercase fields
+  private dyes: DyeInternal[] = [];
+  private dyesByIdMap: Map<number, DyeInternal> = new Map();
   // Per P-2: Hue-indexed map for fast harmony lookups (70-90% speedup)
   // Maps hue bucket (0-35 for 10° buckets) to array of dyes in that range
-  private dyesByHueBucket: Map<number, Dye[]> = new Map();
+  private dyesByHueBucket: Map<number, DyeInternal[]> = new Map();
   // Per P-7: k-d tree for fast nearest neighbor search in RGB space
   private kdTree: KDTree | null = null;
   private isLoaded: boolean = false;
@@ -240,10 +253,14 @@ export class DyeDatabase {
             normalizedDye.cost = 0;
           }
 
+          // Per MEM-001: Pre-compute lowercase name and category for search optimization
+          normalizedDye.nameLower = String(normalizedDye.name).toLowerCase();
+          normalizedDye.categoryLower = String(normalizedDye.category ?? '').toLowerCase();
+
           return normalizedDye;
         })
         .filter((dye) => this.isValidDye(dye))
-        .map((dye) => dye as unknown as Dye);
+        .map((dye) => dye as unknown as DyeInternal);
 
       // Build ID map for fast lookups
       this.dyesByIdMap.clear();
@@ -327,7 +344,10 @@ export class DyeDatabase {
    */
   getDyesByIds(ids: number[]): Dye[] {
     this.ensureLoaded();
-    return ids.map((id) => this.dyesByIdMap.get(id)).filter((dye): dye is Dye => dye !== undefined);
+    // DyeInternal extends Dye, so this is type-safe as Dye[]
+    return ids
+      .map((id) => this.dyesByIdMap.get(id))
+      .filter((dye): dye is DyeInternal => dye !== undefined);
   }
 
   /**
@@ -422,19 +442,21 @@ export class DyeDatabase {
    *
    * For public API access, use {@link getAllDyes} which returns a defensive copy.
    *
+   * Per MEM-001: Returns DyeInternal with pre-computed lowercase fields for search optimization.
+   *
    * @internal
-   * @returns Direct reference to internal dyes array - DO NOT MODIFY
+   * @returns Direct reference to internal dyes array with pre-computed nameLower/categoryLower - DO NOT MODIFY
    *
    * @example
    * ```typescript
    * // Internal usage in DyeSearch (optimized for read-only iteration)
    * const dyes = this.database.getDyesInternal();
    * for (const dye of dyes) {
-   *     // Read-only operations
+   *     // Use dye.nameLower instead of dye.name.toLowerCase()
    * }
    * ```
    */
-  getDyesInternal(): Dye[] {
+  getDyesInternal(): DyeInternal[] {
     this.ensureLoaded();
     return this.dyes;
   }

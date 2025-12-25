@@ -22,6 +22,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Generic implementation with configurable `maxSize` parameter
   - Provides O(1) get/set operations with automatic eviction
 
+### Performance
+
+- **MEM-001**: Pre-computed lowercase name and category for search optimization
+  - Added `DyeInternal` interface extending `Dye` with `nameLower` and `categoryLower` fields
+  - Pre-computes lowercase values once during `DyeDatabase.initialize()` instead of on every search
+  - Updated `DyeSearch.searchByName()`, `DyeSearch.searchByCategory()`, and `DyeService.searchByLocalizedName()`
+  - Eliminates ~N×2 `toLowerCase()` calls per search operation (where N = dye count)
+
 ### Fixed
 
 - **PERF-003**: Simplified `findClosestNonFacewearDye` in `HarmonyGenerator`

@@ -298,12 +298,12 @@ export class DyeService {
     const dyes = this.database.getDyesInternal();
 
     return dyes.filter((dye) => {
-      // Search English name
-      if (dye.name.toLowerCase().includes(lowerQuery)) {
+      // Search English name - MEM-001: Use pre-computed nameLower
+      if (dye.nameLower.includes(lowerQuery)) {
         return true;
       }
 
-      // Search localized name
+      // Search localized name (not pre-computed as it's dynamically loaded)
       const localizedName = LocalizationService.getDyeName(dye.itemID);
       if (localizedName?.toLowerCase().includes(lowerQuery)) {
         return true;
