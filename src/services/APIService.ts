@@ -291,9 +291,22 @@ export class APIService {
   /**
    * Get price from cache if available and not expired
    * Validates cache version and checksum
+   *
+   * ERROR-001: On cache backend errors, logs and returns null to fall through to API fetch.
+   * This prevents cache failures from blocking price lookups.
    */
   private async getCachedPrice(cacheKey: string): Promise<PriceData | null> {
-    const cached = await this.cache.get(cacheKey);
+    let cached;
+    try {
+      cached = await this.cache.get(cacheKey);
+    } catch (error) {
+      // ERROR-001: Log cache backend error and fall through to API fetch
+      // This distinguishes "cache broken" from "cache miss" in logs
+      this.logger.error(
+        `Cache backend error for key ${cacheKey}: ${error instanceof Error ? error.message : 'Unknown error'}. Falling through to API fetch.`
+      );
+      return null;
+    }
 
     if (!cached) {
       return null;

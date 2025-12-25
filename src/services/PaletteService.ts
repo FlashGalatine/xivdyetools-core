@@ -315,18 +315,20 @@ export class PaletteService {
    * Sample pixels from an array if it exceeds maxSamples
    * Uses uniform sampling to maintain color distribution
    * CORE-PERF-004: Fixed potential out-of-bounds access on last iteration
+   * PERF-002: Fixed sampling bias - now includes first AND last pixel
    */
   private samplePixels(pixels: RGB[], maxSamples: number): RGB[] {
     if (pixels.length <= maxSamples) {
       return pixels;
     }
 
-    const step = pixels.length / maxSamples;
     const samples: RGB[] = [];
 
+    // PERF-002: Use linear interpolation formula to ensure both first and last pixels are included
+    // For maxSamples=10 and length=100: indices are 0, 11, 22, 33, 44, 55, 66, 77, 88, 99
+    // This ensures colors at image edges (like bottom-right corners) are included
     for (let i = 0; i < maxSamples; i++) {
-      // Clamp index to prevent out-of-bounds access due to floating-point rounding
-      const index = Math.min(Math.floor(i * step), pixels.length - 1);
+      const index = Math.round((i * (pixels.length - 1)) / (maxSamples - 1));
       samples.push(pixels[index]);
     }
 
