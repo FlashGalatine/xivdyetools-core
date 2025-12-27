@@ -386,13 +386,14 @@ See [LICENSE](./LICENSE) for full details.
 
 **Flash Galatine** | Balmung (Crystal)
 
-🎮 **FFXIV**: [Lodestone Character](https://na.finalfantasyxiv.com/lodestone/character/7677106/)  
-📝 **Blog**: [Project Galatine](https://blog.projectgalatine.com/)  
-💻 **GitHub**: [@FlashGalatine](https://github.com/FlashGalatine)  
-🐦 **X / Twitter**: [@AsheJunius](https://x.com/AsheJunius)  
-📺 **Twitch**: [flashgalatine](https://www.twitch.tv/flashgalatine)  
-🌐 **BlueSky**: [projectgalatine.com](https://bsky.app/profile/projectgalatine.com)  
-❤️ **Patreon**: [ProjectGalatine](https://patreon.com/ProjectGalatine)  
+🎮 **FFXIV**: [Lodestone Character](https://na.finalfantasyxiv.com/lodestone/character/7677106/)
+📝 **Blog**: [Project Galatine](https://blog.projectgalatine.com/)
+💻 **GitHub**: [@FlashGalatine](https://github.com/FlashGalatine)
+🐦 **X / Twitter**: [@AsheJunius](https://x.com/AsheJunius)
+📺 **Twitch**: [flashgalatine](https://www.twitch.tv/flashgalatine)
+🌐 **BlueSky**: [projectgalatine.com](https://bsky.app/profile/projectgalatine.com)
+❤️ **Patreon**: [ProjectGalatine](https://patreon.com/ProjectGalatine)
+☕ **Ko-Fi**: [flashgalatine](https://ko-fi.com/flashgalatine)
 💬 **Discord**: [Join Server](https://discord.gg/5VUSKTZCe5)
 
 ---
