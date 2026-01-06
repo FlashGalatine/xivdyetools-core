@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.5] - 2026-01-05
+
+### Security
+
+#### Medium Priority Audit Fixes (2026-01-05 Security Audit)
+
+- **MED-001**: Added input length validation before hex color regex
+  - `isValidHexColor()` now checks string length before regex to prevent potential ReDoS
+  - Maximum length of 7 characters (#RRGGBB format) enforced
+
+- **MED-002**: Sanitized error messages in APIService
+  - `fetchPriceData()` now logs detailed errors internally but provides sanitized messages to callers
+  - Prevents exposing internal API structure or upstream error details to consumers
+
+---
+
 ## [1.5.4] - 2025-12-24
 
 ### Changed

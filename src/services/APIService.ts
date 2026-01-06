@@ -449,9 +449,14 @@ export class APIService {
       // Parse and validate response
       return this.parseApiResponse(data, itemID);
     } catch (error) {
+      // SECURITY: Log detailed error internally but provide sanitized message to callers
+      // This prevents exposing internal API structure or upstream error details
+      this.logger.error(
+        `Failed to fetch price data for item ${itemID}: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
       throw new AppError(
         ErrorCode.API_CALL_FAILED,
-        `Failed to fetch price data for item ${itemID}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Failed to fetch price data for item ${itemID}`,
         'warning'
       );
     }

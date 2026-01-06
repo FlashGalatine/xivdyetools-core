@@ -363,9 +363,16 @@ export function filterNulls<T>(array: (T | null | undefined)[]): T[] {
  * - Full format: #RRGGBB (e.g., #FF0000)
  * - Shorthand format: #RGB (e.g., #F00)
  * - Case insensitive (A-F or a-f)
+ *
+ * Security: Input length is validated before regex to prevent ReDoS
  */
 export function isValidHexColor(hex: string): boolean {
   if (typeof hex !== 'string') {
+    return false;
+  }
+  // SECURITY: Check length before regex to prevent ReDoS attacks
+  // Valid hex colors are 4 chars (#RGB) or 7 chars (#RRGGBB)
+  if (hex.length > 7) {
     return false;
   }
   return PATTERNS.HEX_COLOR.test(hex);
