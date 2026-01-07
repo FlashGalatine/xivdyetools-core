@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.6] - 2026-01-07
+
+### Fixed
+
+- **Localization**: Added missing metallic dye IDs to EN, DE, FR, JA locale files
+  - Added Gunmetal Black (30122) and Pearl White (30123) to metallicDyeIds array
+  - All 6 locale files now have consistent 16 metallic dye entries
+  - Files now have consistent structure (233 lines each)
+
+---
+
 ## [1.5.5] - 2026-01-05
 
 ### Security

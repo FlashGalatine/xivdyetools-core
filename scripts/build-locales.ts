@@ -276,13 +276,19 @@ function buildAcquisitions(locale: LocaleCode): Record<string, string> {
 }
 
 function identifyMetallicDyes(colorsData: Dye[]): number[] {
+  // Metallic dyes that don't have "Metallic" prefix but are metallic
+  // Gunmetal Black (30122) and Pearl White (30123) are metallic Special dyes
+  const additionalMetallicIds = [30122, 30123];
+
   // Identify all metallic dyes based on name prefix "Metallic"
   const metallicDyes = colorsData.filter((dye) => dye.name.startsWith('Metallic'));
 
-  return metallicDyes
-    .map((dye) => dye.itemID)
-    .filter((id) => id !== null)
-    .sort((a, b) => a - b);
+  const metallicIds = metallicDyes.map((dye) => dye.itemID).filter((id) => id !== null);
+
+  // Combine with additional metallic dyes
+  const allMetallicIds = [...new Set([...metallicIds, ...additionalMetallicIds])];
+
+  return allMetallicIds.sort((a, b) => a - b);
 }
 
 function buildHarmonyTypes(locale: LocaleCode): Record<string, string> {
