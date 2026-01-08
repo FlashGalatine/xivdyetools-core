@@ -40,6 +40,8 @@ export class DyeDatabase {
   // Per MEM-001: Store DyeInternal with pre-computed lowercase fields
   private dyes: DyeInternal[] = [];
   private dyesByIdMap: Map<number, DyeInternal> = new Map();
+  // Per Phase-1: StainID map for plugin interoperability (Glamourer, Mare, etc.)
+  private dyesByStainIdMap: Map<number, DyeInternal> = new Map();
   // Per P-2: Hue-indexed map for fast harmony lookups (70-90% speedup)
   // Maps hue bucket (0-35 for 10° buckets) to array of dyes in that range
   private dyesByHueBucket: Map<number, DyeInternal[]> = new Map();
@@ -264,6 +266,8 @@ export class DyeDatabase {
 
       // Build ID map for fast lookups
       this.dyesByIdMap.clear();
+      // Per Phase-1: Build stainID map for plugin interop
+      this.dyesByStainIdMap.clear();
       // Per P-2: Build hue-indexed map for harmony lookups
       this.dyesByHueBucket.clear();
 
@@ -277,6 +281,12 @@ export class DyeDatabase {
         // This avoids storing the same dye twice with the same key
         if (dye.itemID && dye.itemID !== dye.id) {
           this.dyesByIdMap.set(dye.itemID, dye);
+        }
+
+        // Per Phase-1: Map by stainID for plugin interop (Glamourer, Mare, etc.)
+        // stainID is null for Facewear dyes
+        if (typeof dye.stainID === 'number') {
+          this.dyesByStainIdMap.set(dye.stainID, dye);
         }
 
         // Per P-2: Index by hue bucket (10° buckets)
@@ -337,6 +347,32 @@ export class DyeDatabase {
   getDyeById(id: number): Dye | null {
     this.ensureLoaded();
     return this.dyesByIdMap.get(id) || null;
+  }
+
+  /**
+   * Get dye by stainID (game's internal stain table ID)
+   *
+   * Use this method when interfacing with plugins like Glamourer or Mare Synchronos
+   * that expose stainID rather than itemID.
+   *
+   * **Note:** For stable references, prefer `getDyeById()` with itemID.
+   *
+   * @param stainId - The game's stain table ID (1-125)
+   * @returns The matching dye or null if not found
+   *
+   * @example
+   * ```typescript
+   * // Glamourer uses stainID internally
+   * const dye = database.getByStainId(1); // Snow White
+   * console.log(dye?.name); // "Snow White"
+   * console.log(dye?.itemID); // 5729
+   * ```
+   *
+   * @since 2.1.0
+   */
+  getByStainId(stainId: number): Dye | null {
+    this.ensureLoaded();
+    return this.dyesByStainIdMap.get(stainId) || null;
   }
 
   /**

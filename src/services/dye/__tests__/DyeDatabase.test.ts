@@ -11,6 +11,7 @@ describe('DyeDatabase', () => {
     {
       itemID: 5729,
       id: 5729,
+      stainID: 1,
       name: 'Snow White',
       hex: '#FFFFFF',
       rgb: { r: 255, g: 255, b: 255 },
@@ -22,6 +23,7 @@ describe('DyeDatabase', () => {
     {
       itemID: 5740,
       id: 5740,
+      stainID: 12,
       name: 'Wine Red',
       hex: '#4D1818',
       rgb: { r: 77, g: 24, b: 24 },
@@ -33,6 +35,7 @@ describe('DyeDatabase', () => {
     {
       itemID: 13116,
       id: 13116,
+      stainID: 112,
       name: 'Metallic Silver',
       hex: '#8C8C8C',
       rgb: { r: 140, g: 140, b: 140 },
@@ -44,6 +47,7 @@ describe('DyeDatabase', () => {
     {
       itemID: 6001,
       id: 6001,
+      stainID: 61,
       name: 'Sky Blue',
       hex: '#87CEEB',
       rgb: { r: 135, g: 206, b: 235 },
@@ -55,6 +59,7 @@ describe('DyeDatabase', () => {
     {
       itemID: 6002,
       id: 6002,
+      stainID: null,
       name: 'Forest Green',
       hex: '#228B22',
       rgb: { r: 34, g: 139, b: 34 },
@@ -191,6 +196,41 @@ describe('DyeDatabase', () => {
     it('should throw if not loaded', () => {
       const emptyDB = new DyeDatabase();
       expect(() => emptyDB.getDyeById(5729)).toThrow(AppError);
+    });
+  });
+
+  describe('getByStainId', () => {
+    beforeEach(() => {
+      database.initialize(mockDyes);
+    });
+
+    it('should find dye by stainID', () => {
+      const dye = database.getByStainId(1);
+      expect(dye).toBeDefined();
+      expect(dye?.name).toBe('Snow White');
+      expect(dye?.itemID).toBe(5729);
+    });
+
+    it('should find different dye by stainID', () => {
+      const dye = database.getByStainId(112);
+      expect(dye).toBeDefined();
+      expect(dye?.name).toBe('Metallic Silver');
+    });
+
+    it('should return null for non-existent stainID', () => {
+      const dye = database.getByStainId(999);
+      expect(dye).toBeNull();
+    });
+
+    it('should not find dye with null stainID by searching for 0', () => {
+      // Forest Green has stainID: null
+      const dye = database.getByStainId(0);
+      expect(dye).toBeNull();
+    });
+
+    it('should throw if not loaded', () => {
+      const emptyDB = new DyeDatabase();
+      expect(() => emptyDB.getByStainId(1)).toThrow(AppError);
     });
   });
 

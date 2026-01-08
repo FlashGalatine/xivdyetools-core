@@ -20,7 +20,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 1
   },
   {
     "itemID": 5730,
@@ -43,7 +44,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 2
   },
   {
     "itemID": 5731,
@@ -66,7 +68,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 3
   },
   {
     "itemID": 5732,
@@ -89,7 +92,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 4
   },
   {
     "itemID": 5733,
@@ -112,7 +116,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 5
   },
   {
     "itemID": 5734,
@@ -135,7 +140,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 6
   },
   {
     "itemID": 5735,
@@ -158,7 +164,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 7
   },
   {
     "itemID": 5736,
@@ -181,7 +188,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 8
   },
   {
     "itemID": 5737,
@@ -204,7 +212,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 9
   },
   {
     "itemID": 5738,
@@ -227,7 +236,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 10
   },
   {
     "itemID": 5739,
@@ -250,7 +260,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 11
   },
   {
     "itemID": 5740,
@@ -273,7 +284,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 12
   },
   {
     "itemID": 5741,
@@ -296,7 +308,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 13
   },
   {
     "itemID": 5742,
@@ -319,7 +332,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 14
   },
   {
     "itemID": 5743,
@@ -342,7 +356,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 15
   },
   {
     "itemID": 5744,
@@ -365,7 +380,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 16
   },
   {
     "itemID": 5745,
@@ -388,7 +404,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 17
   },
   {
     "itemID": 5746,
@@ -411,7 +428,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 18
   },
   {
     "itemID": 5747,
@@ -434,7 +452,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 19
   },
   {
     "itemID": 5748,
@@ -457,7 +476,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 20
   },
   {
     "itemID": 5749,
@@ -480,7 +500,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 21
   },
   {
     "itemID": 5750,
@@ -503,7 +524,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 22
   },
   {
     "itemID": 5751,
@@ -526,7 +548,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 23
   },
   {
     "itemID": 5752,
@@ -549,7 +572,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 24
   },
   {
     "itemID": 5753,
@@ -572,7 +596,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 25
   },
   {
     "itemID": 5754,
@@ -595,7 +620,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 26
   },
   {
     "itemID": 5755,
@@ -618,7 +644,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 27
   },
   {
     "itemID": 5756,
@@ -641,7 +668,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 28
   },
   {
     "itemID": 5757,
@@ -664,7 +692,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 29
   },
   {
     "itemID": 5758,
@@ -687,7 +716,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 30
   },
   {
     "itemID": 5759,
@@ -710,7 +740,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 31
   },
   {
     "itemID": 5760,
@@ -733,7 +764,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 32
   },
   {
     "itemID": 5761,
@@ -756,7 +788,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 33
   },
   {
     "itemID": 5762,
@@ -779,7 +812,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 34
   },
   {
     "itemID": 5763,
@@ -802,7 +836,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 35
   },
   {
     "itemID": 5764,
@@ -825,7 +860,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 36
   },
   {
     "itemID": 5765,
@@ -848,7 +884,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 37
   },
   {
     "itemID": 5766,
@@ -871,7 +908,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 38
   },
   {
     "itemID": 5767,
@@ -894,7 +932,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 39
   },
   {
     "itemID": 5768,
@@ -917,7 +956,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 40
   },
   {
     "itemID": 5769,
@@ -940,7 +980,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 41
   },
   {
     "itemID": 5770,
@@ -963,7 +1004,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 42
   },
   {
     "itemID": 5771,
@@ -986,7 +1028,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 43
   },
   {
     "itemID": 5772,
@@ -1009,7 +1052,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 44
   },
   {
     "itemID": 5773,
@@ -1032,7 +1076,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 45
   },
   {
     "itemID": 5774,
@@ -1055,7 +1100,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 46
   },
   {
     "itemID": 5775,
@@ -1078,7 +1124,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 47
   },
   {
     "itemID": 5776,
@@ -1101,7 +1148,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 48
   },
   {
     "itemID": 5777,
@@ -1124,7 +1172,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 49
   },
   {
     "itemID": 5778,
@@ -1147,7 +1196,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 50
   },
   {
     "itemID": 5779,
@@ -1170,7 +1220,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 51
   },
   {
     "itemID": 5780,
@@ -1193,7 +1244,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 52
   },
   {
     "itemID": 5781,
@@ -1216,7 +1268,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 53
   },
   {
     "itemID": 5782,
@@ -1239,7 +1292,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 54
   },
   {
     "itemID": 5783,
@@ -1262,7 +1316,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 55
   },
   {
     "itemID": 5784,
@@ -1285,7 +1340,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 56
   },
   {
     "itemID": 5785,
@@ -1308,7 +1364,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 57
   },
   {
     "itemID": 5786,
@@ -1331,7 +1388,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 58
   },
   {
     "itemID": 5787,
@@ -1354,7 +1412,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 59
   },
   {
     "itemID": 5788,
@@ -1377,7 +1436,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 60
   },
   {
     "itemID": 5789,
@@ -1400,7 +1460,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 61
   },
   {
     "itemID": 5790,
@@ -1423,7 +1484,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 62
   },
   {
     "itemID": 5791,
@@ -1446,7 +1508,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 63
   },
   {
     "itemID": 5792,
@@ -1469,7 +1532,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 64
   },
   {
     "itemID": 5793,
@@ -1492,7 +1556,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 65
   },
   {
     "itemID": 5794,
@@ -1515,7 +1580,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 66
   },
   {
     "itemID": 5795,
@@ -1538,7 +1604,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 67
   },
   {
     "itemID": 5796,
@@ -1561,7 +1628,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 68
   },
   {
     "itemID": 5797,
@@ -1584,7 +1652,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 69
   },
   {
     "itemID": 5798,
@@ -1607,7 +1676,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 70
   },
   {
     "itemID": 5799,
@@ -1630,7 +1700,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 71
   },
   {
     "itemID": 5800,
@@ -1653,7 +1724,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 72
   },
   {
     "itemID": 5801,
@@ -1676,7 +1748,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 73
   },
   {
     "itemID": 5802,
@@ -1699,7 +1772,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 74
   },
   {
     "itemID": 5803,
@@ -1722,7 +1796,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 75
   },
   {
     "itemID": 5804,
@@ -1745,7 +1820,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 76
   },
   {
     "itemID": 5805,
@@ -1768,7 +1844,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 77
   },
   {
     "itemID": 5806,
@@ -1791,7 +1868,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 78
   },
   {
     "itemID": 5807,
@@ -1814,7 +1892,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 79
   },
   {
     "itemID": 5808,
@@ -1837,7 +1916,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 80
   },
   {
     "itemID": 5809,
@@ -1860,7 +1940,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 81
   },
   {
     "itemID": 5810,
@@ -1883,7 +1964,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 82
   },
   {
     "itemID": 5811,
@@ -1906,7 +1988,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 83
   },
   {
     "itemID": 5812,
@@ -1929,7 +2012,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 84
   },
   {
     "itemID": 5813,
@@ -1952,7 +2036,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 85
   },
   {
     "itemID": 13114,
@@ -1975,7 +2060,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 101
   },
   {
     "itemID": 13115,
@@ -1998,7 +2084,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 102
   },
   {
     "itemID": 13116,
@@ -2021,7 +2108,8 @@
     "isMetallic": true,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 112
   },
   {
     "itemID": 13117,
@@ -2044,7 +2132,8 @@
     "isMetallic": true,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 113
   },
   {
     "itemID": 13708,
@@ -2067,7 +2156,8 @@
     "isMetallic": false,
     "isPastel": true,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 103
   },
   {
     "itemID": 13709,
@@ -2090,7 +2180,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": true,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 104
   },
   {
     "itemID": 13710,
@@ -2113,7 +2204,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": true,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 105
   },
   {
     "itemID": 13711,
@@ -2136,7 +2228,8 @@
     "isMetallic": false,
     "isPastel": true,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 106
   },
   {
     "itemID": 13712,
@@ -2159,7 +2252,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": true,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 107
   },
   {
     "itemID": 13713,
@@ -2182,7 +2276,8 @@
     "isMetallic": false,
     "isPastel": true,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 108
   },
   {
     "itemID": 13714,
@@ -2205,7 +2300,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": true,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 109
   },
   {
     "itemID": 13715,
@@ -2228,7 +2324,8 @@
     "isMetallic": false,
     "isPastel": true,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 110
   },
   {
     "itemID": 13716,
@@ -2251,7 +2348,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": true,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 111
   },
   {
     "itemID": 13717,
@@ -2274,7 +2372,8 @@
     "isMetallic": true,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 114
   },
   {
     "itemID": 13718,
@@ -2297,7 +2396,8 @@
     "isMetallic": true,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 115
   },
   {
     "itemID": 13719,
@@ -2320,7 +2420,8 @@
     "isMetallic": true,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 116
   },
   {
     "itemID": 13720,
@@ -2343,7 +2444,8 @@
     "isMetallic": true,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 117
   },
   {
     "itemID": 13721,
@@ -2366,7 +2468,8 @@
     "isMetallic": true,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 118
   },
   {
     "itemID": 13722,
@@ -2389,7 +2492,8 @@
     "isMetallic": true,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 119
   },
   {
     "itemID": 13723,
@@ -2412,7 +2516,8 @@
     "isMetallic": true,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": 120
   },
   {
     "itemID": 30116,
@@ -2435,7 +2540,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": true
+    "isCosmic": true,
+    "stainID": 86
   },
   {
     "itemID": 30117,
@@ -2458,7 +2564,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": true
+    "isCosmic": true,
+    "stainID": 87
   },
   {
     "itemID": 30118,
@@ -2481,7 +2588,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": true
+    "isCosmic": true,
+    "stainID": 88
   },
   {
     "itemID": 30119,
@@ -2504,7 +2612,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": true
+    "isCosmic": true,
+    "stainID": 89
   },
   {
     "itemID": 30120,
@@ -2527,7 +2636,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": true
+    "isCosmic": true,
+    "stainID": 90
   },
   {
     "itemID": 30121,
@@ -2550,7 +2660,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": true
+    "isCosmic": true,
+    "stainID": 91
   },
   {
     "itemID": 30122,
@@ -2573,7 +2684,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": true
+    "isCosmic": true,
+    "stainID": 92
   },
   {
     "itemID": 30123,
@@ -2596,7 +2708,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": true
+    "isCosmic": true,
+    "stainID": 93
   },
   {
     "itemID": 30124,
@@ -2619,7 +2732,8 @@
     "isMetallic": true,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": true
+    "isCosmic": true,
+    "stainID": 94
   },
   {
     "itemID": 48163,
@@ -2642,7 +2756,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": true
+    "isCosmic": true,
+    "stainID": 96
   },
   {
     "itemID": 48164,
@@ -2665,7 +2780,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": true
+    "isCosmic": true,
+    "stainID": 97
   },
   {
     "itemID": 48165,
@@ -2688,7 +2804,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": true
+    "isCosmic": true,
+    "stainID": 99
   },
   {
     "itemID": 48166,
@@ -2711,7 +2828,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": true
+    "isCosmic": true,
+    "stainID": 98
   },
   {
     "itemID": 48167,
@@ -2734,7 +2852,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": true
+    "isCosmic": true,
+    "stainID": 121
   },
   {
     "itemID": 48168,
@@ -2757,7 +2876,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": true
+    "isCosmic": true,
+    "stainID": 100
   },
   {
     "itemID": 48169,
@@ -2780,7 +2900,8 @@
     "isMetallic": true,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": true
+    "isCosmic": true,
+    "stainID": 122
   },
   {
     "itemID": 48170,
@@ -2803,7 +2924,8 @@
     "isMetallic": true,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": true
+    "isCosmic": true,
+    "stainID": 123
   },
   {
     "itemID": 48171,
@@ -2826,7 +2948,8 @@
     "isMetallic": true,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": true
+    "isCosmic": true,
+    "stainID": 124
   },
   {
     "itemID": 48172,
@@ -2849,7 +2972,8 @@
     "isMetallic": true,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": true
+    "isCosmic": true,
+    "stainID": 125
   },
   {
     "itemID": 48227,
@@ -2872,7 +2996,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": true
+    "isCosmic": true,
+    "stainID": 95
   },
   {
     "itemID": null,
@@ -2895,7 +3020,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": null
   },
   {
     "itemID": null,
@@ -2918,7 +3044,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": null
   },
   {
     "itemID": null,
@@ -2941,7 +3068,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": null
   },
   {
     "itemID": null,
@@ -2964,7 +3092,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": null
   },
   {
     "itemID": null,
@@ -2987,7 +3116,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": null
   },
   {
     "itemID": null,
@@ -3010,7 +3140,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": null
   },
   {
     "itemID": null,
@@ -3033,7 +3164,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": null
   },
   {
     "itemID": null,
@@ -3056,7 +3188,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": null
   },
   {
     "itemID": null,
@@ -3079,7 +3212,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": null
   },
   {
     "itemID": null,
@@ -3102,7 +3236,8 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": null
   },
   {
     "itemID": null,
@@ -3125,6 +3260,7 @@
     "isMetallic": false,
     "isPastel": false,
     "isDark": false,
-    "isCosmic": false
+    "isCosmic": false,
+    "stainID": null
   }
 ]

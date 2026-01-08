@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-01-08
+
+### Added
+
+- **StainID Support**: Added `stainID` field to all dyes in the database
+  - Each dye now includes `stainID: number | null` (1-125 for standard dyes, null for Facewear dyes)
+  - StainID is the game's internal stain table ID from the Stain.exh data
+  - New `dyeDatabase.getByStainId(stainId)` method for looking up dyes by stain ID
+  - Useful for integration with tools that reference the game's internal stain IDs
+
+### Changed
+
+- Updated `@xivdyetools/types` dependency to ^1.2.0
+
+---
+
 ## [1.5.6] - 2026-01-07
 
 ### Fixed

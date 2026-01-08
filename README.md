@@ -121,7 +121,8 @@ const dyeService = new DyeService(dyeDatabase);
 
 // Database access
 const allDyes = dyeService.getAllDyes(); // 136 dyes
-const dyeById = dyeService.getDyeById(5752); // Jet Black Dye
+const dyeById = dyeService.getDyeById(5752); // By itemID - Jet Black Dye
+const dyeByStain = dyeService.getByStainId(1); // By stainID - Snow White
 const categories = dyeService.getCategories(); // ['Neutral', 'Red', 'Blue', ...]
 
 // Color matching

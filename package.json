@@ -1,6 +1,6 @@
 {
     "name": "@xivdyetools/core",
-    "version": "1.5.6",
+    "version": "1.6.0",
     "description": "Core color algorithms and dye database for XIV Dye Tools",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -76,8 +76,8 @@
         "node": ">=18.0.0"
     },
     "dependencies": {
-        "@xivdyetools/types": "^1.1.1",
-        "@xivdyetools/logger": "^1.0.2"
+        "@xivdyetools/logger": "^1.0.2",
+        "@xivdyetools/types": "^1.2.0"
     },
     "lint-staged": {
         "*.ts": [
