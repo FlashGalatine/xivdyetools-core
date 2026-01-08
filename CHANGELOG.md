@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-01-08
+
+### Added
+
+- **Character Color Service**: New service for accessing FFXIV character customization colors
+  - `CharacterColorService` class provides access to all character creator color options
+  - Shared colors: eye colors (192), highlight colors (192), lip colors (96 dark/96 light), tattoo colors (192), face paint colors (96 dark/96 light)
+  - Race-specific colors: hair colors and skin colors for all 16 subraces × 2 genders (192 each)
+  - Color matching: `findClosestDyes()`, `findClosestDye()`, `findDyesWithinDistance()` methods to find dyes matching character colors
+  - Lookup methods: `getSharedColorByIndex()`, `getRaceSpecificColorByIndex()`
+  - Metadata: `getVersion()`, `getGridColumns()`, `getAvailableSubraces()`
+
+- **Character Color Data**: Added `character_colors.json` data file (779 KB)
+  - Complete color palette data extracted from FFXIV character creator
+  - 13,000+ color entries covering all character customization options
+
+- **Character Type Exports**: Re-exported character types from `@xivdyetools/types` for convenience
+  - `CharacterColor`, `CharacterColorMatch`, `SubRace`, `Gender`, `Race`
+  - `RACE_SUBRACES`, `SUBRACE_TO_RACE`, `COLOR_GRID_DIMENSIONS` constants
+
+### Changed
+
+- Updated `@xivdyetools/types` dependency to ^1.3.0
+
+---
+
 ## [1.6.0] - 2026-01-08
 
 ### Added

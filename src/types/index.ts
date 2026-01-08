@@ -45,6 +45,21 @@ export type { Dye, LocalizedDye, DyeWithDistance, DyeDatabase } from '@xivdyetoo
  * @deprecated Removed in v2.0.0. Import directly from '@xivdyetools/types' instead.
  */
 export type {
+  CharacterColor,
+  CharacterColorMatch,
+  SharedColorCategory,
+  RaceSpecificColorCategory,
+  CharacterColorCategory,
+  SubRace,
+  Gender,
+  Race,
+} from '@xivdyetools/types';
+export { RACE_SUBRACES, SUBRACE_TO_RACE, COLOR_GRID_DIMENSIONS } from '@xivdyetools/types';
+
+/**
+ * @deprecated Removed in v2.0.0. Import directly from '@xivdyetools/types' instead.
+ */
+export type {
   PresetCategory,
   PresetStatus,
   PresetSortOption,

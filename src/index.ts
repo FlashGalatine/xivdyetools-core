@@ -12,6 +12,7 @@ export type {
   PaletteMatch,
   PaletteServiceOptions,
 } from './services/PaletteService.js';
+export { CharacterColorService } from './services/CharacterColorService.js';
 
 // Types
 export type {
@@ -48,8 +49,24 @@ export type {
   PresetSubmitResponse,
   VoteResponse,
   PresetFilters,
+  // Character types
+  CharacterColor,
+  CharacterColorMatch,
+  SubRace,
+  Gender,
+  Race,
 } from './types/index.js';
-export { AppError, ErrorCode, createHexColor, NoOpLogger, ConsoleLogger } from './types/index.js';
+export {
+  AppError,
+  ErrorCode,
+  createHexColor,
+  NoOpLogger,
+  ConsoleLogger,
+  // Character constants
+  RACE_SUBRACES,
+  SUBRACE_TO_RACE,
+  COLOR_GRID_DIMENSIONS,
+} from './types/index.js';
 
 // Constants
 export {
@@ -104,6 +121,7 @@ export {
 // Data (for browser environments - to be injected)
 export { default as dyeDatabase } from './data/colors_xiv.json' with { type: 'json' };
 export { default as presetData } from './data/presets.json' with { type: 'json' };
+export { default as characterColorData } from './data/character_colors.json' with { type: 'json' };
 
 // Version (auto-generated from package.json during build)
 export { VERSION } from './version.js';
