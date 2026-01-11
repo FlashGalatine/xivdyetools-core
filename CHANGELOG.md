@@ -5,6 +5,68 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2026-01-11
+
+### Added
+
+- **DeltaE-Based Harmony Matching**: Alternative perceptually-accurate algorithm for all harmony calculations
+  - New `HarmonyOptions` interface with `algorithm`, `deltaEFormula`, and tolerance settings
+  - `algorithm: 'hue'` (default) - existing fast hue-based matching
+  - `algorithm: 'deltaE'` - perceptually accurate matching using LAB color space
+  - `deltaEFormula: 'cie76'` (default) - fast Euclidean distance in LAB
+  - `deltaEFormula: 'cie2000'` - industry-standard CIEDE2000 for highest accuracy
+  - Pre-computed LAB values for all dyes (computed once during database initialization)
+  - All harmony methods now accept optional `HarmonyOptions` parameter:
+    - `findComplementaryPair()`, `findAnalogousDyes()`, `findTriadicDyes()`
+    - `findSquareDyes()`, `findTetradicDyes()`, `findMonochromaticDyes()`
+    - `findCompoundDyes()`, `findSplitComplementaryDyes()`, `findShadesDyes()`
+
+- **LAB Color Conversion**: New methods in `ColorConverter`
+  - `rgbToLab(r, g, b)` - Convert RGB to CIE LAB
+  - `hexToLab(hex)` - Convert hex color to CIE LAB
+  - LRU caching for LAB conversions (same pattern as other conversions)
+
+- **DeltaE Calculations**: New methods in `ColorConverter`
+  - `getDeltaE76(lab1, lab2)` - CIE76 formula (fast, Euclidean in LAB)
+  - `getDeltaE2000(lab1, lab2)` - CIEDE2000 formula (accurate, industry standard)
+  - `getDeltaE(hex1, hex2, formula?)` - Convenience method for hex colors
+
+- **New Exported Types**
+  - `HarmonyOptions` - Options for harmony generation algorithm selection
+  - `HarmonyMatchingAlgorithm` - `'hue' | 'deltaE'`
+  - `DeltaEFormula` - `'cie76' | 'cie2000'`
+  - `LAB` - Re-exported from `@xivdyetools/types`
+
+### Changed
+
+- Updated `@xivdyetools/types` dependency to ^1.4.0
+- `DyeInternal` interface now includes pre-computed `lab` field
+
+### Usage Example
+
+```typescript
+import { DyeService, dyeDatabase } from '@xivdyetools/core';
+
+const dyeService = new DyeService(dyeDatabase);
+
+// Traditional hue-based matching (default, unchanged API)
+const hueTriadic = dyeService.findTriadicDyes('#FF5733');
+
+// DeltaE matching with CIE76 (fast)
+const deltaETriadic = dyeService.findTriadicDyes('#FF5733', {
+  algorithm: 'deltaE',
+});
+
+// DeltaE matching with CIEDE2000 (most accurate)
+const accurateTriadic = dyeService.findTriadicDyes('#FF5733', {
+  algorithm: 'deltaE',
+  deltaEFormula: 'cie2000',
+  deltaETolerance: 25,
+});
+```
+
+---
+
 ## [1.7.0] - 2026-01-08
 
 ### Added

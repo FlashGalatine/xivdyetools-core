@@ -20,6 +20,7 @@ export type {
   LocalizedDye,
   RGB,
   HSV,
+  LAB,
   HexColor,
   VisionType,
   Matrix3x3,
@@ -56,6 +57,12 @@ export type {
   Gender,
   Race,
 } from './types/index.js';
+
+// Harmony types
+export type { HarmonyOptions, HarmonyMatchingAlgorithm } from './services/dye/HarmonyGenerator.js';
+
+// Color converter types
+export type { DeltaEFormula } from './services/color/ColorConverter.js';
 export {
   AppError,
   ErrorCode,

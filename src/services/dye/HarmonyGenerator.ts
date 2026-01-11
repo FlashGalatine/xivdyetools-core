@@ -6,8 +6,48 @@
 
 import type { Dye } from '../../types/index.js';
 import { ColorManipulator } from '../color/ColorManipulator.js';
+import { ColorConverter, type DeltaEFormula } from '../color/ColorConverter.js';
 import type { DyeDatabase } from './DyeDatabase.js';
 import type { DyeSearch } from './DyeSearch.js';
+
+/**
+ * Algorithm used for finding matching dyes in harmony calculations
+ * - 'hue': Current algorithm - matches based on hue angle offsets (fast, hue-bucket indexed)
+ * - 'deltaE': DeltaE-based matching - matches based on perceptual color difference
+ */
+export type HarmonyMatchingAlgorithm = 'hue' | 'deltaE';
+
+/**
+ * Options for harmony generation methods
+ */
+export interface HarmonyOptions {
+  /**
+   * Algorithm for finding matching dyes
+   * @default 'hue'
+   */
+  algorithm?: HarmonyMatchingAlgorithm;
+
+  /**
+   * DeltaE formula (only used when algorithm is 'deltaE')
+   * @default 'cie76'
+   */
+  deltaEFormula?: DeltaEFormula;
+
+  /**
+   * Tolerance for hue-based matching (degrees, 0-180)
+   * Only used when algorithm is 'hue'
+   * @default 45
+   */
+  hueTolerance?: number;
+
+  /**
+   * Maximum DeltaE distance for matching
+   * Only used when algorithm is 'deltaE'
+   * Higher values return more matches but less precise
+   * @default 40 (for cie76), 25 (for cie2000)
+   */
+  deltaETolerance?: number;
+}
 
 /**
  * Color harmony generator
@@ -22,12 +62,20 @@ export class HarmonyGenerator {
   /**
    * Find dyes that form a complementary color pair
    * Excludes Facewear dyes (generic names like "Red", "Blue")
+   * @param hex Base hex color
+   * @param options Matching algorithm options
    */
-  findComplementaryPair(hex: string): Dye | null {
+  findComplementaryPair(hex: string, options?: HarmonyOptions): Dye | null {
     this.database.ensureLoaded();
 
     try {
       const complementaryHex = ColorManipulator.invert(hex);
+
+      // Use DeltaE matching if requested
+      if (options?.algorithm === 'deltaE') {
+        return this.findClosestByDeltaE(complementaryHex, new Set(), options);
+      }
+
       // Find closest dye, excluding Facewear
       return this.findClosestNonFacewearDye(complementaryHex);
     } catch {
@@ -52,60 +100,111 @@ export class HarmonyGenerator {
    * Find analogous dyes (adjacent on color wheel)
    * Returns dyes at ±angle degrees from the base color
    *
+   * @param hex Base hex color
+   * @param angle Hue offset in degrees (default: 30)
+   * @param options Matching algorithm options
+   *
    * @remarks
    * May return fewer dyes than expected if no suitable matches exist
    * at the target hue positions or if all candidates are excluded.
    */
-  findAnalogousDyes(hex: string, angle: number = 30): Dye[] {
+  findAnalogousDyes(hex: string, angle: number = 30, options?: HarmonyOptions): Dye[] {
     // Use harmony helper to find dyes at +angle and -angle positions
-    return this.findHarmonyDyesByOffsets(hex, [angle, -angle]);
+    return this.findHarmonyDyesByOffsets(hex, [angle, -angle], {}, options);
   }
 
   /**
    * Find triadic color scheme (colors 120° apart on color wheel)
    *
+   * @param hex Base hex color
+   * @param options Matching algorithm options
+   *
    * @remarks
    * May return 0, 1, or 2 dyes depending on available matches.
    * Use the length of the returned array to determine actual results.
    */
-  findTriadicDyes(hex: string): Dye[] {
-    return this.findHarmonyDyesByOffsets(hex, [120, 240]);
+  findTriadicDyes(hex: string, options?: HarmonyOptions): Dye[] {
+    return this.findHarmonyDyesByOffsets(hex, [120, 240], {}, options);
   }
 
   /**
    * Find square color scheme (colors 90° apart on color wheel)
    *
+   * @param hex Base hex color
+   * @param options Matching algorithm options
+   *
    * @remarks
    * May return fewer than 3 dyes if suitable matches are not found.
    */
-  findSquareDyes(hex: string): Dye[] {
-    return this.findHarmonyDyesByOffsets(hex, [90, 180, 270]);
+  findSquareDyes(hex: string, options?: HarmonyOptions): Dye[] {
+    return this.findHarmonyDyesByOffsets(hex, [90, 180, 270], {}, options);
   }
 
   /**
    * Find tetradic color scheme (two complementary pairs)
    *
+   * @param hex Base hex color
+   * @param options Matching algorithm options
+   *
    * @remarks
    * May return fewer than 3 dyes if suitable matches are not found.
    */
-  findTetradicDyes(hex: string): Dye[] {
+  findTetradicDyes(hex: string, options?: HarmonyOptions): Dye[] {
     // Two adjacent hues + their complements (e.g., base+60 and base+240)
-    return this.findHarmonyDyesByOffsets(hex, [60, 180, 240]);
+    return this.findHarmonyDyesByOffsets(hex, [60, 180, 240], {}, options);
   }
 
   /**
    * Find monochromatic dyes (same hue, varying saturation/brightness)
    * Excludes Facewear dyes (generic names like "Red", "Blue")
+   *
+   * @param hex Base hex color
+   * @param limit Maximum number of dyes to return (default: 6)
+   * @param options Matching algorithm options
    */
-  findMonochromaticDyes(hex: string, limit: number = 6): Dye[] {
+  findMonochromaticDyes(hex: string, limit: number = 6, options?: HarmonyOptions): Dye[] {
     this.database.ensureLoaded();
 
     const baseDye = this.findClosestNonFacewearDye(hex);
     if (!baseDye) return [];
 
+    const dyes = this.database.getDyesInternal();
+
+    // DeltaE-based monochromatic search
+    if (options?.algorithm === 'deltaE') {
+      const baseLab = ColorConverter.hexToLab(baseDye.hex);
+      const formula = options.deltaEFormula ?? 'cie76';
+      const tolerance = options.deltaETolerance ?? (formula === 'cie2000' ? 25 : 40);
+
+      const results: Array<{ dye: Dye; deltaE: number; satValDiff: number }> = [];
+
+      for (const dye of dyes) {
+        if (dye.category === 'Facewear' || dye.id === baseDye.id) continue;
+
+        // Use pre-computed LAB (always available for DyeInternal)
+        const dyeLab = dye.lab;
+        const deltaE =
+          formula === 'cie2000'
+            ? ColorConverter.getDeltaE2000(baseLab, dyeLab)
+            : ColorConverter.getDeltaE76(baseLab, dyeLab);
+
+        // For monochromatic, we want colors that are perceptually similar
+        // but have varying lightness (L component)
+        if (deltaE <= tolerance) {
+          const satDiff = Math.abs(dye.hsv.s - baseDye.hsv.s);
+          const valDiff = Math.abs(dye.hsv.v - baseDye.hsv.v);
+          results.push({ dye, deltaE, satValDiff: satDiff + valDiff });
+        }
+      }
+
+      // Sort by saturation/value difference (prefer more variety)
+      results.sort((a, b) => b.satValDiff - a.satValDiff);
+      return results.slice(0, limit).map((item) => item.dye);
+    }
+
+    // Hue-based monochromatic search (original algorithm)
     const baseHue = baseDye.hsv.h;
     const results: Array<{ dye: Dye; satValDiff: number }> = [];
-    const dyes = this.database.getDyesInternal();
 
     // Find dyes with similar hue but different saturation/value
     for (const dye of dyes) {
@@ -134,39 +233,48 @@ export class HarmonyGenerator {
   /**
    * Find compound harmony (analogous + complementary)
    *
+   * @param hex Base hex color
+   * @param options Matching algorithm options
+   *
    * @remarks
    * May return fewer than 3 dyes if suitable matches are not found.
    */
-  findCompoundDyes(hex: string): Dye[] {
+  findCompoundDyes(hex: string, options?: HarmonyOptions): Dye[] {
     // ±30° from base + complement
-    return this.findHarmonyDyesByOffsets(hex, [30, -30, 180], { tolerance: 35 });
+    return this.findHarmonyDyesByOffsets(hex, [30, -30, 180], { tolerance: 35 }, options);
   }
 
   /**
    * Find split-complementary harmony (±30° from the complementary hue)
    *
+   * @param hex Base hex color
+   * @param options Matching algorithm options
+   *
    * @remarks
    * May return 0, 1, or 2 dyes depending on available matches.
    */
-  findSplitComplementaryDyes(hex: string): Dye[] {
-    return this.findHarmonyDyesByOffsets(hex, [150, 210]);
+  findSplitComplementaryDyes(hex: string, options?: HarmonyOptions): Dye[] {
+    return this.findHarmonyDyesByOffsets(hex, [150, 210], {}, options);
   }
 
   /**
    * Find shades (similar tones, ±15°)
    *
+   * @param hex Base hex color
+   * @param options Matching algorithm options
+   *
    * @remarks
    * May return 0, 1, or 2 dyes depending on available matches.
    */
-  findShadesDyes(hex: string): Dye[] {
+  findShadesDyes(hex: string, options?: HarmonyOptions): Dye[] {
     this.database.ensureLoaded();
 
     // Use tighter tolerance (5°) for shades to ensure results are close to target hue
-    return this.findHarmonyDyesByOffsets(hex, [15, -15], { tolerance: 5 });
+    return this.findHarmonyDyesByOffsets(hex, [15, -15], { tolerance: 5 }, options);
   }
 
   /**
-   * Generic helper for hue-based harmonies
+   * Generic helper for hue-based and DeltaE-based harmonies
    *
    * @remarks
    * This method may return fewer dyes than the number of offsets provided.
@@ -180,13 +288,15 @@ export class HarmonyGenerator {
    *
    * @param hex - Base hex color
    * @param offsets - Array of hue offsets in degrees
-   * @param options - Options including tolerance (default: 45°)
+   * @param internalOptions - Internal options (tolerance for hue-based matching)
+   * @param harmonyOptions - User-provided harmony options
    * @returns Array of matched dyes (may be shorter than offsets array)
    */
   private findHarmonyDyesByOffsets(
     hex: string,
     offsets: number[],
-    options: { tolerance?: number } = {}
+    internalOptions: { tolerance?: number } = {},
+    harmonyOptions?: HarmonyOptions
   ): Dye[] {
     this.database.ensureLoaded();
 
@@ -195,8 +305,31 @@ export class HarmonyGenerator {
 
     const usedDyeIds = new Set<number>([baseDye.id]);
     const results: Dye[] = [];
+
+    // Check if using DeltaE algorithm
+    if (harmonyOptions?.algorithm === 'deltaE') {
+      // For DeltaE, we still calculate target colors from hue offsets,
+      // but match using perceptual distance instead of hue distance
+      const baseHsv = baseDye.hsv;
+
+      for (const offset of offsets) {
+        const targetHue = (baseHsv.h + offset + 360) % 360;
+        // Generate target color at that hue (keeping same saturation/value)
+        const targetHex = ColorConverter.hsvToHex(targetHue, baseHsv.s, baseHsv.v);
+
+        const match = this.findClosestByDeltaE(targetHex, usedDyeIds, harmonyOptions);
+        if (match) {
+          results.push(match);
+          usedDyeIds.add(match.id);
+        }
+      }
+
+      return results;
+    }
+
+    // Original hue-based logic
     const baseHue = baseDye.hsv.h;
-    const tolerance = options.tolerance ?? 45;
+    const tolerance = harmonyOptions?.hueTolerance ?? internalOptions.tolerance ?? 45;
 
     for (const offset of offsets) {
       const targetHue = (baseHue + offset + 360) % 360;
@@ -208,6 +341,48 @@ export class HarmonyGenerator {
     }
 
     return results;
+  }
+
+  /**
+   * Find closest dye using DeltaE color difference
+   * @param targetHex - Target color in hex format
+   * @param excludeIds - Dye IDs to exclude from results
+   * @param options - DeltaE options (formula, tolerance)
+   */
+  private findClosestByDeltaE(
+    targetHex: string,
+    excludeIds: Set<number>,
+    options: HarmonyOptions
+  ): Dye | null {
+    const formula = options.deltaEFormula ?? 'cie76';
+    const tolerance = options.deltaETolerance ?? (formula === 'cie2000' ? 25 : 40);
+
+    const targetLab = ColorConverter.hexToLab(targetHex);
+
+    let bestMatch: Dye | null = null;
+    let bestDeltaE = Infinity;
+
+    const dyes = this.database.getDyesInternal();
+    for (const dye of dyes) {
+      if (excludeIds.has(dye.id) || dye.category === 'Facewear') {
+        continue;
+      }
+
+      // Use pre-computed LAB (always available for DyeInternal)
+      const dyeLab = dye.lab;
+      const deltaE =
+        formula === 'cie2000'
+          ? ColorConverter.getDeltaE2000(targetLab, dyeLab)
+          : ColorConverter.getDeltaE76(targetLab, dyeLab);
+
+      if (deltaE < bestDeltaE) {
+        bestDeltaE = deltaE;
+        bestMatch = dye;
+      }
+    }
+
+    // Only return if within tolerance
+    return bestDeltaE <= tolerance ? bestMatch : null;
   }
 
   /**

@@ -29,7 +29,7 @@ import type { Dye, LocalizedDye, Logger } from '../types/index.js';
 import { NoOpLogger } from '../types/index.js';
 import { DyeDatabase } from './dye/DyeDatabase.js';
 import { DyeSearch } from './dye/DyeSearch.js';
-import { HarmonyGenerator } from './dye/HarmonyGenerator.js';
+import { HarmonyGenerator, type HarmonyOptions } from './dye/HarmonyGenerator.js';
 import { LocalizationService } from './LocalizationService.js';
 
 /**
@@ -209,66 +209,86 @@ export class DyeService {
 
   /**
    * Find dyes that form a complementary color pair
+   * @param hex Base hex color
+   * @param options Matching algorithm options (optional)
    */
-  findComplementaryPair(hex: string): Dye | null {
-    return this.harmony.findComplementaryPair(hex);
+  findComplementaryPair(hex: string, options?: HarmonyOptions): Dye | null {
+    return this.harmony.findComplementaryPair(hex, options);
   }
 
   /**
    * Find analogous dyes (adjacent on color wheel)
    * Returns dyes at ±angle degrees from the base color
+   * @param hex Base hex color
+   * @param angle Hue offset in degrees (default: 30)
+   * @param options Matching algorithm options (optional)
    */
-  findAnalogousDyes(hex: string, angle: number = 30): Dye[] {
-    return this.harmony.findAnalogousDyes(hex, angle);
+  findAnalogousDyes(hex: string, angle: number = 30, options?: HarmonyOptions): Dye[] {
+    return this.harmony.findAnalogousDyes(hex, angle, options);
   }
 
   /**
    * Find triadic color scheme (colors 120° apart on color wheel)
+   * @param hex Base hex color
+   * @param options Matching algorithm options (optional)
    */
-  findTriadicDyes(hex: string): Dye[] {
-    return this.harmony.findTriadicDyes(hex);
+  findTriadicDyes(hex: string, options?: HarmonyOptions): Dye[] {
+    return this.harmony.findTriadicDyes(hex, options);
   }
 
   /**
    * Find square color scheme (colors 90° apart on color wheel)
+   * @param hex Base hex color
+   * @param options Matching algorithm options (optional)
    */
-  findSquareDyes(hex: string): Dye[] {
-    return this.harmony.findSquareDyes(hex);
+  findSquareDyes(hex: string, options?: HarmonyOptions): Dye[] {
+    return this.harmony.findSquareDyes(hex, options);
   }
 
   /**
    * Find tetradic color scheme (two complementary pairs)
+   * @param hex Base hex color
+   * @param options Matching algorithm options (optional)
    */
-  findTetradicDyes(hex: string): Dye[] {
-    return this.harmony.findTetradicDyes(hex);
+  findTetradicDyes(hex: string, options?: HarmonyOptions): Dye[] {
+    return this.harmony.findTetradicDyes(hex, options);
   }
 
   /**
    * Find monochromatic dyes (same hue, varying saturation/brightness)
+   * @param hex Base hex color
+   * @param limit Maximum number of dyes to return (default: 6)
+   * @param options Matching algorithm options (optional)
    */
-  findMonochromaticDyes(hex: string, limit: number = 6): Dye[] {
-    return this.harmony.findMonochromaticDyes(hex, limit);
+  findMonochromaticDyes(hex: string, limit: number = 6, options?: HarmonyOptions): Dye[] {
+    return this.harmony.findMonochromaticDyes(hex, limit, options);
   }
 
   /**
    * Find compound harmony (analogous + complementary)
+   * @param hex Base hex color
+   * @param options Matching algorithm options (optional)
    */
-  findCompoundDyes(hex: string): Dye[] {
-    return this.harmony.findCompoundDyes(hex);
+  findCompoundDyes(hex: string, options?: HarmonyOptions): Dye[] {
+    return this.harmony.findCompoundDyes(hex, options);
   }
 
   /**
    * Find split-complementary harmony (±30° from the complementary hue)
+   * @param hex Base hex color
+   * @param options Matching algorithm options (optional)
    */
-  findSplitComplementaryDyes(hex: string): Dye[] {
-    return this.harmony.findSplitComplementaryDyes(hex);
+  findSplitComplementaryDyes(hex: string, options?: HarmonyOptions): Dye[] {
+    return this.harmony.findSplitComplementaryDyes(hex, options);
   }
 
   /**
    * Find shades (similar tones, ±15°)
+   * @param hex Base hex color
+   * @param options Matching algorithm options (optional)
    */
-  findShadesDyes(hex: string): Dye[] {
-    return this.harmony.findShadesDyes(hex);
+  findShadesDyes(hex: string, options?: HarmonyOptions): Dye[] {
+    return this.harmony.findShadesDyes(hex, options);
   }
 
   // ============================================================================

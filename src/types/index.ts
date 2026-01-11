@@ -26,7 +26,7 @@ export { NoOpLogger, ConsoleLogger } from '@xivdyetools/logger/library';
 /**
  * @deprecated Removed in v2.0.0. Import directly from '@xivdyetools/types' instead.
  */
-export type { RGB, HSV, HexColor, DyeId, Hue, Saturation } from '@xivdyetools/types';
+export type { RGB, HSV, LAB, HexColor, DyeId, Hue, Saturation } from '@xivdyetools/types';
 /**
  * @deprecated Removed in v2.0.0. Import directly from '@xivdyetools/types' instead.
  */

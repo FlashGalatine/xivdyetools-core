@@ -4,15 +4,17 @@
  * Handles loading, indexing, and data access
  */
 
-import type { Dye } from '../../types/index.js';
+import type { Dye, LAB } from '../../types/index.js';
 import { ErrorCode, AppError } from '../../types/index.js';
 import type { Logger } from '../../types/index.js';
 import { NoOpLogger } from '../../types/index.js';
 import { KDTree, type Point3D } from '../../utils/kd-tree.js';
+import { ColorConverter } from '../color/ColorConverter.js';
 
 /**
- * Internal dye type with pre-computed lowercase fields for search optimization
+ * Internal dye type with pre-computed fields for search optimization
  * Per MEM-001: Avoids repeated toLowerCase() calls during searches
+ * Per DeltaE: Pre-computes LAB values for perceptual color matching
  * @internal
  */
 export interface DyeInternal extends Dye {
@@ -20,6 +22,8 @@ export interface DyeInternal extends Dye {
   nameLower: string;
   /** Pre-computed lowercase category for search optimization */
   categoryLower: string;
+  /** Pre-computed LAB color values for DeltaE calculations */
+  lab: LAB;
 }
 
 /**
@@ -262,7 +266,29 @@ export class DyeDatabase {
           return normalizedDye;
         })
         .filter((dye) => this.isValidDye(dye))
-        .map((dye) => dye as unknown as DyeInternal);
+        .map((dye) => {
+          // Per DeltaE: Pre-compute LAB values for perceptual color matching
+          // This runs AFTER validation to ensure valid RGB values
+          const rgb = dye.rgb as { r: number; g: number; b: number } | undefined;
+          if (
+            rgb &&
+            typeof rgb.r === 'number' &&
+            typeof rgb.g === 'number' &&
+            typeof rgb.b === 'number'
+          ) {
+            dye.lab = ColorConverter.rgbToLab(rgb.r, rgb.g, rgb.b);
+          } else {
+            // Fallback: compute from hex if RGB not available
+            const hex = dye.hex as string | undefined;
+            if (hex) {
+              dye.lab = ColorConverter.hexToLab(hex);
+            } else {
+              // Default to neutral gray if no color info available
+              dye.lab = { L: 50, a: 0, b: 0 };
+            }
+          }
+          return dye as unknown as DyeInternal;
+        });
 
       // Build ID map for fast lookups
       this.dyesByIdMap.clear();

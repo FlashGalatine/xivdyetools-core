@@ -102,6 +102,11 @@ const simulated = ColorService.simulateColorblindness(
 // Color distance (Euclidean in RGB space)
 const distance = ColorService.getColorDistance('#FF0000', '#00FF00');
 
+// LAB color space and DeltaE (perceptual color difference)
+const lab = ColorService.hexToLab('#FF6B6B');
+const deltaE = ColorService.getDeltaE('#FF0000', '#FF6B6B'); // CIE76 by default
+const deltaE2000 = ColorService.getDeltaE('#FF0000', '#FF6B6B', 'cie2000'); // CIEDE2000
+
 // Color inversion
 const inverted = ColorService.invert('#FF6B6B');
 
@@ -129,12 +134,18 @@ const categories = dyeService.getCategories(); // ['Neutral', 'Red', 'Blue', ...
 const closest = dyeService.findClosestDye('#FF6B6B');
 const nearby = dyeService.findDyesWithinDistance('#FF6B6B', 50, 5);
 
-// Harmony generation
+// Harmony generation (default: fast hue-based matching)
 const triadic = dyeService.findTriadicDyes('#FF6B6B');
 const complementary = dyeService.findComplementaryPair('#FF6B6B');
 const analogous = dyeService.findAnalogousDyes('#FF6B6B', 30);
 const monochromatic = dyeService.findMonochromaticDyes('#FF6B6B', 6);
 const splitComplementary = dyeService.findSplitComplementaryDyes('#FF6B6B');
+
+// DeltaE-based harmony (perceptually accurate matching)
+const triadicDeltaE = dyeService.findTriadicDyes('#FF6B6B', {
+  algorithm: 'deltaE',
+  deltaEFormula: 'cie2000', // or 'cie76' (faster, default)
+});
 
 // Filtering
 const redDyes = dyeService.searchByCategory('Red');
@@ -262,12 +273,16 @@ import type {
   Dye,
   RGB,
   HSV,
+  LAB,
   HexColor,
   PriceData,
   CachedData,
   VisionType,
   ErrorSeverity,
-  ICacheBackend
+  ICacheBackend,
+  HarmonyOptions,
+  HarmonyMatchingAlgorithm,
+  DeltaEFormula
 } from 'xivdyetools-core';
 ```
 

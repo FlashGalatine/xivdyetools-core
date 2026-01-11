@@ -4,9 +4,16 @@
  * Handles conversions between hex, RGB, and HSV color formats
  */
 
-import type { RGB, HSV, HexColor } from '../../types/index.js';
+import type { RGB, HSV, HexColor, LAB } from '../../types/index.js';
 import { createHexColor } from '../../types/index.js';
 import { ErrorCode, AppError } from '../../types/index.js';
+
+/**
+ * DeltaE formula for color difference calculations
+ * - cie76: Simple Euclidean distance in LAB space (fast)
+ * - cie2000: CIEDE2000 formula (perceptually accurate, industry standard)
+ */
+export type DeltaEFormula = 'cie76' | 'cie2000';
 import { RGB_MIN, RGB_MAX, HUE_MAX } from '../../constants/index.js';
 import {
   clamp,
@@ -37,6 +44,7 @@ export class ColorConverter {
   private readonly rgbToHsvCache: LRUCache<string, HSV>;
   private readonly hsvToRgbCache: LRUCache<string, RGB>;
   private readonly hexToHsvCache: LRUCache<string, HSV>;
+  private readonly rgbToLabCache: LRUCache<string, LAB>;
 
   // Default singleton instance for static API compatibility
   // Per Issue #6: Eager initialization to avoid race conditions in concurrent scenarios
@@ -53,6 +61,7 @@ export class ColorConverter {
     this.rgbToHsvCache = new LRUCache<string, HSV>(cacheSize);
     this.hsvToRgbCache = new LRUCache<string, RGB>(cacheSize);
     this.hexToHsvCache = new LRUCache<string, HSV>(cacheSize);
+    this.rgbToLabCache = new LRUCache<string, LAB>(cacheSize);
   }
 
   /**
@@ -72,6 +81,7 @@ export class ColorConverter {
     this.rgbToHsvCache.clear();
     this.hsvToRgbCache.clear();
     this.hexToHsvCache.clear();
+    this.rgbToLabCache.clear();
   }
 
   /**
@@ -90,6 +100,7 @@ export class ColorConverter {
     rgbToHsv: number;
     hsvToRgb: number;
     hexToHsv: number;
+    rgbToLab: number;
   } {
     return {
       hexToRgb: this.hexToRgbCache.size,
@@ -97,6 +108,7 @@ export class ColorConverter {
       rgbToHsv: this.rgbToHsvCache.size,
       hsvToRgb: this.hsvToRgbCache.size,
       hexToHsv: this.hexToHsvCache.size,
+      rgbToLab: this.rgbToLabCache.size,
     };
   }
 
@@ -109,6 +121,7 @@ export class ColorConverter {
     rgbToHsv: number;
     hsvToRgb: number;
     hexToHsv: number;
+    rgbToLab: number;
   } {
     return this.getDefault().getCacheStats();
   }
@@ -447,5 +460,264 @@ export class ColorConverter {
    */
   static getColorDistance(hex1: string, hex2: string): number {
     return this.getDefault().getColorDistance(hex1, hex2);
+  }
+
+  // ============================================================================
+  // LAB Color Space Conversion
+  // ============================================================================
+
+  /**
+   * Convert RGB to CIE XYZ color space (intermediate step for LAB)
+   * Uses sRGB to XYZ conversion with D65 illuminant
+   * @internal
+   */
+  private rgbToXyz(r: number, g: number, b: number): { x: number; y: number; z: number } {
+    // Normalize to 0-1 and apply sRGB gamma expansion
+    let rLinear = r / 255;
+    let gLinear = g / 255;
+    let bLinear = b / 255;
+
+    // sRGB gamma expansion (inverse companding)
+    rLinear = rLinear > 0.04045 ? Math.pow((rLinear + 0.055) / 1.055, 2.4) : rLinear / 12.92;
+    gLinear = gLinear > 0.04045 ? Math.pow((gLinear + 0.055) / 1.055, 2.4) : gLinear / 12.92;
+    bLinear = bLinear > 0.04045 ? Math.pow((bLinear + 0.055) / 1.055, 2.4) : bLinear / 12.92;
+
+    // sRGB to XYZ matrix (D65 illuminant)
+    return {
+      x: rLinear * 0.4124564 + gLinear * 0.3575761 + bLinear * 0.1804375,
+      y: rLinear * 0.2126729 + gLinear * 0.7151522 + bLinear * 0.072175,
+      z: rLinear * 0.0193339 + gLinear * 0.119192 + bLinear * 0.9503041,
+    };
+  }
+
+  /**
+   * Convert RGB to CIE LAB color space
+   * Per P-1: Cached for performance
+   * @example rgbToLab(255, 0, 0) -> { L: 53.23, a: 80.11, b: 67.22 }
+   */
+  rgbToLab(r: number, g: number, b: number): LAB {
+    if (!isValidRGB(r, g, b)) {
+      throw new AppError(
+        ErrorCode.INVALID_RGB_VALUE,
+        `Invalid RGB values: r=${r}, g=${g}, b=${b}. Values must be 0-255`,
+        'error'
+      );
+    }
+
+    const cacheKey = `${r},${g},${b}`;
+    const cached = this.rgbToLabCache.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    // D65 reference white point
+    const refX = 0.95047;
+    const refY = 1.0;
+    const refZ = 1.08883;
+
+    const xyz = this.rgbToXyz(r, g, b);
+
+    // Normalize by reference white
+    let x = xyz.x / refX;
+    let y = xyz.y / refY;
+    let z = xyz.z / refZ;
+
+    // Apply LAB transformation (cube root with linear segment for dark colors)
+    const epsilon = 0.008856; // (6/29)^3
+    const kappa = 903.3; // (29/3)^3
+
+    x = x > epsilon ? Math.pow(x, 1 / 3) : (kappa * x + 16) / 116;
+    y = y > epsilon ? Math.pow(y, 1 / 3) : (kappa * y + 16) / 116;
+    z = z > epsilon ? Math.pow(z, 1 / 3) : (kappa * z + 16) / 116;
+
+    const result: LAB = {
+      L: round(116 * y - 16, 4),
+      a: round(500 * (x - y), 4),
+      b: round(200 * (y - z), 4),
+    };
+
+    this.rgbToLabCache.set(cacheKey, result);
+    return result;
+  }
+
+  /**
+   * Static method: Convert RGB to LAB using default instance
+   */
+  static rgbToLab(r: number, g: number, b: number): LAB {
+    return this.getDefault().rgbToLab(r, g, b);
+  }
+
+  /**
+   * Convert hex color to CIE LAB
+   * @example hexToLab("#FF0000") -> { L: 53.23, a: 80.11, b: 67.22 }
+   */
+  hexToLab(hex: string): LAB {
+    const rgb = this.hexToRgb(hex);
+    return this.rgbToLab(rgb.r, rgb.g, rgb.b);
+  }
+
+  /**
+   * Static method: Convert hex to LAB using default instance
+   */
+  static hexToLab(hex: string): LAB {
+    return this.getDefault().hexToLab(hex);
+  }
+
+  // ============================================================================
+  // DeltaE Color Difference Calculations
+  // ============================================================================
+
+  /**
+   * Calculate DeltaE (CIE76) between two LAB colors
+   * Simple Euclidean distance in LAB space
+   * Fast but less perceptually accurate than CIE2000
+   * @returns DeltaE value (0 = identical, <1 imperceptible, <3 barely noticeable, >5 clearly different)
+   */
+  getDeltaE76(lab1: LAB, lab2: LAB): number {
+    const dL = lab1.L - lab2.L;
+    const da = lab1.a - lab2.a;
+    const db = lab1.b - lab2.b;
+    return Math.sqrt(dL * dL + da * da + db * db);
+  }
+
+  /**
+   * Static method: Calculate DeltaE76 using default instance
+   */
+  static getDeltaE76(lab1: LAB, lab2: LAB): number {
+    return this.getDefault().getDeltaE76(lab1, lab2);
+  }
+
+  /**
+   * Calculate DeltaE (CIEDE2000) between two LAB colors
+   * Industry standard for perceptual color difference
+   * More accurate but computationally expensive
+   * @returns DeltaE value (0 = identical, <1 imperceptible, <3 barely noticeable, >5 clearly different)
+   */
+  getDeltaE2000(lab1: LAB, lab2: LAB): number {
+    const L1 = lab1.L,
+      a1 = lab1.a,
+      b1 = lab1.b;
+    const L2 = lab2.L,
+      a2 = lab2.a,
+      b2 = lab2.b;
+
+    // Weighting factors (all set to 1 for standard conditions)
+    const kL = 1,
+      kC = 1,
+      kH = 1;
+
+    // Calculate C' and h' for both colors
+    const C1 = Math.sqrt(a1 * a1 + b1 * b1);
+    const C2 = Math.sqrt(a2 * a2 + b2 * b2);
+    const Cab = (C1 + C2) / 2;
+
+    const G = 0.5 * (1 - Math.sqrt(Math.pow(Cab, 7) / (Math.pow(Cab, 7) + Math.pow(25, 7))));
+
+    const a1p = a1 * (1 + G);
+    const a2p = a2 * (1 + G);
+
+    const C1p = Math.sqrt(a1p * a1p + b1 * b1);
+    const C2p = Math.sqrt(a2p * a2p + b2 * b2);
+
+    const h1p = this.hueAngle(a1p, b1);
+    const h2p = this.hueAngle(a2p, b2);
+
+    // Calculate deltas
+    const dLp = L2 - L1;
+    const dCp = C2p - C1p;
+
+    let dhp: number;
+    if (C1p * C2p === 0) {
+      dhp = 0;
+    } else if (Math.abs(h2p - h1p) <= 180) {
+      dhp = h2p - h1p;
+    } else if (h2p - h1p > 180) {
+      dhp = h2p - h1p - 360;
+    } else {
+      dhp = h2p - h1p + 360;
+    }
+
+    const dHp = 2 * Math.sqrt(C1p * C2p) * Math.sin((dhp * Math.PI) / 360);
+
+    // Calculate CIEDE2000 components
+    const Lp = (L1 + L2) / 2;
+    const Cp = (C1p + C2p) / 2;
+
+    let Hp: number;
+    if (C1p * C2p === 0) {
+      Hp = h1p + h2p;
+    } else if (Math.abs(h1p - h2p) <= 180) {
+      Hp = (h1p + h2p) / 2;
+    } else if (h1p + h2p < 360) {
+      Hp = (h1p + h2p + 360) / 2;
+    } else {
+      Hp = (h1p + h2p - 360) / 2;
+    }
+
+    const T =
+      1 -
+      0.17 * Math.cos(((Hp - 30) * Math.PI) / 180) +
+      0.24 * Math.cos((2 * Hp * Math.PI) / 180) +
+      0.32 * Math.cos(((3 * Hp + 6) * Math.PI) / 180) -
+      0.2 * Math.cos(((4 * Hp - 63) * Math.PI) / 180);
+
+    const dTheta = 30 * Math.exp(-Math.pow((Hp - 275) / 25, 2));
+
+    const Rc = 2 * Math.sqrt(Math.pow(Cp, 7) / (Math.pow(Cp, 7) + Math.pow(25, 7)));
+
+    const Sl = 1 + (0.015 * Math.pow(Lp - 50, 2)) / Math.sqrt(20 + Math.pow(Lp - 50, 2));
+    const Sc = 1 + 0.045 * Cp;
+    const Sh = 1 + 0.015 * Cp * T;
+
+    const Rt = -Math.sin((2 * dTheta * Math.PI) / 180) * Rc;
+
+    const dE = Math.sqrt(
+      Math.pow(dLp / (kL * Sl), 2) +
+        Math.pow(dCp / (kC * Sc), 2) +
+        Math.pow(dHp / (kH * Sh), 2) +
+        Rt * (dCp / (kC * Sc)) * (dHp / (kH * Sh))
+    );
+
+    return dE;
+  }
+
+  /**
+   * Helper to calculate hue angle in degrees from a' and b'
+   * @internal
+   */
+  private hueAngle(ap: number, bp: number): number {
+    if (ap === 0 && bp === 0) {
+      return 0;
+    }
+    const h = (Math.atan2(bp, ap) * 180) / Math.PI;
+    return h >= 0 ? h : h + 360;
+  }
+
+  /**
+   * Static method: Calculate DeltaE2000 using default instance
+   */
+  static getDeltaE2000(lab1: LAB, lab2: LAB): number {
+    return this.getDefault().getDeltaE2000(lab1, lab2);
+  }
+
+  /**
+   * Calculate DeltaE between two hex colors using specified formula
+   * @param hex1 First hex color
+   * @param hex2 Second hex color
+   * @param formula DeltaE formula to use ('cie76' or 'cie2000')
+   * @returns DeltaE value
+   */
+  getDeltaE(hex1: string, hex2: string, formula: DeltaEFormula = 'cie76'): number {
+    const lab1 = this.hexToLab(hex1);
+    const lab2 = this.hexToLab(hex2);
+
+    return formula === 'cie2000' ? this.getDeltaE2000(lab1, lab2) : this.getDeltaE76(lab1, lab2);
+  }
+
+  /**
+   * Static method: Calculate DeltaE using default instance
+   */
+  static getDeltaE(hex1: string, hex2: string, formula: DeltaEFormula = 'cie76'): number {
+    return this.getDefault().getDeltaE(hex1, hex2, formula);
   }
 }
