@@ -26,8 +26,8 @@
  * ```
  */
 
-import type { RGB, HSV, HexColor, VisionType } from '../types/index.js';
-import { ColorConverter } from './color/ColorConverter.js';
+import type { RGB, HSV, HexColor, VisionType, LAB } from '../types/index.js';
+import { ColorConverter, type DeltaEFormula } from './color/ColorConverter.js';
 import { ColorblindnessSimulator } from './color/ColorblindnessSimulator.js';
 import { ColorAccessibility } from './color/ColorAccessibility.js';
 import { ColorManipulator } from './color/ColorManipulator.js';
@@ -241,5 +241,36 @@ export class ColorService {
    */
   static desaturate(hex: string): HexColor {
     return ColorManipulator.desaturate(hex);
+  }
+
+  // ============================================================================
+  // LAB Color Space (delegated to ColorConverter)
+  // ============================================================================
+
+  /**
+   * Convert RGB to CIE LAB color space
+   * @example rgbToLab(255, 0, 0) -> { L: 53.23, a: 80.11, b: 67.22 }
+   */
+  static rgbToLab(r: number, g: number, b: number): LAB {
+    return ColorConverter.rgbToLab(r, g, b);
+  }
+
+  /**
+   * Convert hex color to CIE LAB
+   * @example hexToLab("#FF0000") -> { L: 53.23, a: 80.11, b: 67.22 }
+   */
+  static hexToLab(hex: string): LAB {
+    return ColorConverter.hexToLab(hex);
+  }
+
+  /**
+   * Calculate DeltaE (color difference) between two hex colors
+   * @param hex1 First hex color
+   * @param hex2 Second hex color
+   * @param formula DeltaE formula to use ('cie76' or 'cie2000', default: 'cie76')
+   * @returns DeltaE value (0 = identical, <1 imperceptible, <3 barely noticeable, >5 clearly different)
+   */
+  static getDeltaE(hex1: string, hex2: string, formula: DeltaEFormula = 'cie76'): number {
+    return ColorConverter.getDeltaE(hex1, hex2, formula);
   }
 }
