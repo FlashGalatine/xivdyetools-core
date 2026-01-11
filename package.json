@@ -77,7 +77,7 @@
     },
     "dependencies": {
         "@xivdyetools/logger": "^1.0.2",
-        "@xivdyetools/types": "^1.4.0"
+        "@xivdyetools/types": "file:../xivdyetools-types"
     },
     "lint-staged": {
         "*.ts": [

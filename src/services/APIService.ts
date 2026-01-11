@@ -518,16 +518,16 @@ export class APIService {
       itemId: number;
       nq?: {
         minListing?: {
-          dc?: { price: number };
-          world?: { price: number };
-          region?: { price: number };
+          dc?: { price: number; worldId?: number };
+          world?: { price: number; worldId?: number };
+          region?: { price: number; worldId?: number };
         };
       };
       hq?: {
         minListing?: {
-          dc?: { price: number };
-          world?: { price: number };
-          region?: { price: number };
+          dc?: { price: number; worldId?: number };
+          world?: { price: number; worldId?: number };
+          region?: { price: number; worldId?: number };
         };
       };
     }>;
@@ -573,16 +573,16 @@ export class APIService {
             itemId: number;
             nq?: {
               minListing?: {
-                dc?: { price: number };
-                world?: { price: number };
-                region?: { price: number };
+                dc?: { price: number; worldId?: number };
+                world?: { price: number; worldId?: number };
+                region?: { price: number; worldId?: number };
               };
             };
             hq?: {
               minListing?: {
-                dc?: { price: number };
-                world?: { price: number };
-                region?: { price: number };
+                dc?: { price: number; worldId?: number };
+                world?: { price: number; worldId?: number };
+                region?: { price: number; worldId?: number };
               };
             };
           }>;
@@ -606,16 +606,16 @@ export class APIService {
         itemId: number;
         nq?: {
           minListing?: {
-            dc?: { price: number };
-            world?: { price: number };
-            region?: { price: number };
+            dc?: { price: number; worldId?: number };
+            world?: { price: number; worldId?: number };
+            region?: { price: number; worldId?: number };
           };
         };
         hq?: {
           minListing?: {
-            dc?: { price: number };
-            world?: { price: number };
-            region?: { price: number };
+            dc?: { price: number; worldId?: number };
+            world?: { price: number; worldId?: number };
+            region?: { price: number; worldId?: number };
           };
         };
       }>;
@@ -647,21 +647,25 @@ export class APIService {
         return null;
       }
 
-      // Try to get price from nq.minListing (prefer DC, then world, then region)
+      // Try to get price and worldId from nq.minListing (prefer DC, then world, then region)
       let price: number | null = null;
+      let worldId: number | undefined = undefined;
 
       if (result.nq?.minListing) {
         // Prefer data center price
         if (result.nq.minListing.dc?.price) {
           price = result.nq.minListing.dc.price;
+          worldId = result.nq.minListing.dc.worldId;
         }
         // Fall back to world price
         else if (result.nq.minListing.world?.price) {
           price = result.nq.minListing.world.price;
+          worldId = result.nq.minListing.world.worldId;
         }
         // Fall back to region price
         else if (result.nq.minListing.region?.price) {
           price = result.nq.minListing.region.price;
+          worldId = result.nq.minListing.region.worldId;
         }
       }
 
@@ -669,10 +673,13 @@ export class APIService {
       if (!price && result.hq?.minListing) {
         if (result.hq.minListing.dc?.price) {
           price = result.hq.minListing.dc.price;
+          worldId = result.hq.minListing.dc.worldId;
         } else if (result.hq.minListing.world?.price) {
           price = result.hq.minListing.world.price;
+          worldId = result.hq.minListing.world.worldId;
         } else if (result.hq.minListing.region?.price) {
           price = result.hq.minListing.region.price;
+          worldId = result.hq.minListing.region.worldId;
         }
       }
 
@@ -687,6 +694,7 @@ export class APIService {
         currentMinPrice: Math.round(price), // Using same price for all fields
         currentMaxPrice: Math.round(price),
         lastUpdate: Date.now(),
+        worldId,
       };
     } catch (error) {
       this.logger.error(`Failed to parse price data for item ${itemID}`, error);
@@ -703,16 +711,16 @@ export class APIService {
       itemId: number;
       nq?: {
         minListing?: {
-          dc?: { price: number };
-          world?: { price: number };
-          region?: { price: number };
+          dc?: { price: number; worldId?: number };
+          world?: { price: number; worldId?: number };
+          region?: { price: number; worldId?: number };
         };
       };
       hq?: {
         minListing?: {
-          dc?: { price: number };
-          world?: { price: number };
-          region?: { price: number };
+          dc?: { price: number; worldId?: number };
+          world?: { price: number; worldId?: number };
+          region?: { price: number; worldId?: number };
         };
       };
     }>;
@@ -740,16 +748,20 @@ export class APIService {
 
         const itemID = result.itemId;
 
-        // Try to get price from nq.minListing (prefer DC, then world, then region)
+        // Try to get price and worldId from nq.minListing (prefer DC, then world, then region)
         let price: number | null = null;
+        let worldId: number | undefined = undefined;
 
         if (result.nq?.minListing) {
           if (result.nq.minListing.dc?.price) {
             price = result.nq.minListing.dc.price;
+            worldId = result.nq.minListing.dc.worldId;
           } else if (result.nq.minListing.world?.price) {
             price = result.nq.minListing.world.price;
+            worldId = result.nq.minListing.world.worldId;
           } else if (result.nq.minListing.region?.price) {
             price = result.nq.minListing.region.price;
+            worldId = result.nq.minListing.region.worldId;
           }
         }
 
@@ -757,10 +769,13 @@ export class APIService {
         if (!price && result.hq?.minListing) {
           if (result.hq.minListing.dc?.price) {
             price = result.hq.minListing.dc.price;
+            worldId = result.hq.minListing.dc.worldId;
           } else if (result.hq.minListing.world?.price) {
             price = result.hq.minListing.world.price;
+            worldId = result.hq.minListing.world.worldId;
           } else if (result.hq.minListing.region?.price) {
             price = result.hq.minListing.region.price;
+            worldId = result.hq.minListing.region.worldId;
           }
         }
 
@@ -771,6 +786,7 @@ export class APIService {
             currentMinPrice: Math.round(price),
             currentMaxPrice: Math.round(price),
             lastUpdate: Date.now(),
+            worldId,
           });
         }
       }
