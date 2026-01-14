@@ -31,6 +31,7 @@ import { ColorConverter, type DeltaEFormula } from './color/ColorConverter.js';
 import { ColorblindnessSimulator } from './color/ColorblindnessSimulator.js';
 import { ColorAccessibility } from './color/ColorAccessibility.js';
 import { ColorManipulator } from './color/ColorManipulator.js';
+import { RybColorMixer, type RYB } from './color/RybColorMixer.js';
 
 /**
  * Color conversion and manipulation service (Facade)
@@ -273,4 +274,88 @@ export class ColorService {
   static getDeltaE(hex1: string, hex2: string, formula: DeltaEFormula = 'cie76'): number {
     return ColorConverter.getDeltaE(hex1, hex2, formula);
   }
+
+  /**
+   * Convert CIE LAB to RGB
+   * @example labToRgb(53.23, 80.11, 67.22) -> { r: 255, g: 0, b: 0 }
+   */
+  static labToRgb(L: number, a: number, b: number): RGB {
+    return ColorConverter.labToRgb(L, a, b);
+  }
+
+  /**
+   * Convert CIE LAB to hex color
+   * @example labToHex(53.23, 80.11, 67.22) -> "#FF0000"
+   */
+  static labToHex(L: number, a: number, b: number): HexColor {
+    return ColorConverter.labToHex(L, a, b);
+  }
+
+  // ============================================================================
+  // RYB Color Mixing (delegated to RybColorMixer)
+  // ============================================================================
+
+  /**
+   * Mix two colors using RYB (Red-Yellow-Blue) subtractive color mixing
+   *
+   * This produces results similar to mixing physical paints:
+   * - Blue + Yellow = Green (not gray like in RGB)
+   * - Red + Yellow = Orange
+   * - Red + Blue = Violet
+   *
+   * @param hex1 First hex color
+   * @param hex2 Second hex color
+   * @param ratio Mix ratio (0 = all hex1, 0.5 = equal mix, 1 = all hex2). Default: 0.5
+   * @returns Mixed color as hex
+   *
+   * @example
+   * // Mix blue and yellow to get green
+   * ColorService.mixColorsRyb('#0000FF', '#FFFF00') // Returns greenish color
+   */
+  static mixColorsRyb(hex1: string, hex2: string, ratio: number = 0.5): HexColor {
+    return RybColorMixer.mixColors(hex1, hex2, ratio);
+  }
+
+  /**
+   * Convert RYB (Red-Yellow-Blue) to RGB
+   * Uses trilinear interpolation in the Gossett-Chen color cube
+   *
+   * @param r Red component (0-255)
+   * @param y Yellow component (0-255)
+   * @param b Blue component (0-255)
+   * @returns RGB color
+   */
+  static rybToRgb(r: number, y: number, b: number): RGB {
+    return RybColorMixer.rybToRgb(r, y, b);
+  }
+
+  /**
+   * Convert RGB to RYB (Red-Yellow-Blue)
+   * Uses Newton-Raphson iterative approximation
+   *
+   * @param r Red component (0-255)
+   * @param g Green component (0-255)
+   * @param b Blue component (0-255)
+   * @returns RYB color
+   */
+  static rgbToRyb(r: number, g: number, b: number): RYB {
+    return RybColorMixer.rgbToRyb(r, g, b);
+  }
+
+  /**
+   * Convert hex color to RYB
+   */
+  static hexToRyb(hex: string): RYB {
+    return RybColorMixer.hexToRyb(hex);
+  }
+
+  /**
+   * Convert RYB to hex color
+   */
+  static rybToHex(r: number, y: number, b: number): HexColor {
+    return RybColorMixer.rybToHex(r, y, b);
+  }
 }
+
+// Re-export RYB type for consumers
+export type { RYB } from './color/RybColorMixer.js';
