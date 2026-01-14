@@ -63,6 +63,7 @@ export type { HarmonyOptions, HarmonyMatchingAlgorithm } from './services/dye/Ha
 
 // Color converter types
 export type { DeltaEFormula } from './services/color/ColorConverter.js';
+export type { RYB } from './services/ColorService.js';
 export {
   AppError,
   ErrorCode,

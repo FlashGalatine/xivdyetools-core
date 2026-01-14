@@ -563,6 +563,83 @@ export class ColorConverter {
     return this.getDefault().hexToLab(hex);
   }
 
+  /**
+   * Convert CIE XYZ to RGB
+   * Uses sRGB matrix and gamma companding (D65 illuminant)
+   * @internal
+   */
+  private xyzToRgb(x: number, y: number, z: number): RGB {
+    // XYZ to sRGB matrix (D65 illuminant)
+    let rLinear = x * 3.2404542 + y * -1.5371385 + z * -0.4985314;
+    let gLinear = x * -0.969266 + y * 1.8760108 + z * 0.041556;
+    let bLinear = x * 0.0556434 + y * -0.2040259 + z * 1.0572252;
+
+    // sRGB gamma companding
+    rLinear = rLinear > 0.0031308 ? 1.055 * Math.pow(rLinear, 1 / 2.4) - 0.055 : 12.92 * rLinear;
+    gLinear = gLinear > 0.0031308 ? 1.055 * Math.pow(gLinear, 1 / 2.4) - 0.055 : 12.92 * gLinear;
+    bLinear = bLinear > 0.0031308 ? 1.055 * Math.pow(bLinear, 1 / 2.4) - 0.055 : 12.92 * bLinear;
+
+    return {
+      r: clamp(Math.round(rLinear * 255), RGB_MIN, RGB_MAX),
+      g: clamp(Math.round(gLinear * 255), RGB_MIN, RGB_MAX),
+      b: clamp(Math.round(bLinear * 255), RGB_MIN, RGB_MAX),
+    };
+  }
+
+  /**
+   * Convert CIE LAB to RGB
+   * @example labToRgb(53.23, 80.11, 67.22) -> { r: 255, g: 0, b: 0 }
+   */
+  labToRgb(L: number, a: number, b: number): RGB {
+    // D65 reference white point
+    const refX = 0.95047;
+    const refY = 1.0;
+    const refZ = 1.08883;
+
+    // LAB to XYZ
+    let y = (L + 16) / 116;
+    let x = a / 500 + y;
+    let z = y - b / 200;
+
+    // Reverse LAB transformation
+    const epsilon = 0.008856; // (6/29)^3
+    const kappa = 903.3; // (29/3)^3
+
+    const x3 = x * x * x;
+    const y3 = y * y * y;
+    const z3 = z * z * z;
+
+    x = x3 > epsilon ? x3 : (116 * x - 16) / kappa;
+    y = L > kappa * epsilon ? y3 : L / kappa;
+    z = z3 > epsilon ? z3 : (116 * z - 16) / kappa;
+
+    // Apply reference white
+    return this.xyzToRgb(x * refX, y * refY, z * refZ);
+  }
+
+  /**
+   * Static method: Convert LAB to RGB using default instance
+   */
+  static labToRgb(L: number, a: number, b: number): RGB {
+    return this.getDefault().labToRgb(L, a, b);
+  }
+
+  /**
+   * Convert CIE LAB to hex color
+   * @example labToHex(53.23, 80.11, 67.22) -> "#FF0000"
+   */
+  labToHex(L: number, a: number, b: number): HexColor {
+    const rgb = this.labToRgb(L, a, b);
+    return this.rgbToHex(rgb.r, rgb.g, rgb.b);
+  }
+
+  /**
+   * Static method: Convert LAB to hex using default instance
+   */
+  static labToHex(L: number, a: number, b: number): HexColor {
+    return this.getDefault().labToHex(L, a, b);
+  }
+
   // ============================================================================
   // DeltaE Color Difference Calculations
   // ============================================================================

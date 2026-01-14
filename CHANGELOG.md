@@ -5,6 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.0] - 2026-01-14
+
+### Added
+
+- **RYB Subtractive Color Mixing**: New service for paint-like color mixing using the Gossett-Chen algorithm
+  - `RybColorMixer` class implementing trilinear interpolation in the RYB color cube
+  - `ColorService.mixColorsRyb(hex1, hex2, ratio?)` - Mix colors like physical paints (Blue + Yellow = Green!)
+  - `ColorService.rybToRgb(r, y, b)` - Convert RYB to RGB using trilinear interpolation
+  - `ColorService.rgbToRyb(r, g, b)` - Convert RGB to RYB using Newton-Raphson approximation
+  - `ColorService.hexToRyb(hex)` - Convert hex color to RYB
+  - `ColorService.rybToHex(r, y, b)` - Convert RYB to hex color
+  - Uses Gossett-Chen cube corner values for accurate paint mixing simulation:
+    - Red + Yellow = Orange
+    - Yellow + Blue = Green
+    - Red + Blue = Violet
+
+- **LAB to RGB Conversion**: Added reverse LAB conversion methods in `ColorConverter`
+  - `ColorService.labToRgb(L, a, b)` - Convert CIE LAB to RGB
+  - `ColorService.labToHex(L, a, b)` - Convert CIE LAB to hex color
+
+- **New Exported Types**
+  - `RYB` - RYB color type with `r`, `y`, `b` components (0-255)
+
+### Technical Details
+
+The RYB color mixing uses the algorithm from Gossett & Chen's 2006 paper "Paint Inspired Color Mixing and Compositing for Visualization":
+- Forward transform (RYB→RGB): Trilinear interpolation in 3D color cube with 8 empirically-tuned corner values
+- Reverse transform (RGB→RYB): Newton-Raphson iterative gradient descent approximation (no closed-form inverse exists)
+
+### Usage Example
+
+```typescript
+import { ColorService } from '@xivdyetools/core';
+
+// Mix blue and yellow like paint - produces green!
+const mixed = ColorService.mixColorsRyb('#0000FF', '#FFFF00');
+// Returns greenish color (not gray like RGB averaging)
+
+// Custom mix ratio (0 = all hex1, 1 = all hex2)
+const partialMix = ColorService.mixColorsRyb('#FF0000', '#FFFF00', 0.3);
+// Returns orange-red (30% yellow)
+
+// Direct RYB conversions
+const ryb = ColorService.hexToRyb('#00FF00'); // Green in RYB space
+const rgb = ColorService.rybToRgb(0, 255, 255); // Yellow+Blue = Green
+```
+
+---
+
 ## [1.9.0] - 2026-01-11
 
 ### Added

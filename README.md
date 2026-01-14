@@ -8,8 +8,9 @@
 
 ## Features
 
-✨ **Color Conversion** - RGB ↔ HSV ↔ Hex with full validation
+✨ **Color Conversion** - RGB ↔ HSV ↔ Hex ↔ LAB ↔ RYB with full validation
 🎨 **136 FFXIV Dyes** - Complete database with RGB/HSV/metadata
+🖌️ **RYB Paint Mixing** - Subtractive color mixing (Blue + Yellow = Green!)
 🎯 **Dye Matching** - Find closest dyes to any color
 🌈 **Color Harmonies** - Triadic, complementary, analogous, and more
 🖼️ **Palette Extraction** - K-means++ clustering for multi-color extraction from images
@@ -113,6 +114,16 @@ const inverted = ColorService.invert('#FF6B6B');
 // Cache management (for memory-constrained environments)
 ColorService.clearCaches();
 const cacheStats = ColorService.getCacheStats();
+
+// RYB Subtractive Color Mixing (paint-like mixing)
+// Blue + Yellow = Green (not gray like RGB!)
+const mixed = ColorService.mixColorsRyb('#0000FF', '#FFFF00');
+const partialMix = ColorService.mixColorsRyb('#FF0000', '#FFFF00', 0.3); // 30% yellow
+
+// RYB ↔ RGB conversions
+const ryb = ColorService.hexToRyb('#00FF00');
+const rgb = ColorService.rybToRgb(0, 255, 255); // Yellow+Blue = Green
+const hex = ColorService.rybToHex(255, 255, 0); // Red+Yellow = Orange
 ```
 
 ### DyeService
@@ -274,6 +285,7 @@ import type {
   RGB,
   HSV,
   LAB,
+  RYB,
   HexColor,
   PriceData,
   CachedData,
