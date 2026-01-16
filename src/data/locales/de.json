@@ -2,7 +2,7 @@
   "locale": "de",
   "meta": {
     "version": "1.0.0",
-    "generated": "2026-01-16T05:00:57.829Z",
+    "generated": "2026-01-16T05:26:31.607Z",
     "dyeCount": 125
   },
   "labels": {
@@ -229,5 +229,33 @@
     "maelstrom": "Der Mahlstrom",
     "twinAdder": "Die Bruderschaft der Morgenviper",
     "immortalFlames": "Die Legion der Unsterblichen"
+  },
+  "races": {
+    "hyur": "Hyuran",
+    "elezen": "Elezen",
+    "lalafell": "Lalafell",
+    "miqote": "Miqo'te",
+    "roegadyn": "Roegadyn",
+    "auRa": "Au Ra",
+    "hrothgar": "Hrothgar",
+    "viera": "Viera"
+  },
+  "clans": {
+    "midlander": "Wiesländer",
+    "highlander": "Hochländer",
+    "wildwood": "Erlschatten",
+    "duskwight": "Dunkelalb",
+    "plainsfolk": "Halmling",
+    "dunesfolk": "Sandling",
+    "seekerOfTheSun": "Goldtatze",
+    "keeperOfTheMoon": "Mondstreuner",
+    "seaWolf": "Seewolf",
+    "hellsguard": "Lohengarde",
+    "raen": "Auri-Raen",
+    "xaela": "Auri-Xaela",
+    "helion": "Helion",
+    "theLost": "Losgesagter",
+    "rava": "Rava-Viera",
+    "veena": "Veena-Viera"
   }
 }

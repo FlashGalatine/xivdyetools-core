@@ -14,6 +14,8 @@ import type {
   VisionType,
   JobKey,
   GrandCompanyKey,
+  RaceKey,
+  ClanKey,
   LocalePreference,
 } from '../types/index.js';
 import { LocaleLoader } from './localization/LocaleLoader.js';
@@ -449,6 +451,40 @@ export class LocalizationService {
    */
   static getGrandCompanyName(key: GrandCompanyKey): string {
     return this.getDefault().getGrandCompanyName(key);
+  }
+
+  /**
+   * Get localized race name
+   *
+   * @param key - Race key
+   * @returns Localized race name
+   */
+  getRace(key: RaceKey): string {
+    return this.translator.getRace(key, this.currentLocale);
+  }
+
+  /**
+   * Static method: Get localized race name using default instance
+   */
+  static getRace(key: RaceKey): string {
+    return this.getDefault().getRace(key);
+  }
+
+  /**
+   * Get localized clan (subrace) name
+   *
+   * @param key - Clan key
+   * @returns Localized clan name
+   */
+  getClan(key: ClanKey): string {
+    return this.translator.getClan(key, this.currentLocale);
+  }
+
+  /**
+   * Static method: Get localized clan name using default instance
+   */
+  static getClan(key: ClanKey): string {
+    return this.getDefault().getClan(key);
   }
 
   /**

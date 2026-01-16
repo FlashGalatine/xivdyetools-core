@@ -2,7 +2,7 @@
   "locale": "en",
   "meta": {
     "version": "1.0.0",
-    "generated": "2026-01-16T05:00:57.826Z",
+    "generated": "2026-01-16T05:26:31.604Z",
     "dyeCount": 125
   },
   "labels": {
@@ -229,5 +229,33 @@
     "maelstrom": "The Maelstrom",
     "twinAdder": "The Order of the Twin Adder",
     "immortalFlames": "The Immortal Flames"
+  },
+  "races": {
+    "hyur": "Hyur",
+    "elezen": "Elezen",
+    "lalafell": "Lalafell",
+    "miqote": "Miqo'te",
+    "roegadyn": "Roegadyn",
+    "auRa": "Au Ra",
+    "hrothgar": "Hrothgar",
+    "viera": "Viera"
+  },
+  "clans": {
+    "midlander": "Midlander",
+    "highlander": "Highlander",
+    "wildwood": "Wildwood",
+    "duskwight": "Duskwight",
+    "plainsfolk": "Plainsfolk",
+    "dunesfolk": "Dunesfolk",
+    "seekerOfTheSun": "Seeker of the Sun",
+    "keeperOfTheMoon": "Keeper of the Moon",
+    "seaWolf": "Sea Wolf",
+    "hellsguard": "Hellsguard",
+    "raen": "Raen",
+    "xaela": "Xaela",
+    "helion": "Helion",
+    "theLost": "The Lost",
+    "rava": "Rava",
+    "veena": "Veena"
   }
 }

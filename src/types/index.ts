@@ -125,6 +125,8 @@ export type {
   HarmonyTypeKey,
   JobKey,
   GrandCompanyKey,
+  RaceKey,
+  ClanKey,
   LocaleData,
   LocalePreference,
 } from '@xivdyetools/types';

@@ -14,6 +14,8 @@ import type {
   VisionType,
   JobKey,
   GrandCompanyKey,
+  RaceKey,
+  ClanKey,
 } from '../../types/index.js';
 import type { LocaleRegistry } from './LocaleRegistry.js';
 
@@ -304,6 +306,72 @@ export class TranslationProvider {
       const englishData = this.registry.getLocale('en');
       if (englishData?.grandCompanyNames[key]) {
         return englishData.grandCompanyNames[key];
+      }
+    }
+
+    // Final fallback: format key
+    return this.formatKey(key);
+  }
+
+  /**
+   * Get race name with fallback
+   *
+   * @param key - Race key
+   * @param locale - Requested locale
+   * @returns Localized race name
+   *
+   * @example
+   * ```typescript
+   * const race = provider.getRace('miqote', 'ja');
+   * // Returns "ミコッテ" (ja) or "Miqo'te" (en fallback)
+   * ```
+   */
+  getRace(key: RaceKey, locale: LocaleCode): string {
+    const localeData = this.registry.getLocale(locale);
+
+    // Try requested locale
+    if (localeData?.races?.[key]) {
+      return localeData.races[key];
+    }
+
+    // Fallback to English
+    if (locale !== 'en') {
+      const englishData = this.registry.getLocale('en');
+      if (englishData?.races?.[key]) {
+        return englishData.races[key];
+      }
+    }
+
+    // Final fallback: format key
+    return this.formatKey(key);
+  }
+
+  /**
+   * Get clan (subrace) name with fallback
+   *
+   * @param key - Clan key
+   * @param locale - Requested locale
+   * @returns Localized clan name
+   *
+   * @example
+   * ```typescript
+   * const clan = provider.getClan('seekerOfTheSun', 'ja');
+   * // Returns "サンシーカー" (ja) or "Seeker of the Sun" (en fallback)
+   * ```
+   */
+  getClan(key: ClanKey, locale: LocaleCode): string {
+    const localeData = this.registry.getLocale(locale);
+
+    // Try requested locale
+    if (localeData?.clans?.[key]) {
+      return localeData.clans[key];
+    }
+
+    // Fallback to English
+    if (locale !== 'en') {
+      const englishData = this.registry.getLocale('en');
+      if (englishData?.clans?.[key]) {
+        return englishData.clans[key];
       }
     }
 
