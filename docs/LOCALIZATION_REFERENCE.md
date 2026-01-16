@@ -2,7 +2,7 @@
 
 This document contains verified official FFXIV localized terms used by the xivdyetools-core library.
 
-> **Last Updated:** 2025-11-30
+> **Last Updated:** 2026-01-15
 > **Supported Languages:** English (EN), Japanese (JA), German (DE), French (FR), Korean (KO), Chinese (ZH)
 
 ---
@@ -44,6 +44,81 @@ This document contains verified official FFXIV localized terms used by the xivdy
 | Kobold | コボルド族 | Kobolde | Kobolds | 코볼드족 | 钴铁族 |
 | Amalj'aa | アマルジャ族 | Amalj'aa | Amalj'aa | 아말쟈족 | 阿马尔贾族 |
 | Sahagin | サハギン族 | Sahagin | Sahuagin | 사하긴족 | 鱼人族 |
+
+---
+
+## Playable Races
+
+| English | Japanese (JA) | German (DE) | French (FR) | Korean (KO) | Chinese (ZH) |
+|---------|---------------|-------------|-------------|-------------|--------------|
+| Hyur | ヒューラン | Hyuran | Hyuran | 휴란 | 人族 |
+| Elezen | エレゼン | Elezen | Élézéen | 엘레젠 | 精灵族 |
+| Lalafell | ララフェル | Lalafell | Lalafell | 라라펠 | 拉拉菲尔族 |
+| Miqo'te | ミコッテ | Miqo'te | Miqo'te | 미코테 | 猫魅族 |
+| Roegadyn | ルガディン | Roegadyn | Roegadyn | 루가딘 | 鲁加族 |
+| Au Ra | アウラ | Au Ra | Ao Ra | 아우라 | 敖龙族 |
+| Hrothgar | ロスガル | Hrothgar | Hrothgar | 로스갈 | 硌狮族 |
+| Viera | ヴィエラ | Viera | Viéra | 비에라 | 维埃拉族 |
+
+---
+
+## Clans (Subraces)
+
+### Hyur Clans
+
+| English | Japanese (JA) | German (DE) | French (FR) | Korean (KO) | Chinese (ZH) |
+|---------|---------------|-------------|-------------|-------------|--------------|
+| Midlander | ミッドランダー | Wiesländer | Hyurois | 미드랜더 | 中原之民 |
+| Highlander | ハイランダー | Hochländer | Hyurgoth | 하이랜더 | 高地之民 |
+
+### Elezen Clans
+
+| English | Japanese (JA) | German (DE) | French (FR) | Korean (KO) | Chinese (ZH) |
+|---------|---------------|-------------|-------------|-------------|--------------|
+| Wildwood | フォレスター | Erlschatten | Sylvestre | 숲의 민 | 森林之民 |
+| Duskwight | シェーダー | Dunkelalb | Crépusculaire | 황혼의 민 | 黑影之民 |
+
+### Lalafell Clans
+
+| English | Japanese (JA) | German (DE) | French (FR) | Korean (KO) | Chinese (ZH) |
+|---------|---------------|-------------|-------------|-------------|--------------|
+| Plainsfolk | プレーンフォーク | Halmling | Peuple des Plaines | 평원의 민 | 平原之民 |
+| Dunesfolk | デューンフォーク | Sandling | Peuple des Dunes | 사막의 민 | 沙漠之民 |
+
+### Miqo'te Clans
+
+| English | Japanese (JA) | German (DE) | French (FR) | Korean (KO) | Chinese (ZH) |
+|---------|---------------|-------------|-------------|-------------|--------------|
+| Seeker of the Sun | サンシーカー | Goldtatze | Tribu du Soleil | 태양의 추종자 | 逐日之民 |
+| Keeper of the Moon | ムーンキーパー | Mondstreuner | Tribu de la Lune | 달의 수호자 | 护月之民 |
+
+### Roegadyn Clans
+
+| English | Japanese (JA) | German (DE) | French (FR) | Korean (KO) | Chinese (ZH) |
+|---------|---------------|-------------|-------------|-------------|--------------|
+| Sea Wolf | ゼーヴォルフ | Seewolf | Clan de la Mer | 바다늑대 | 北洋之民 |
+| Hellsguard | ローエンガルデ | Lohengarde | Clan du Feu | 불꽃 파수꾼 | 红焰之民 |
+
+### Au Ra Clans
+
+| English | Japanese (JA) | German (DE) | French (FR) | Korean (KO) | Chinese (ZH) |
+|---------|---------------|-------------|-------------|-------------|--------------|
+| Raen | アウラ・レン | Auri-Raen | Raen | 렌 | 晨曦之民 |
+| Xaela | アウラ・ゼラ | Auri-Xaela | Xaela | 젤라 | 暮晖之民 |
+
+### Hrothgar Clans
+
+| English | Japanese (JA) | German (DE) | French (FR) | Korean (KO) | Chinese (ZH) |
+|---------|---------------|-------------|-------------|-------------|--------------|
+| Helion | ヘリオン | Helion | Hélion | 헬리온 | 日光之民 |
+| The Lost | ロスト | Losgesagter | Égaré | 로스트 | 迷失之民 |
+
+### Viera Clans
+
+| English | Japanese (JA) | German (DE) | French (FR) | Korean (KO) | Chinese (ZH) |
+|---------|---------------|-------------|-------------|-------------|--------------|
+| Rava | ラヴァ・ヴィエラ | Rava-Viera | Rava | 라바 | 拉瓦族 |
+| Veena | ヴィナ・ヴィエラ | Veena-Viera | Veena | 비나 | 维纳族 |
 
 ---
 
@@ -113,6 +188,10 @@ This design allows the application to display either the short color name or the
 ---
 
 ## Changelog
+
+### 2026-01-15
+- Added Playable Races localization (8 races)
+- Added Clans/Subraces localization (16 clans across all races)
 
 ### 2025-11-30
 - Initial creation with verified terms for all 6 languages
