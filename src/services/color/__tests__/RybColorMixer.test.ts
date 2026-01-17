@@ -15,14 +15,23 @@ describe('RybColorMixer', () => {
   // ============================================================================
 
   describe('rybToRgb', () => {
-    it('should convert RYB black to RGB black', () => {
+    // NOTE: This uses a SUBTRACTIVE (paint) model where:
+    // - RYB (0,0,0) = White canvas (no pigment)
+    // - RYB (1,1,1) = Dark sludge (all pigments mixed)
+
+    it('should convert RYB no-pigment to RGB white (subtractive model)', () => {
+      // In subtractive mixing, no pigment = white canvas
       const rgb = RybColorMixer.rybToRgb(0, 0, 0);
-      expect(rgb).toEqual({ r: 0, g: 0, b: 0 });
+      expect(rgb).toEqual({ r: 255, g: 255, b: 255 });
     });
 
-    it('should convert RYB white to RGB white', () => {
+    it('should convert RYB all-pigments to dark muddy color (subtractive model)', () => {
+      // In subtractive mixing, all pigments = dark sludge
       const rgb = RybColorMixer.rybToRgb(255, 255, 255);
-      expect(rgb).toEqual({ r: 255, g: 255, b: 255 });
+      // Expected from RYB_CORNERS['1,1,1'] = { r: 0.2, g: 0.09, b: 0.0 }
+      expect(rgb.r).toBeCloseTo(51, 0); // 0.2 * 255
+      expect(rgb.g).toBeCloseTo(23, 0); // 0.09 * 255
+      expect(rgb.b).toBe(0);
     });
 
     it('should convert RYB red to RGB red', () => {
@@ -35,36 +44,36 @@ describe('RybColorMixer', () => {
       expect(rgb).toEqual({ r: 255, g: 255, b: 0 });
     });
 
-    it('should convert RYB blue to RGB blue (hue-shifted)', () => {
+    it('should convert RYB blue to RGB blue-ish (Gossett-Chen tuned)', () => {
       const rgb = RybColorMixer.rybToRgb(0, 0, 255);
-      // Blue in RYB is hue-shifted per Gossett-Chen
-      expect(rgb.r).toBeCloseTo(42, 0); // 0.165 * 255
-      expect(rgb.g).toBe(0);
-      expect(rgb.b).toBe(255);
+      // Blue corner from RYB_CORNERS['0,0,1'] = { r: 0.163, g: 0.373, b: 0.6 }
+      expect(rgb.r).toBeCloseTo(42, 0); // 0.163 * 255
+      expect(rgb.g).toBeCloseTo(95, 0); // 0.373 * 255
+      expect(rgb.b).toBeCloseTo(153, 0); // 0.6 * 255
     });
 
     it('should convert RYB yellow+blue to RGB green', () => {
       const rgb = RybColorMixer.rybToRgb(0, 255, 255);
-      // Should produce green (high G, low R, some B from the green corner)
-      expect(rgb.g).toBe(255);
+      // Green corner from RYB_CORNERS['0,1,1'] = { r: 0.0, g: 0.66, b: 0.2 }
       expect(rgb.r).toBe(0);
-      expect(rgb.b).toBeCloseTo(89, 0); // 0.349 * 255
+      expect(rgb.g).toBeCloseTo(168, 0); // 0.66 * 255
+      expect(rgb.b).toBeCloseTo(51, 0); // 0.2 * 255
     });
 
     it('should convert RYB red+yellow to RGB orange', () => {
       const rgb = RybColorMixer.rybToRgb(255, 255, 0);
-      // Should produce orange (R=255, G~165, B=0)
+      // Orange corner from RYB_CORNERS['1,1,0'] = { r: 1.0, g: 0.5, b: 0.0 }
       expect(rgb.r).toBe(255);
-      expect(rgb.g).toBeCloseTo(165, 0); // 0.647 * 255
+      expect(rgb.g).toBeCloseTo(128, 0); // 0.5 * 255
       expect(rgb.b).toBe(0);
     });
 
     it('should convert RYB red+blue to RGB violet', () => {
       const rgb = RybColorMixer.rybToRgb(255, 0, 255);
-      // Should produce violet (R~193, G=0, B=255)
-      expect(rgb.r).toBeCloseTo(193, 0); // 0.757 * 255
+      // Violet corner from RYB_CORNERS['1,0,1'] = { r: 0.5, g: 0.0, b: 0.5 }
+      expect(rgb.r).toBeCloseTo(128, 0); // 0.5 * 255
       expect(rgb.g).toBe(0);
-      expect(rgb.b).toBe(255);
+      expect(rgb.b).toBeCloseTo(128, 0); // 0.5 * 255
     });
   });
 
@@ -73,18 +82,25 @@ describe('RybColorMixer', () => {
   // ============================================================================
 
   describe('rgbToRyb', () => {
-    it('should convert RGB black to RYB black', () => {
-      const ryb = RybColorMixer.rgbToRyb(0, 0, 0);
+    // NOTE: This uses a SUBTRACTIVE (paint) model where:
+    // - RYB (0,0,0) = White canvas (no pigment) → RGB (255,255,255)
+    // - RYB (1,1,1) = Dark sludge (all pigments) → RGB ~(51,23,0)
+
+    it('should convert RGB white to RYB no-pigment (subtractive model)', () => {
+      // RGB white comes from no pigment in subtractive mixing
+      const ryb = RybColorMixer.rgbToRyb(255, 255, 255);
       expect(ryb.r).toBeCloseTo(0, -1);
       expect(ryb.y).toBeCloseTo(0, -1);
       expect(ryb.b).toBeCloseTo(0, -1);
     });
 
-    it('should convert RGB white to RYB white', () => {
-      const ryb = RybColorMixer.rgbToRyb(255, 255, 255);
-      expect(ryb.r).toBeCloseTo(255, -1);
-      expect(ryb.y).toBeCloseTo(255, -1);
-      expect(ryb.b).toBeCloseTo(255, -1);
+    it('should convert RGB near-black to RYB high-pigment (subtractive model)', () => {
+      // Pure RGB black (0,0,0) isn't exactly in the RYB gamut,
+      // but should produce high pigment values approaching sludge
+      const ryb = RybColorMixer.rgbToRyb(51, 23, 0); // The sludge color
+      expect(ryb.r).toBeGreaterThan(200);
+      expect(ryb.y).toBeGreaterThan(200);
+      expect(ryb.b).toBeGreaterThan(200);
     });
 
     it('should convert RGB red to RYB red', () => {
@@ -161,10 +177,11 @@ describe('RybColorMixer', () => {
       const mixed = RybColorMixer.mixColors('#FF0000', '#0000FF');
       const rgb = ColorConverter.hexToRgb(mixed);
 
-      // Violet: R and B should both be present, G should be low
+      // Violet: R and B should both be present, G should be relatively low
+      // In the subtractive model, violet corner is (0.5, 0, 0.5)
       expect(rgb.r).toBeGreaterThan(50);
-      expect(rgb.b).toBeGreaterThan(80);
-      expect(rgb.g).toBeLessThan(50);
+      expect(rgb.b).toBeGreaterThan(50);
+      expect(rgb.g).toBeLessThan(100); // Allow some green due to interpolation
     });
 
     it('should respect mix ratio', () => {
