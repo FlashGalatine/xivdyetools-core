@@ -49,15 +49,27 @@ interface RGBNormalized {
  * "flat spots" in the spectrum. Similarly, green and violet primaries
  * are tuned for more intuitive color mixing.
  */
+/**
+ * RYB Cube Corner Values (Gossett-Chen - Subtractive/Paint Model)
+ *
+ * 0,0,0 is White (Canvas)
+ * 1,1,1 is Black (Sludge)
+ *
+ * This model correctly simulates paint mixing where adding pigments subtracts light.
+ * The corners are tuned to produce expected secondary colors:
+ * - Red + Yellow = Orange
+ * - Yellow + Blue = Green
+ * - Red + Blue = Violet
+ */
 const RYB_CORNERS: { [key: string]: RGBNormalized } = {
-  '0,0,0': { r: 0.0, g: 0.0, b: 0.0 }, // Black
+  '0,0,0': { r: 1.0, g: 1.0, b: 1.0 }, // White
   '1,0,0': { r: 1.0, g: 0.0, b: 0.0 }, // Red
   '0,1,0': { r: 1.0, g: 1.0, b: 0.0 }, // Yellow
-  '0,0,1': { r: 0.165, g: 0.0, b: 1.0 }, // Blue (hue-shifted)
-  '1,1,0': { r: 1.0, g: 0.647, b: 0.0 }, // Orange (R+Y)
-  '1,0,1': { r: 0.757, g: 0.0, b: 1.0 }, // Violet (R+B)
-  '0,1,1': { r: 0.0, g: 1.0, b: 0.349 }, // Green (Y+B)
-  '1,1,1': { r: 1.0, g: 1.0, b: 1.0 }, // White
+  '0,0,1': { r: 0.163, g: 0.373, b: 0.6 }, // Blue
+  '1,1,0': { r: 1.0, g: 0.5, b: 0.0 }, // Orange
+  '1,0,1': { r: 0.5, g: 0.0, b: 0.5 }, // Violet
+  '0,1,1': { r: 0.0, g: 0.66, b: 0.2 }, // Green
+  '1,1,1': { r: 0.2, g: 0.09, b: 0.0 }, // Black
 };
 
 /**
@@ -99,9 +111,9 @@ export class RybColorMixer {
 
     // Linear interpolation in RYB space
     const mixedRyb: RYB = {
-      r: Math.round(ryb1.r + (ryb2.r - ryb1.r) * ratio),
-      y: Math.round(ryb1.y + (ryb2.y - ryb1.y) * ratio),
-      b: Math.round(ryb1.b + (ryb2.b - ryb1.b) * ratio),
+      r: ryb1.r + (ryb2.r - ryb1.r) * ratio,
+      y: ryb1.y + (ryb2.y - ryb1.y) * ratio,
+      b: ryb1.b + (ryb2.b - ryb1.b) * ratio,
     };
 
     // Convert RYB → RGB → hex
@@ -140,14 +152,11 @@ export class RybColorMixer {
   }
 
   /**
-   * Convert RGB to RYB using Newton-Raphson iterative approximation
+   * Convert RGB to RYB using Multi-Start Newton-Raphson
    *
-   * Since RYB→RGB is non-linear, there's no closed-form inverse.
-   * This method uses gradient descent with a numerical Jacobian to find
-   * the RYB values that produce the target RGB color.
-   *
-   * The Jacobian is computed numerically because the RYB→RGB mapping
-   * has cross-dependencies (e.g., Yellow affects both R and G in RGB).
+   * Since RYB→RGB is non-linear and the cube can be complex,
+   * we use multiple starting points to find the best global solution
+   * (minimizing RGB error).
    *
    * @param r Red component (0-255)
    * @param g Green component (0-255)
@@ -156,7 +165,7 @@ export class RybColorMixer {
    *
    * @example
    * // Convert RGB green to RYB
-   * RybColorMixer.rgbToRyb(0, 255, 0) // Returns approximately { r: 0, y: ~200, b: ~200 }
+   * RybColorMixer.rgbToRyb(0, 255, 0) // Returns approximately { r: 0, y: ~255, b: ~255 }
    */
   static rgbToRyb(r: number, g: number, b: number): RYB {
     // Normalize target RGB to 0-1
@@ -164,50 +173,73 @@ export class RybColorMixer {
     const targetG = clamp(g / 255, 0, 1);
     const targetB = clamp(b / 255, 0, 1);
 
-    // Initial guess: start from center of cube and adjust
-    // Using a smarter initial guess based on observed RYB→RGB mappings
-    let rybR = targetR * 0.5;
-    let rybY = targetG * 0.8;
-    let rybB = targetB * 0.8;
+    // Multi-start candidates to avoid local minima
+    const candidates = [
+      { r: 0.5, y: 0.5, b: 0.5 }, // Center
+      { r: 0, y: 0, b: 0 }, // White (Subtractive 000)
+      { r: 1, y: 1, b: 1 }, // Black (Subtractive 111)
+      { r: 1, y: 0, b: 0 }, // Red
+      { r: 0, y: 1, b: 0 }, // Yellow
+      { r: 0, y: 0, b: 1 }, // Blue
+      { r: 0, y: 1, b: 1 }, // Green
+      { r: 1, y: 1, b: 0 }, // Orange
+      { r: 1, y: 0, b: 1 }, // Purple
+    ];
 
-    // Iterative refinement using Newton-Raphson with numerical Jacobian
-    const maxIterations = 100;
-    const tolerance = 0.0005;
+    let bestRyb = { r: 0, y: 0, b: 0 };
+    let minError = Infinity;
+
+    const maxIterations = 20;
+    const tolerance = 0.001;
     const epsilon = 0.001; // For numerical Jacobian
 
-    for (let i = 0; i < maxIterations; i++) {
-      // Convert current RYB guess to RGB
-      const currentRgb = this.trilinearInterpolate(rybR, rybY, rybB);
+    for (const start of candidates) {
+      let rybR = start.r;
+      let rybY = start.y;
+      let rybB = start.b;
 
-      // Calculate error
-      const errorR = targetR - currentRgb.r;
-      const errorG = targetG - currentRgb.g;
-      const errorB = targetB - currentRgb.b;
+      for (let i = 0; i < maxIterations; i++) {
+        // Convert current RYB guess to RGB
+        const currentRgb = this.trilinearInterpolate(rybR, rybY, rybB);
 
-      // Check convergence
-      const errorMagnitude = Math.sqrt(errorR * errorR + errorG * errorG + errorB * errorB);
-      if (errorMagnitude < tolerance) {
-        break;
+        // Calculate error
+        const errorR = targetR - currentRgb.r;
+        const errorG = targetG - currentRgb.g;
+        const errorB = targetB - currentRgb.b;
+
+        const currentError = Math.sqrt(errorR * errorR + errorG * errorG + errorB * errorB);
+
+        // Track best solution found so far
+        if (currentError < minError) {
+          minError = currentError;
+          bestRyb = { r: rybR, y: rybY, b: rybB };
+        }
+
+        if (currentError < tolerance) {
+          // Good enough match
+          return {
+            r: Math.round(rybR * 255),
+            y: Math.round(rybY * 255),
+            b: Math.round(rybB * 255),
+          };
+        }
+
+        // Compute numerical Jacobian and update
+        const J = this.computeJacobian(rybR, rybY, rybB, epsilon);
+        const delta = this.solveLinearSystem(J, errorR, errorG, errorB);
+
+        // Apply damped update
+        const damping = 0.5;
+        rybR = clamp(rybR + delta[0] * damping, 0, 1);
+        rybY = clamp(rybY + delta[1] * damping, 0, 1);
+        rybB = clamp(rybB + delta[2] * damping, 0, 1);
       }
-
-      // Compute numerical Jacobian: J[i][j] = ∂RGB[i]/∂RYB[j]
-      const J = this.computeJacobian(rybR, rybY, rybB, epsilon);
-
-      // Solve J × delta = error using Cramer's rule
-      const delta = this.solveLinearSystem(J, errorR, errorG, errorB);
-
-      // Apply damped Newton-Raphson update
-      // Use adaptive damping based on iteration
-      const damping = i < 20 ? 0.8 : 0.5;
-      rybR = clamp(rybR + delta[0] * damping, 0, 1);
-      rybY = clamp(rybY + delta[1] * damping, 0, 1);
-      rybB = clamp(rybB + delta[2] * damping, 0, 1);
     }
 
     return {
-      r: Math.round(rybR * 255),
-      y: Math.round(rybY * 255),
-      b: Math.round(rybB * 255),
+      r: Math.round(bestRyb.r * 255),
+      y: Math.round(bestRyb.y * 255),
+      b: Math.round(bestRyb.b * 255),
     };
   }
 

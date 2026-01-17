@@ -292,6 +292,48 @@ export class ColorService {
   }
 
   // ============================================================================
+  // Color Mixing (RGB, LAB, RYB)
+  // ============================================================================
+
+  /**
+   * Mix two colors using RGB additive mixing (averaging)
+   *
+   * @param hex1 First hex color
+   * @param hex2 Second hex color
+   * @param ratio Mix ratio (0 = all hex1, 0.5 = equal mix, 1 = all hex2). Default: 0.5
+   * @returns Mixed color as hex
+   */
+  static mixColorsRgb(hex1: string, hex2: string, ratio: number = 0.5): HexColor {
+    const rgb1 = ColorConverter.hexToRgb(hex1);
+    const rgb2 = ColorConverter.hexToRgb(hex2);
+
+    const r = Math.round(rgb1.r + (rgb2.r - rgb1.r) * ratio);
+    const g = Math.round(rgb1.g + (rgb2.g - rgb1.g) * ratio);
+    const b = Math.round(rgb1.b + (rgb2.b - rgb1.b) * ratio);
+
+    return ColorConverter.rgbToHex(r, g, b);
+  }
+
+  /**
+   * Mix two colors using LAB perceptually uniform mixing
+   *
+   * @param hex1 First hex color
+   * @param hex2 Second hex color
+   * @param ratio Mix ratio (0 = all hex1, 0.5 = equal mix, 1 = all hex2). Default: 0.5
+   * @returns Mixed color as hex
+   */
+  static mixColorsLab(hex1: string, hex2: string, ratio: number = 0.5): HexColor {
+    const lab1 = ColorConverter.hexToLab(hex1);
+    const lab2 = ColorConverter.hexToLab(hex2);
+
+    const L = lab1.L + (lab2.L - lab1.L) * ratio;
+    const a = lab1.a + (lab2.a - lab1.a) * ratio;
+    const b = lab1.b + (lab2.b - lab1.b) * ratio;
+
+    return ColorConverter.labToHex(L, a, b);
+  }
+
+  // ============================================================================
   // RYB Color Mixing (delegated to RybColorMixer)
   // ============================================================================
 
