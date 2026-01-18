@@ -26,12 +26,23 @@
  * ```
  */
 
-import type { RGB, HSV, HexColor, VisionType, LAB } from '../types/index.js';
+import type {
+  RGB,
+  HSV,
+  HexColor,
+  VisionType,
+  LAB,
+  OKLAB,
+  OKLCH,
+  LCH,
+  HSL,
+} from '../types/index.js';
 import { ColorConverter, type DeltaEFormula } from './color/ColorConverter.js';
 import { ColorblindnessSimulator } from './color/ColorblindnessSimulator.js';
 import { ColorAccessibility } from './color/ColorAccessibility.js';
 import { ColorManipulator } from './color/ColorManipulator.js';
 import { RybColorMixer, type RYB } from './color/RybColorMixer.js';
+import { SpectralMixer } from './color/SpectralMixer.js';
 
 /**
  * Color conversion and manipulation service (Facade)
@@ -292,7 +303,155 @@ export class ColorService {
   }
 
   // ============================================================================
-  // Color Mixing (RGB, LAB, RYB)
+  // OKLAB/OKLCH Color Space (Modern Perceptual)
+  // ============================================================================
+
+  /**
+   * Convert RGB to OKLAB color space
+   *
+   * OKLAB is a modern perceptually uniform color space that fixes issues
+   * with CIELAB, particularly for blue colors. Blue + Yellow = Green in OKLAB.
+   *
+   * @example rgbToOklab(255, 0, 0) -> { L: 0.628, a: 0.225, b: 0.126 }
+   */
+  static rgbToOklab(r: number, g: number, b: number): OKLAB {
+    return ColorConverter.rgbToOklab(r, g, b);
+  }
+
+  /**
+   * Convert hex color to OKLAB
+   */
+  static hexToOklab(hex: string): OKLAB {
+    return ColorConverter.hexToOklab(hex);
+  }
+
+  /**
+   * Convert OKLAB to RGB
+   */
+  static oklabToRgb(L: number, a: number, b: number): RGB {
+    return ColorConverter.oklabToRgb(L, a, b);
+  }
+
+  /**
+   * Convert OKLAB to hex color
+   */
+  static oklabToHex(L: number, a: number, b: number): HexColor {
+    return ColorConverter.oklabToHex(L, a, b);
+  }
+
+  /**
+   * Convert RGB to OKLCH (cylindrical OKLAB)
+   *
+   * OKLCH expresses OKLAB in cylindrical coordinates for intuitive
+   * hue manipulation. Ideal for gradient interpolation.
+   */
+  static rgbToOklch(r: number, g: number, b: number): OKLCH {
+    return ColorConverter.rgbToOklch(r, g, b);
+  }
+
+  /**
+   * Convert hex color to OKLCH
+   */
+  static hexToOklch(hex: string): OKLCH {
+    return ColorConverter.hexToOklch(hex);
+  }
+
+  /**
+   * Convert OKLCH to RGB
+   */
+  static oklchToRgb(L: number, C: number, h: number): RGB {
+    return ColorConverter.oklchToRgb(L, C, h);
+  }
+
+  /**
+   * Convert OKLCH to hex color
+   */
+  static oklchToHex(L: number, C: number, h: number): HexColor {
+    return ColorConverter.oklchToHex(L, C, h);
+  }
+
+  // ============================================================================
+  // LCH Color Space (Cylindrical LAB)
+  // ============================================================================
+
+  /**
+   * Convert CIE LAB to LCH (cylindrical LAB)
+   */
+  static labToLch(L: number, a: number, b: number): LCH {
+    return ColorConverter.labToLch(L, a, b);
+  }
+
+  /**
+   * Convert LCH to CIE LAB
+   */
+  static lchToLab(L: number, C: number, h: number): LAB {
+    return ColorConverter.lchToLab(L, C, h);
+  }
+
+  /**
+   * Convert RGB to LCH
+   */
+  static rgbToLch(r: number, g: number, b: number): LCH {
+    return ColorConverter.rgbToLch(r, g, b);
+  }
+
+  /**
+   * Convert hex color to LCH
+   */
+  static hexToLch(hex: string): LCH {
+    return ColorConverter.hexToLch(hex);
+  }
+
+  /**
+   * Convert LCH to RGB
+   */
+  static lchToRgb(L: number, C: number, h: number): RGB {
+    return ColorConverter.lchToRgb(L, C, h);
+  }
+
+  /**
+   * Convert LCH to hex color
+   */
+  static lchToHex(L: number, C: number, h: number): HexColor {
+    return ColorConverter.lchToHex(L, C, h);
+  }
+
+  // ============================================================================
+  // HSL Color Space
+  // ============================================================================
+
+  /**
+   * Convert RGB to HSL
+   * @example rgbToHsl(255, 0, 0) -> { h: 0, s: 100, l: 50 }
+   */
+  static rgbToHsl(r: number, g: number, b: number): HSL {
+    return ColorConverter.rgbToHsl(r, g, b);
+  }
+
+  /**
+   * Convert hex color to HSL
+   */
+  static hexToHsl(hex: string): HSL {
+    return ColorConverter.hexToHsl(hex);
+  }
+
+  /**
+   * Convert HSL to RGB
+   * @example hslToRgb(0, 100, 50) -> { r: 255, g: 0, b: 0 }
+   */
+  static hslToRgb(h: number, s: number, l: number): RGB {
+    return ColorConverter.hslToRgb(h, s, l);
+  }
+
+  /**
+   * Convert HSL to hex color
+   */
+  static hslToHex(h: number, s: number, l: number): HexColor {
+    return ColorConverter.hslToHex(h, s, l);
+  }
+
+  // ============================================================================
+  // Color Mixing (RGB, LAB, RYB, OKLAB, HSL)
   // ============================================================================
 
   /**
@@ -396,6 +555,250 @@ export class ColorService {
    */
   static rybToHex(r: number, y: number, b: number): HexColor {
     return RybColorMixer.rybToHex(r, y, b);
+  }
+
+  // ============================================================================
+  // Advanced Color Mixing (OKLAB, OKLCH, LCH, HSL)
+  // ============================================================================
+
+  /**
+   * Mix two colors using OKLAB perceptually uniform mixing
+   *
+   * OKLAB produces more intuitive results than LAB for complementary colors:
+   * - Blue + Yellow = Green (not pink like LAB)
+   * - Smooth, vibrant gradients without muddy midpoints
+   *
+   * @param hex1 First hex color
+   * @param hex2 Second hex color
+   * @param ratio Mix ratio (0 = all hex1, 0.5 = equal mix, 1 = all hex2). Default: 0.5
+   * @returns Mixed color as hex
+   *
+   * @example
+   * // Mix blue and yellow to get green (not pink like LAB)
+   * ColorService.mixColorsOklab('#0000FF', '#FFFF00') // Returns green-ish color
+   */
+  static mixColorsOklab(hex1: string, hex2: string, ratio: number = 0.5): HexColor {
+    const oklab1 = ColorConverter.hexToOklab(hex1);
+    const oklab2 = ColorConverter.hexToOklab(hex2);
+
+    const L = oklab1.L + (oklab2.L - oklab1.L) * ratio;
+    const a = oklab1.a + (oklab2.a - oklab1.a) * ratio;
+    const b = oklab1.b + (oklab2.b - oklab1.b) * ratio;
+
+    return ColorConverter.oklabToHex(L, a, b);
+  }
+
+  /**
+   * Hue interpolation method for cylindrical color spaces
+   * - 'shorter': Take the shorter arc around the hue wheel (default)
+   * - 'longer': Take the longer arc around the hue wheel
+   * - 'increasing': Always go clockwise (increasing hue values)
+   * - 'decreasing': Always go counter-clockwise (decreasing hue values)
+   */
+  static interpolateHue(
+    h1: number,
+    h2: number,
+    ratio: number,
+    method: 'shorter' | 'longer' | 'increasing' | 'decreasing' = 'shorter'
+  ): number {
+    let diff = h2 - h1;
+
+    switch (method) {
+      case 'shorter':
+        if (diff > 180) diff -= 360;
+        if (diff < -180) diff += 360;
+        break;
+      case 'longer':
+        if (diff > 0 && diff < 180) diff -= 360;
+        if (diff < 0 && diff > -180) diff += 360;
+        break;
+      case 'increasing':
+        if (diff < 0) diff += 360;
+        break;
+      case 'decreasing':
+        if (diff > 0) diff -= 360;
+        break;
+    }
+
+    return (((h1 + diff * ratio) % 360) + 360) % 360;
+  }
+
+  /**
+   * Mix two colors using OKLCH cylindrical mixing
+   *
+   * OKLCH provides control over hue interpolation direction,
+   * useful for creating gradients that go "through" specific colors.
+   *
+   * @param hex1 First hex color
+   * @param hex2 Second hex color
+   * @param ratio Mix ratio (0 = all hex1, 0.5 = equal mix, 1 = all hex2). Default: 0.5
+   * @param hueMethod Hue interpolation method ('shorter' | 'longer' | 'increasing' | 'decreasing')
+   * @returns Mixed color as hex
+   */
+  static mixColorsOklch(
+    hex1: string,
+    hex2: string,
+    ratio: number = 0.5,
+    hueMethod: 'shorter' | 'longer' | 'increasing' | 'decreasing' = 'shorter'
+  ): HexColor {
+    const oklch1 = ColorConverter.hexToOklch(hex1);
+    const oklch2 = ColorConverter.hexToOklch(hex2);
+
+    const L = oklch1.L + (oklch2.L - oklch1.L) * ratio;
+    const C = oklch1.C + (oklch2.C - oklch1.C) * ratio;
+    const h = this.interpolateHue(oklch1.h, oklch2.h, ratio, hueMethod);
+
+    return ColorConverter.oklchToHex(L, C, h);
+  }
+
+  /**
+   * Mix two colors using LCH cylindrical mixing
+   *
+   * LCH is the cylindrical form of CIE LAB, providing hue control
+   * for perceptual mixing. Note: May produce unexpected hues for
+   * blue+yellow due to LAB's red bias (use OKLCH for better results).
+   *
+   * @param hex1 First hex color
+   * @param hex2 Second hex color
+   * @param ratio Mix ratio (0 = all hex1, 0.5 = equal mix, 1 = all hex2). Default: 0.5
+   * @param hueMethod Hue interpolation method ('shorter' | 'longer' | 'increasing' | 'decreasing')
+   * @returns Mixed color as hex
+   */
+  static mixColorsLch(
+    hex1: string,
+    hex2: string,
+    ratio: number = 0.5,
+    hueMethod: 'shorter' | 'longer' | 'increasing' | 'decreasing' = 'shorter'
+  ): HexColor {
+    const lch1 = ColorConverter.hexToLch(hex1);
+    const lch2 = ColorConverter.hexToLch(hex2);
+
+    const L = lch1.L + (lch2.L - lch1.L) * ratio;
+    const C = lch1.C + (lch2.C - lch1.C) * ratio;
+    const h = this.interpolateHue(lch1.h, lch2.h, ratio, hueMethod);
+
+    return ColorConverter.lchToHex(L, C, h);
+  }
+
+  /**
+   * Mix two colors using HSL hue averaging
+   *
+   * Simple and intuitive mixing based on hue wheel position.
+   * Blue + Yellow = Spring Green (hue ~150°).
+   * Results may be over-saturated compared to perceptual methods.
+   *
+   * @param hex1 First hex color
+   * @param hex2 Second hex color
+   * @param ratio Mix ratio (0 = all hex1, 0.5 = equal mix, 1 = all hex2). Default: 0.5
+   * @param hueMethod Hue interpolation method ('shorter' | 'longer' | 'increasing' | 'decreasing')
+   * @returns Mixed color as hex
+   */
+  static mixColorsHsl(
+    hex1: string,
+    hex2: string,
+    ratio: number = 0.5,
+    hueMethod: 'shorter' | 'longer' | 'increasing' | 'decreasing' = 'shorter'
+  ): HexColor {
+    const hsl1 = ColorConverter.hexToHsl(hex1);
+    const hsl2 = ColorConverter.hexToHsl(hex2);
+
+    const h = this.interpolateHue(hsl1.h, hsl2.h, ratio, hueMethod);
+    const s = hsl1.s + (hsl2.s - hsl1.s) * ratio;
+    const l = hsl1.l + (hsl2.l - hsl1.l) * ratio;
+
+    return ColorConverter.hslToHex(h, s, l);
+  }
+
+  /**
+   * Mix two colors using HSV hue averaging
+   *
+   * Similar to HSL but uses Value instead of Lightness.
+   * Useful when working with existing HSV-based workflows.
+   *
+   * @param hex1 First hex color
+   * @param hex2 Second hex color
+   * @param ratio Mix ratio (0 = all hex1, 0.5 = equal mix, 1 = all hex2). Default: 0.5
+   * @param hueMethod Hue interpolation method ('shorter' | 'longer' | 'increasing' | 'decreasing')
+   * @returns Mixed color as hex
+   */
+  static mixColorsHsv(
+    hex1: string,
+    hex2: string,
+    ratio: number = 0.5,
+    hueMethod: 'shorter' | 'longer' | 'increasing' | 'decreasing' = 'shorter'
+  ): HexColor {
+    const hsv1 = ColorConverter.hexToHsv(hex1);
+    const hsv2 = ColorConverter.hexToHsv(hex2);
+
+    const h = this.interpolateHue(hsv1.h, hsv2.h, ratio, hueMethod);
+    const s = hsv1.s + (hsv2.s - hsv1.s) * ratio;
+    const v = hsv1.v + (hsv2.v - hsv1.v) * ratio;
+
+    return ColorConverter.hsvToHex(h, s, v);
+  }
+
+  // ============================================================================
+  // Spectral Mixing (Kubelka-Munk Theory - Realistic Paint Mixing)
+  // ============================================================================
+
+  /**
+   * Mix two colors using Kubelka-Munk spectral mixing
+   *
+   * This is the most physically accurate color mixing method available,
+   * simulating how real pigments and paints interact with light.
+   *
+   * Key characteristics:
+   * - Based on light absorption and scattering theory
+   * - Blue + Yellow = Green (like real paint!)
+   * - More realistic tinting and shading
+   * - Uses spectral reflectance curves (380-750nm)
+   *
+   * @param hex1 First hex color
+   * @param hex2 Second hex color
+   * @param ratio Mix ratio (0 = all hex1, 0.5 = equal mix, 1 = all hex2). Default: 0.5
+   * @returns Mixed color as hex
+   *
+   * @example
+   * // Mix blue and yellow to get green (like real paint)
+   * ColorService.mixColorsSpectral('#0000FF', '#FFFF00')
+   */
+  static mixColorsSpectral(hex1: string, hex2: string, ratio: number = 0.5): HexColor {
+    return SpectralMixer.mixColors(hex1, hex2, ratio);
+  }
+
+  /**
+   * Mix multiple colors using Kubelka-Munk spectral mixing
+   *
+   * @param colors Array of hex colors to mix
+   * @param weights Optional array of weights (defaults to equal weights)
+   * @returns Mixed color as hex
+   */
+  static mixMultipleSpectral(colors: string[], weights?: number[]): HexColor {
+    return SpectralMixer.mixMultiple(colors, weights);
+  }
+
+  /**
+   * Generate a gradient using spectral mixing
+   *
+   * Creates a series of colors that transition smoothly using
+   * Kubelka-Munk theory for realistic blending.
+   *
+   * @param hex1 Starting color
+   * @param hex2 Ending color
+   * @param steps Number of colors in the gradient
+   * @returns Array of hex colors
+   */
+  static gradientSpectral(hex1: string, hex2: string, steps: number): HexColor[] {
+    return SpectralMixer.gradient(hex1, hex2, steps);
+  }
+
+  /**
+   * Check if spectral mixing is available
+   *
+   * @returns true if spectral.js is loaded and functional
+   */
+  static isSpectralAvailable(): boolean {
+    return SpectralMixer.isAvailable();
   }
 }
 

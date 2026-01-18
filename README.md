@@ -8,9 +8,10 @@
 
 ## Features
 
-✨ **Color Conversion** - RGB ↔ HSV ↔ Hex ↔ LAB ↔ RYB with full validation
+✨ **Color Conversion** - RGB ↔ HSV ↔ Hex ↔ LAB ↔ RYB ↔ OKLAB ↔ OKLCH ↔ LCH ↔ HSL
 🎨 **136 FFXIV Dyes** - Complete database with RGB/HSV/metadata
-🖌️ **RYB Paint Mixing** - Subtractive color mixing (Blue + Yellow = Green!)
+🖌️ **Advanced Color Mixing** - RYB, OKLAB, HSL, and Spectral (Kubelka-Munk)
+🔬 **Spectral.js Integration** - Physics-based paint mixing (Blue + Yellow = Green!)
 🎯 **Dye Matching** - Find closest dyes to any color
 🌈 **Color Harmonies** - Triadic, complementary, analogous, and more
 🖼️ **Palette Extraction** - K-means++ clustering for multi-color extraction from images

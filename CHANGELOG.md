@@ -5,6 +5,81 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.0] - 2026-01-17
+
+### Added
+
+- **OKLAB/OKLCH Color Space Support**: Modern perceptually uniform color space (Björn Ottosson, 2020)
+  - `ColorService.rgbToOklab(r, g, b)` / `ColorService.oklabToRgb(L, a, b)` - OKLAB conversions
+  - `ColorService.hexToOklab(hex)` / `ColorService.oklabToHex(L, a, b)` - Hex ↔ OKLAB
+  - `ColorService.rgbToOklch(r, g, b)` / `ColorService.oklchToRgb(L, C, h)` - OKLCH cylindrical form
+  - `ColorService.hexToOklch(hex)` / `ColorService.oklchToHex(L, C, h)` - Hex ↔ OKLCH
+  - `ColorService.mixColorsOklab(hex1, hex2, ratio)` - OKLAB perceptual mixing
+  - `ColorService.mixColorsOklch(hex1, hex2, ratio, hueMethod)` - OKLCH with hue direction control
+  - Fixes CIELAB's blue color distortion (Blue + Yellow = Green, not Pink)
+
+- **LCH Color Space Support**: Cylindrical form of CIE LAB for hue-based operations
+  - `ColorService.labToLch(L, a, b)` / `ColorService.lchToLab(L, C, h)` - LAB ↔ LCH
+  - `ColorService.rgbToLch(r, g, b)` / `ColorService.lchToRgb(L, C, h)` - RGB ↔ LCH
+  - `ColorService.hexToLch(hex)` / `ColorService.lchToHex(L, C, h)` - Hex ↔ LCH
+  - `ColorService.mixColorsLch(hex1, hex2, ratio, hueMethod)` - LCH cylindrical mixing
+
+- **HSL Color Space Support**: Hue-Saturation-Lightness common in design tools
+  - `ColorService.rgbToHsl(r, g, b)` / `ColorService.hslToRgb(h, s, l)` - RGB ↔ HSL
+  - `ColorService.hexToHsl(hex)` / `ColorService.hslToHex(h, s, l)` - Hex ↔ HSL
+  - `ColorService.mixColorsHsl(hex1, hex2, ratio, hueMethod)` - HSL hue-based mixing
+
+- **Spectral.js Integration**: Kubelka-Munk theory-based realistic paint mixing
+  - `ColorService.mixColorsSpectral(hex1, hex2, ratio)` - Physics-based paint mixing
+  - `ColorService.mixMultipleSpectral(colors, weights)` - Mix multiple colors
+  - `ColorService.gradientSpectral(hex1, hex2, steps)` - Spectral gradient generation
+  - `ColorService.isSpectralAvailable()` - Check if spectral.js is loaded
+  - Blue + Yellow = Green (like real paint!)
+
+- **Hue Interpolation Control**: For cylindrical color spaces
+  - `ColorService.interpolateHue(h1, h2, ratio, method)` - 4 interpolation modes:
+    - `'shorter'` (default): Take shorter arc around hue wheel
+    - `'longer'`: Take longer arc
+    - `'increasing'`: Always clockwise
+    - `'decreasing'`: Always counter-clockwise
+
+- **HSV Mixing**: Added for completeness
+  - `ColorService.mixColorsHsv(hex1, hex2, ratio, hueMethod)` - HSV hue-based mixing
+
+- **New Exported Types** (from `@xivdyetools/types`)
+  - `OKLAB` - OKLAB color type with L (0-1), a, b components
+  - `OKLCH` - OKLCH color type with L (0-1), C (chroma), h (hue 0-360)
+  - `LCH` - LCH color type with L (0-100), C, h
+  - `HSL` - HSL color type with h (0-360), s (0-100), l (0-100)
+
+- **New i18n Keys**: Localization for all 6 languages (EN, JA, DE, FR, KO, ZH)
+  - Gradient interpolation mode labels and descriptions
+  - Mixing mode labels and descriptions
+
+### Dependencies
+
+- Added `spectral.js` for Kubelka-Munk spectral mixing (~8KB gzipped)
+- Updated `@xivdyetools/types` to ^1.6.0
+
+### Usage Example
+
+```typescript
+import { ColorService } from '@xivdyetools/core';
+
+// OKLAB mixing - Blue + Yellow = Green (not pink like LAB!)
+const mixed = ColorService.mixColorsOklab('#0000FF', '#FFFF00');
+
+// Spectral mixing - Most realistic paint simulation
+const paint = ColorService.mixColorsSpectral('#0000FF', '#FFFF00');
+
+// OKLCH gradient with hue direction control
+const oklch1 = ColorService.hexToOklch('#FF0000');
+const oklch2 = ColorService.hexToOklch('#00FF00');
+const midHue = ColorService.interpolateHue(oklch1.h, oklch2.h, 0.5, 'shorter');
+```
+
+---
+
 ## [1.10.0] - 2026-01-14
 
 ### Added

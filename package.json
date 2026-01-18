@@ -1,6 +1,6 @@
 {
     "name": "@xivdyetools/core",
-    "version": "1.12.4",
+    "version": "1.12.5",
     "description": "Core color algorithms and dye database for XIV Dye Tools",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -77,7 +77,8 @@
     },
     "dependencies": {
         "@xivdyetools/logger": "^1.0.2",
-        "@xivdyetools/types": "^1.6.1"
+        "@xivdyetools/types": "^1.6.1",
+        "spectral.js": "^3.0.0"
     },
     "lint-staged": {
         "*.ts": [

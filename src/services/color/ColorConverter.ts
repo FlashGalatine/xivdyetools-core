@@ -4,7 +4,7 @@
  * Handles conversions between hex, RGB, and HSV color formats
  */
 
-import type { RGB, HSV, HexColor, LAB } from '../../types/index.js';
+import type { RGB, HSV, HexColor, LAB, OKLAB, OKLCH, LCH, HSL } from '../../types/index.js';
 import { createHexColor } from '../../types/index.js';
 import { ErrorCode, AppError } from '../../types/index.js';
 
@@ -796,5 +796,517 @@ export class ColorConverter {
    */
   static getDeltaE(hex1: string, hex2: string, formula: DeltaEFormula = 'cie76'): number {
     return this.getDefault().getDeltaE(hex1, hex2, formula);
+  }
+
+  // ============================================================================
+  // OKLAB/OKLCH Color Space Conversion (Björn Ottosson, 2020)
+  // ============================================================================
+
+  /**
+   * Convert sRGB component to linear RGB
+   * Applies inverse gamma companding
+   * @internal
+   */
+  private srgbToLinear(c: number): number {
+    const normalized = c / 255;
+    return normalized <= 0.04045 ? normalized / 12.92 : Math.pow((normalized + 0.055) / 1.055, 2.4);
+  }
+
+  /**
+   * Convert linear RGB component to sRGB
+   * Applies gamma companding
+   * @internal
+   */
+  private linearToSrgb(c: number): number {
+    const clamped = Math.max(0, Math.min(1, c));
+    const srgb =
+      clamped <= 0.0031308 ? clamped * 12.92 : 1.055 * Math.pow(clamped, 1 / 2.4) - 0.055;
+    return Math.round(srgb * 255);
+  }
+
+  /**
+   * Convert RGB to OKLAB color space
+   *
+   * OKLAB is a modern perceptually uniform color space that fixes issues
+   * with CIELAB, particularly for blue colors. Blue + Yellow = Green in OKLAB.
+   *
+   * @param r Red component (0-255)
+   * @param g Green component (0-255)
+   * @param b Blue component (0-255)
+   * @returns OKLAB color with L (0-1), a (~-0.4 to 0.4), b (~-0.4 to 0.4)
+   *
+   * @example rgbToOklab(255, 0, 0) -> { L: 0.628, a: 0.225, b: 0.126 }
+   */
+  rgbToOklab(r: number, g: number, b: number): OKLAB {
+    if (!isValidRGB(r, g, b)) {
+      throw new AppError(
+        ErrorCode.INVALID_RGB_VALUE,
+        `Invalid RGB values: r=${r}, g=${g}, b=${b}. Values must be 0-255`,
+        'error'
+      );
+    }
+
+    // Convert sRGB to linear RGB
+    const rLin = this.srgbToLinear(r);
+    const gLin = this.srgbToLinear(g);
+    const bLin = this.srgbToLinear(b);
+
+    // Linear RGB to LMS (using Oklab's specific matrix)
+    const l = 0.4122214708 * rLin + 0.5363325363 * gLin + 0.0514459929 * bLin;
+    const m = 0.2119034982 * rLin + 0.6806995451 * gLin + 0.1073969566 * bLin;
+    const s = 0.0883024619 * rLin + 0.2817188376 * gLin + 0.6299787005 * bLin;
+
+    // Apply cube root
+    const lRoot = Math.cbrt(l);
+    const mRoot = Math.cbrt(m);
+    const sRoot = Math.cbrt(s);
+
+    // LMS to Oklab
+    return {
+      L: round(0.2104542553 * lRoot + 0.793617785 * mRoot - 0.0040720468 * sRoot, 6),
+      a: round(1.9779984951 * lRoot - 2.428592205 * mRoot + 0.4505937099 * sRoot, 6),
+      b: round(0.0259040371 * lRoot + 0.7827717662 * mRoot - 0.808675766 * sRoot, 6),
+    };
+  }
+
+  /**
+   * Static method: Convert RGB to OKLAB using default instance
+   */
+  static rgbToOklab(r: number, g: number, b: number): OKLAB {
+    return this.getDefault().rgbToOklab(r, g, b);
+  }
+
+  /**
+   * Convert OKLAB to RGB color space
+   *
+   * @param L Lightness (0-1)
+   * @param a Green-Red axis (~-0.4 to 0.4)
+   * @param b Blue-Yellow axis (~-0.4 to 0.4)
+   * @returns RGB color with values 0-255
+   *
+   * @example oklabToRgb(0.628, 0.225, 0.126) -> { r: 255, g: 0, b: 0 }
+   */
+  oklabToRgb(L: number, a: number, b: number): RGB {
+    // Oklab to LMS
+    const lRoot = L + 0.3963377774 * a + 0.2158037573 * b;
+    const mRoot = L - 0.1055613458 * a - 0.0638541728 * b;
+    const sRoot = L - 0.0894841775 * a - 1.291485548 * b;
+
+    // Cube the roots
+    const l = lRoot * lRoot * lRoot;
+    const m = mRoot * mRoot * mRoot;
+    const s = sRoot * sRoot * sRoot;
+
+    // LMS to linear RGB
+    const rLin = +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
+    const gLin = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
+    const bLin = -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s;
+
+    // Convert to sRGB
+    return {
+      r: clamp(this.linearToSrgb(rLin), RGB_MIN, RGB_MAX),
+      g: clamp(this.linearToSrgb(gLin), RGB_MIN, RGB_MAX),
+      b: clamp(this.linearToSrgb(bLin), RGB_MIN, RGB_MAX),
+    };
+  }
+
+  /**
+   * Static method: Convert OKLAB to RGB using default instance
+   */
+  static oklabToRgb(L: number, a: number, b: number): RGB {
+    return this.getDefault().oklabToRgb(L, a, b);
+  }
+
+  /**
+   * Convert hex color to OKLAB
+   */
+  hexToOklab(hex: string): OKLAB {
+    const rgb = this.hexToRgb(hex);
+    return this.rgbToOklab(rgb.r, rgb.g, rgb.b);
+  }
+
+  /**
+   * Static method: Convert hex to OKLAB using default instance
+   */
+  static hexToOklab(hex: string): OKLAB {
+    return this.getDefault().hexToOklab(hex);
+  }
+
+  /**
+   * Convert OKLAB to hex color
+   */
+  oklabToHex(L: number, a: number, b: number): HexColor {
+    const rgb = this.oklabToRgb(L, a, b);
+    return this.rgbToHex(rgb.r, rgb.g, rgb.b);
+  }
+
+  /**
+   * Static method: Convert OKLAB to hex using default instance
+   */
+  static oklabToHex(L: number, a: number, b: number): HexColor {
+    return this.getDefault().oklabToHex(L, a, b);
+  }
+
+  /**
+   * Convert RGB to OKLCH (cylindrical OKLAB)
+   *
+   * OKLCH expresses OKLAB in cylindrical coordinates for intuitive
+   * hue manipulation. Ideal for gradient interpolation.
+   *
+   * @param r Red component (0-255)
+   * @param g Green component (0-255)
+   * @param b Blue component (0-255)
+   * @returns OKLCH color with L (0-1), C (chroma, 0 to ~0.4), h (hue, 0-360)
+   *
+   * @example rgbToOklch(255, 0, 0) -> { L: 0.628, C: 0.258, h: 29.23 }
+   */
+  rgbToOklch(r: number, g: number, b: number): OKLCH {
+    const oklab = this.rgbToOklab(r, g, b);
+
+    // Convert to cylindrical coordinates
+    const C = Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b);
+    let h = Math.atan2(oklab.b, oklab.a) * (180 / Math.PI);
+    if (h < 0) h += 360;
+
+    return {
+      L: oklab.L,
+      C: round(C, 6),
+      h: round(h, 4),
+    };
+  }
+
+  /**
+   * Static method: Convert RGB to OKLCH using default instance
+   */
+  static rgbToOklch(r: number, g: number, b: number): OKLCH {
+    return this.getDefault().rgbToOklch(r, g, b);
+  }
+
+  /**
+   * Convert OKLCH to RGB
+   *
+   * @param L Lightness (0-1)
+   * @param C Chroma (0 to ~0.4)
+   * @param h Hue angle (0-360 degrees)
+   * @returns RGB color with values 0-255
+   */
+  oklchToRgb(L: number, C: number, h: number): RGB {
+    // Convert from cylindrical to rectangular coordinates
+    const hRad = h * (Math.PI / 180);
+    const a = C * Math.cos(hRad);
+    const b = C * Math.sin(hRad);
+
+    return this.oklabToRgb(L, a, b);
+  }
+
+  /**
+   * Static method: Convert OKLCH to RGB using default instance
+   */
+  static oklchToRgb(L: number, C: number, h: number): RGB {
+    return this.getDefault().oklchToRgb(L, C, h);
+  }
+
+  /**
+   * Convert hex color to OKLCH
+   */
+  hexToOklch(hex: string): OKLCH {
+    const rgb = this.hexToRgb(hex);
+    return this.rgbToOklch(rgb.r, rgb.g, rgb.b);
+  }
+
+  /**
+   * Static method: Convert hex to OKLCH using default instance
+   */
+  static hexToOklch(hex: string): OKLCH {
+    return this.getDefault().hexToOklch(hex);
+  }
+
+  /**
+   * Convert OKLCH to hex color
+   */
+  oklchToHex(L: number, C: number, h: number): HexColor {
+    const rgb = this.oklchToRgb(L, C, h);
+    return this.rgbToHex(rgb.r, rgb.g, rgb.b);
+  }
+
+  /**
+   * Static method: Convert OKLCH to hex using default instance
+   */
+  static oklchToHex(L: number, C: number, h: number): HexColor {
+    return this.getDefault().oklchToHex(L, C, h);
+  }
+
+  // ============================================================================
+  // LCH Color Space Conversion (Cylindrical CIE LAB)
+  // ============================================================================
+
+  /**
+   * Convert CIE LAB to LCH (cylindrical LAB)
+   *
+   * LCH expresses LAB in cylindrical coordinates for hue-based operations.
+   *
+   * @param L Lightness (0-100)
+   * @param a Green-Red axis (~-128 to 127)
+   * @param b Blue-Yellow axis (~-128 to 127)
+   * @returns LCH color with L (0-100), C (chroma), h (hue, 0-360)
+   */
+  labToLch(L: number, a: number, b: number): LCH {
+    const C = Math.sqrt(a * a + b * b);
+    let h = Math.atan2(b, a) * (180 / Math.PI);
+    if (h < 0) h += 360;
+
+    return {
+      L: round(L, 4),
+      C: round(C, 4),
+      h: round(h, 4),
+    };
+  }
+
+  /**
+   * Static method: Convert LAB to LCH using default instance
+   */
+  static labToLch(L: number, a: number, b: number): LCH {
+    return this.getDefault().labToLch(L, a, b);
+  }
+
+  /**
+   * Convert LCH to CIE LAB
+   *
+   * @param L Lightness (0-100)
+   * @param C Chroma
+   * @param h Hue angle (0-360 degrees)
+   * @returns LAB color
+   */
+  lchToLab(L: number, C: number, h: number): LAB {
+    const hRad = h * (Math.PI / 180);
+    return {
+      L: round(L, 4),
+      a: round(C * Math.cos(hRad), 4),
+      b: round(C * Math.sin(hRad), 4),
+    };
+  }
+
+  /**
+   * Static method: Convert LCH to LAB using default instance
+   */
+  static lchToLab(L: number, C: number, h: number): LAB {
+    return this.getDefault().lchToLab(L, C, h);
+  }
+
+  /**
+   * Convert RGB to LCH
+   */
+  rgbToLch(r: number, g: number, b: number): LCH {
+    const lab = this.rgbToLab(r, g, b);
+    return this.labToLch(lab.L, lab.a, lab.b);
+  }
+
+  /**
+   * Static method: Convert RGB to LCH using default instance
+   */
+  static rgbToLch(r: number, g: number, b: number): LCH {
+    return this.getDefault().rgbToLch(r, g, b);
+  }
+
+  /**
+   * Convert LCH to RGB
+   */
+  lchToRgb(L: number, C: number, h: number): RGB {
+    const lab = this.lchToLab(L, C, h);
+    return this.labToRgb(lab.L, lab.a, lab.b);
+  }
+
+  /**
+   * Static method: Convert LCH to RGB using default instance
+   */
+  static lchToRgb(L: number, C: number, h: number): RGB {
+    return this.getDefault().lchToRgb(L, C, h);
+  }
+
+  /**
+   * Convert hex color to LCH
+   */
+  hexToLch(hex: string): LCH {
+    const rgb = this.hexToRgb(hex);
+    return this.rgbToLch(rgb.r, rgb.g, rgb.b);
+  }
+
+  /**
+   * Static method: Convert hex to LCH using default instance
+   */
+  static hexToLch(hex: string): LCH {
+    return this.getDefault().hexToLch(hex);
+  }
+
+  /**
+   * Convert LCH to hex color
+   */
+  lchToHex(L: number, C: number, h: number): HexColor {
+    const rgb = this.lchToRgb(L, C, h);
+    return this.rgbToHex(rgb.r, rgb.g, rgb.b);
+  }
+
+  /**
+   * Static method: Convert LCH to hex using default instance
+   */
+  static lchToHex(L: number, C: number, h: number): HexColor {
+    return this.getDefault().lchToHex(L, C, h);
+  }
+
+  // ============================================================================
+  // HSL Color Space Conversion
+  // ============================================================================
+
+  /**
+   * Convert RGB to HSL (Hue, Saturation, Lightness)
+   *
+   * HSL is similar to HSV but uses Lightness instead of Value.
+   * Common in design tools like Photoshop, Figma, and CSS.
+   *
+   * @param r Red component (0-255)
+   * @param g Green component (0-255)
+   * @param b Blue component (0-255)
+   * @returns HSL color with h (0-360), s (0-100), l (0-100)
+   *
+   * @example rgbToHsl(255, 0, 0) -> { h: 0, s: 100, l: 50 }
+   */
+  rgbToHsl(r: number, g: number, b: number): HSL {
+    if (!isValidRGB(r, g, b)) {
+      throw new AppError(
+        ErrorCode.INVALID_RGB_VALUE,
+        `Invalid RGB values: r=${r}, g=${g}, b=${b}. Values must be 0-255`,
+        'error'
+      );
+    }
+
+    // Normalize to 0-1
+    const rNorm = r / 255;
+    const gNorm = g / 255;
+    const bNorm = b / 255;
+
+    const max = Math.max(rNorm, gNorm, bNorm);
+    const min = Math.min(rNorm, gNorm, bNorm);
+    const delta = max - min;
+
+    // Calculate Lightness
+    const l = (max + min) / 2;
+
+    // Calculate Saturation
+    let s = 0;
+    if (delta !== 0) {
+      s = delta / (1 - Math.abs(2 * l - 1));
+    }
+
+    // Calculate Hue (same as HSV)
+    let h = 0;
+    if (delta !== 0) {
+      if (max === rNorm) {
+        h = ((gNorm - bNorm) / delta + (gNorm < bNorm ? 6 : 0)) * 60;
+      } else if (max === gNorm) {
+        h = ((bNorm - rNorm) / delta + 2) * 60;
+      } else {
+        h = ((rNorm - gNorm) / delta + 4) * 60;
+      }
+    }
+
+    return {
+      h: round(h, 2),
+      s: round(s * 100, 2),
+      l: round(l * 100, 2),
+    };
+  }
+
+  /**
+   * Static method: Convert RGB to HSL using default instance
+   */
+  static rgbToHsl(r: number, g: number, b: number): HSL {
+    return this.getDefault().rgbToHsl(r, g, b);
+  }
+
+  /**
+   * Convert HSL to RGB
+   *
+   * @param h Hue (0-360 degrees)
+   * @param s Saturation (0-100 percent)
+   * @param l Lightness (0-100 percent)
+   * @returns RGB color with values 0-255
+   *
+   * @example hslToRgb(0, 100, 50) -> { r: 255, g: 0, b: 0 }
+   */
+  hslToRgb(h: number, s: number, l: number): RGB {
+    // Normalize
+    const hNorm = this.normalizeHue(h) / 360;
+    const sNorm = clamp(s, 0, 100) / 100;
+    const lNorm = clamp(l, 0, 100) / 100;
+
+    let r: number, g: number, b: number;
+
+    if (sNorm === 0) {
+      // Achromatic (gray)
+      r = g = b = lNorm;
+    } else {
+      const q = lNorm < 0.5 ? lNorm * (1 + sNorm) : lNorm + sNorm - lNorm * sNorm;
+      const p = 2 * lNorm - q;
+
+      r = this.hueToRgbComponent(p, q, hNorm + 1 / 3);
+      g = this.hueToRgbComponent(p, q, hNorm);
+      b = this.hueToRgbComponent(p, q, hNorm - 1 / 3);
+    }
+
+    return {
+      r: clamp(Math.round(r * 255), RGB_MIN, RGB_MAX),
+      g: clamp(Math.round(g * 255), RGB_MIN, RGB_MAX),
+      b: clamp(Math.round(b * 255), RGB_MIN, RGB_MAX),
+    };
+  }
+
+  /**
+   * Helper for HSL to RGB conversion
+   * @internal
+   */
+  private hueToRgbComponent(p: number, q: number, t: number): number {
+    if (t < 0) t += 1;
+    if (t > 1) t -= 1;
+    if (t < 1 / 6) return p + (q - p) * 6 * t;
+    if (t < 1 / 2) return q;
+    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+    return p;
+  }
+
+  /**
+   * Static method: Convert HSL to RGB using default instance
+   */
+  static hslToRgb(h: number, s: number, l: number): RGB {
+    return this.getDefault().hslToRgb(h, s, l);
+  }
+
+  /**
+   * Convert hex color to HSL
+   */
+  hexToHsl(hex: string): HSL {
+    const rgb = this.hexToRgb(hex);
+    return this.rgbToHsl(rgb.r, rgb.g, rgb.b);
+  }
+
+  /**
+   * Static method: Convert hex to HSL using default instance
+   */
+  static hexToHsl(hex: string): HSL {
+    return this.getDefault().hexToHsl(hex);
+  }
+
+  /**
+   * Convert HSL to hex color
+   */
+  hslToHex(h: number, s: number, l: number): HexColor {
+    const rgb = this.hslToRgb(h, s, l);
+    return this.rgbToHex(rgb.r, rgb.g, rgb.b);
+  }
+
+  /**
+   * Static method: Convert HSL to hex using default instance
+   */
+  static hslToHex(h: number, s: number, l: number): HexColor {
+    return this.getDefault().hslToHex(h, s, l);
   }
 }
