@@ -280,6 +280,114 @@ describe('CharacterColorService', () => {
       const matches = service.findClosestDyes(testColor, mockDyeService, 3);
       expect(matches).toEqual([]);
     });
+
+    it('should skip Facewear dyes in findClosestDyes', () => {
+      const mockDyeService = {
+        getAllDyes: vi.fn().mockReturnValue([
+          {
+            id: 1,
+            name: 'Regular Dye',
+            hex: '#FF0000',
+            rgb: { r: 255, g: 0, b: 0 },
+            hsv: { h: 0, s: 100, v: 100 },
+            category: 'Red Dyes',
+          },
+          {
+            id: 2,
+            name: 'Facewear Red',
+            hex: '#FF0000',
+            rgb: { r: 255, g: 0, b: 0 },
+            hsv: { h: 0, s: 100, v: 100 },
+            category: 'Facewear',
+          },
+        ]),
+      } as unknown as DyeService;
+
+      const testColor: CharacterColor = {
+        index: 0,
+        hex: '#FF0000',
+        rgb: { r: 255, g: 0, b: 0 },
+      };
+
+      const matches = service.findClosestDyes(testColor, mockDyeService, 5);
+      // Should only return Regular Dye, not Facewear
+      expect(matches.length).toBe(1);
+      expect(matches[0].dye.name).toBe('Regular Dye');
+    });
+
+    it('should skip Facewear dyes in findDyesWithinDistance', () => {
+      const mockDyeService = {
+        getAllDyes: vi.fn().mockReturnValue([
+          {
+            id: 1,
+            name: 'Regular Dye',
+            hex: '#FF0000',
+            rgb: { r: 255, g: 0, b: 0 },
+            hsv: { h: 0, s: 100, v: 100 },
+            category: 'Red Dyes',
+          },
+          {
+            id: 2,
+            name: 'Facewear Red',
+            hex: '#FF0000',
+            rgb: { r: 255, g: 0, b: 0 },
+            hsv: { h: 0, s: 100, v: 100 },
+            category: 'Facewear',
+          },
+        ]),
+      } as unknown as DyeService;
+
+      const testColor: CharacterColor = {
+        index: 0,
+        hex: '#FF0000',
+        rgb: { r: 255, g: 0, b: 0 },
+      };
+
+      const matches = service.findDyesWithinDistance(testColor, mockDyeService, 10);
+      // Should only return Regular Dye, not Facewear
+      expect(matches.length).toBe(1);
+      expect(matches[0].dye.name).toBe('Regular Dye');
+    });
+
+    it('should return null from findClosestDye when no matches', () => {
+      const mockDyeService = {
+        getAllDyes: vi.fn().mockReturnValue([]),
+      } as unknown as DyeService;
+
+      const testColor: CharacterColor = {
+        index: 0,
+        hex: '#FF0000',
+        rgb: { r: 255, g: 0, b: 0 },
+      };
+
+      const match = service.findClosestDye(testColor, mockDyeService);
+      expect(match).toBeNull();
+    });
+
+    it('should filter out dyes beyond maxDistance threshold', () => {
+      const mockDyeService = {
+        getAllDyes: vi.fn().mockReturnValue([
+          {
+            id: 1,
+            name: 'Far Away Blue',
+            hex: '#0000FF',
+            rgb: { r: 0, g: 0, b: 255 },
+            hsv: { h: 240, s: 100, v: 100 },
+            category: 'Blue Dyes',
+          },
+        ]),
+      } as unknown as DyeService;
+
+      const testColor: CharacterColor = {
+        index: 0,
+        hex: '#FF0000',
+        rgb: { r: 255, g: 0, b: 0 },
+      };
+
+      // Red and Blue have a large distance, so with a small threshold, no matches
+      const matches = service.findDyesWithinDistance(testColor, mockDyeService, 1);
+      expect(matches.length).toBe(0);
+    });
   });
 
   describe('Metadata', () => {

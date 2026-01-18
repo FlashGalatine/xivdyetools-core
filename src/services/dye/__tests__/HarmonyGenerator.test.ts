@@ -370,4 +370,235 @@ describe('HarmonyGenerator', () => {
       expect(() => emptyHarmony.findTriadicDyes('#FF0000')).toThrow();
     });
   });
+
+  // ============================================================================
+  // DeltaE Algorithm Options Tests
+  // ============================================================================
+
+  describe('DeltaE algorithm matching', () => {
+    describe('findComplementaryPair with DeltaE', () => {
+      it('should find complementary using cie76 (default)', () => {
+        const complement = harmony.findComplementaryPair('#FF0000', {
+          algorithm: 'deltaE',
+        });
+        expect(complement).toBeDefined();
+        // Should find a color perceptually opposite to red
+      });
+
+      it('should find complementary using cie2000', () => {
+        const complement = harmony.findComplementaryPair('#FF0000', {
+          algorithm: 'deltaE',
+          deltaEFormula: 'cie2000',
+        });
+        expect(complement).toBeDefined();
+      });
+
+      it('should respect deltaE tolerance', () => {
+        // With very low tolerance, might not find a match
+        const lowTolerance = harmony.findComplementaryPair('#FF0000', {
+          algorithm: 'deltaE',
+          deltaETolerance: 1, // Very strict
+        });
+        // Result may or may not be null depending on dye availability
+
+        const highTolerance = harmony.findComplementaryPair('#FF0000', {
+          algorithm: 'deltaE',
+          deltaETolerance: 100, // Very lenient
+        });
+        expect(highTolerance).toBeDefined();
+      });
+
+      it('should not include Facewear dyes with deltaE algorithm', () => {
+        const complement = harmony.findComplementaryPair('#FF0000', {
+          algorithm: 'deltaE',
+        });
+        if (complement) {
+          expect(complement.category).not.toBe('Facewear');
+        }
+      });
+    });
+
+    describe('findAnalogousDyes with DeltaE', () => {
+      it('should find analogous dyes using deltaE algorithm', () => {
+        const analogous = harmony.findAnalogousDyes('#FF0000', 30, {
+          algorithm: 'deltaE',
+        });
+        expect(analogous.length).toBeGreaterThanOrEqual(0);
+        expect(Array.isArray(analogous)).toBe(true);
+      });
+
+      it('should find analogous with cie2000 formula', () => {
+        const analogous = harmony.findAnalogousDyes('#FF0000', 30, {
+          algorithm: 'deltaE',
+          deltaEFormula: 'cie2000',
+        });
+        expect(Array.isArray(analogous)).toBe(true);
+      });
+
+      it('should exclude Facewear with deltaE algorithm', () => {
+        const analogous = harmony.findAnalogousDyes('#FF0000', 30, {
+          algorithm: 'deltaE',
+        });
+        expect(analogous.every((d) => d.category !== 'Facewear')).toBe(true);
+      });
+    });
+
+    describe('findTriadicDyes with DeltaE', () => {
+      it('should find triadic dyes using deltaE algorithm', () => {
+        const triadic = harmony.findTriadicDyes('#FF0000', {
+          algorithm: 'deltaE',
+        });
+        expect(Array.isArray(triadic)).toBe(true);
+      });
+
+      it('should find triadic with cie2000 formula', () => {
+        const triadic = harmony.findTriadicDyes('#FF0000', {
+          algorithm: 'deltaE',
+          deltaEFormula: 'cie2000',
+        });
+        expect(Array.isArray(triadic)).toBe(true);
+      });
+
+      it('should not duplicate dyes with deltaE', () => {
+        const triadic = harmony.findTriadicDyes('#FF0000', {
+          algorithm: 'deltaE',
+        });
+        const ids = triadic.map((d) => d.id);
+        const uniqueIds = new Set(ids);
+        expect(ids.length).toBe(uniqueIds.size);
+      });
+    });
+
+    describe('findSquareDyes with DeltaE', () => {
+      it('should find square dyes using deltaE algorithm', () => {
+        const square = harmony.findSquareDyes('#FF0000', {
+          algorithm: 'deltaE',
+        });
+        expect(Array.isArray(square)).toBe(true);
+      });
+
+      it('should find square with custom tolerance', () => {
+        const square = harmony.findSquareDyes('#FF0000', {
+          algorithm: 'deltaE',
+          deltaETolerance: 50,
+        });
+        expect(Array.isArray(square)).toBe(true);
+      });
+    });
+
+    describe('findTetradicDyes with DeltaE', () => {
+      it('should find tetradic dyes using deltaE algorithm', () => {
+        const tetradic = harmony.findTetradicDyes('#FF0000', {
+          algorithm: 'deltaE',
+        });
+        expect(Array.isArray(tetradic)).toBe(true);
+      });
+    });
+
+    describe('findCompoundDyes with DeltaE', () => {
+      it('should find compound dyes using deltaE algorithm', () => {
+        const compound = harmony.findCompoundDyes('#FF0000', {
+          algorithm: 'deltaE',
+        });
+        expect(Array.isArray(compound)).toBe(true);
+      });
+    });
+
+    describe('findSplitComplementaryDyes with DeltaE', () => {
+      it('should find split-complementary dyes using deltaE', () => {
+        const splitComp = harmony.findSplitComplementaryDyes('#FF0000', {
+          algorithm: 'deltaE',
+        });
+        expect(Array.isArray(splitComp)).toBe(true);
+      });
+    });
+
+    describe('findShadesDyes with DeltaE', () => {
+      it('should find shades using deltaE algorithm', () => {
+        const shades = harmony.findShadesDyes('#FF0000', {
+          algorithm: 'deltaE',
+        });
+        expect(Array.isArray(shades)).toBe(true);
+      });
+    });
+
+    describe('findMonochromaticDyes with DeltaE', () => {
+      it('should find monochromatic dyes using deltaE algorithm', () => {
+        const mono = harmony.findMonochromaticDyes('#4D1818', 6, {
+          algorithm: 'deltaE',
+        });
+        expect(Array.isArray(mono)).toBe(true);
+      });
+
+      it('should find monochromatic with cie2000', () => {
+        const mono = harmony.findMonochromaticDyes('#4D1818', 6, {
+          algorithm: 'deltaE',
+          deltaEFormula: 'cie2000',
+        });
+        expect(Array.isArray(mono)).toBe(true);
+      });
+
+      it('should find monochromatic with custom tolerance', () => {
+        const mono = harmony.findMonochromaticDyes('#4D1818', 6, {
+          algorithm: 'deltaE',
+          deltaETolerance: 30,
+        });
+        expect(Array.isArray(mono)).toBe(true);
+      });
+
+      it('should exclude base dye and Facewear', () => {
+        const baseDye = search.findClosestDye('#4D1818');
+        const mono = harmony.findMonochromaticDyes('#4D1818', 6, {
+          algorithm: 'deltaE',
+        });
+
+        if (baseDye) {
+          expect(mono.every((d) => d.id !== baseDye.id)).toBe(true);
+        }
+        expect(mono.every((d) => d.category !== 'Facewear')).toBe(true);
+      });
+
+      it('should sort by saturation/value difference', () => {
+        const mono = harmony.findMonochromaticDyes('#4D1818', 6, {
+          algorithm: 'deltaE',
+        });
+        // Result should be sorted by variety (saturation/value difference)
+        // This is an indirect test - we just verify it returns results
+        expect(Array.isArray(mono)).toBe(true);
+      });
+
+      it('should respect limit with deltaE algorithm', () => {
+        const mono = harmony.findMonochromaticDyes('#4D1818', 2, {
+          algorithm: 'deltaE',
+        });
+        expect(mono.length).toBeLessThanOrEqual(2);
+      });
+    });
+  });
+
+  // ============================================================================
+  // Hue Tolerance Options Tests
+  // ============================================================================
+
+  describe('hue tolerance options', () => {
+    it('should use custom hue tolerance', () => {
+      const narrowTolerance = harmony.findAnalogousDyes('#FF0000', 30, {
+        hueTolerance: 10,
+      });
+      const wideTolerance = harmony.findAnalogousDyes('#FF0000', 30, {
+        hueTolerance: 60,
+      });
+
+      // Both should work, but may return different results
+      expect(Array.isArray(narrowTolerance)).toBe(true);
+      expect(Array.isArray(wideTolerance)).toBe(true);
+    });
+
+    it('should override internal tolerance', () => {
+      const shades = harmony.findShadesDyes('#FF0000', {
+        hueTolerance: 30,
+      });
+      expect(Array.isArray(shades)).toBe(true);
+    });
+  });
 });

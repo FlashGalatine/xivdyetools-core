@@ -38,12 +38,12 @@ export default defineConfig({
       ],
 
       // Coverage thresholds - BUILD FAILS if below these values
-      // Minimum: 85% (enforced), Target: 95%+
+      // Target: 90% (enforced baseline per comprehensive coverage testing)
       thresholds: {
-        lines: 85,
-        functions: 85,
-        branches: 85,
-        statements: 85,
+        lines: 90,
+        functions: 90,
+        branches: 88, // Slightly lower due to numerical edge cases in RybColorMixer
+        statements: 90,
       },
 
       // Additional coverage options

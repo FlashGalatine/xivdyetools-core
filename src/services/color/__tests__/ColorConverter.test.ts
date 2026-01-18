@@ -784,6 +784,564 @@ describe('ColorConverter', () => {
   });
 
   // ============================================================================
+  // LAB Color Space Tests
+  // ============================================================================
+
+  describe('LAB Color Space', () => {
+    const converter = new ColorConverter();
+
+    describe('rgbToLab (instance)', () => {
+      it('should convert red RGB to LAB', () => {
+        const lab = converter.rgbToLab(255, 0, 0);
+        expect(lab.L).toBeGreaterThan(50);
+        expect(lab.a).toBeGreaterThan(0); // Red has positive a
+        expect(lab.b).toBeGreaterThan(0); // Red has positive b
+      });
+
+      it('should convert green RGB to LAB', () => {
+        const lab = converter.rgbToLab(0, 255, 0);
+        expect(lab.L).toBeGreaterThan(80); // Green is bright
+        expect(lab.a).toBeLessThan(0); // Green has negative a
+      });
+
+      it('should convert blue RGB to LAB', () => {
+        const lab = converter.rgbToLab(0, 0, 255);
+        expect(lab.L).toBeGreaterThan(30);
+        expect(lab.a).toBeGreaterThan(0);
+        expect(lab.b).toBeLessThan(0); // Blue has negative b
+      });
+
+      it('should convert black to LAB (L=0)', () => {
+        const lab = converter.rgbToLab(0, 0, 0);
+        expect(lab.L).toBeCloseTo(0, 1);
+        expect(lab.a).toBeCloseTo(0, 1);
+        expect(lab.b).toBeCloseTo(0, 1);
+      });
+
+      it('should convert white to LAB (L=100)', () => {
+        const lab = converter.rgbToLab(255, 255, 255);
+        expect(lab.L).toBeCloseTo(100, 1);
+        expect(lab.a).toBeCloseTo(0, 1);
+        expect(lab.b).toBeCloseTo(0, 1);
+      });
+
+      it('should cache LAB results', () => {
+        const freshConverter = new ColorConverter();
+        freshConverter.rgbToLab(255, 0, 0);
+        expect(freshConverter.getCacheStats().rgbToLab).toBe(1);
+      });
+
+      it('should throw AppError for invalid RGB values', () => {
+        expect(() => converter.rgbToLab(300, 0, 0)).toThrow(AppError);
+      });
+    });
+
+    describe('rgbToLab (static)', () => {
+      it('should convert RGB to LAB via static method', () => {
+        const lab = ColorConverter.rgbToLab(255, 0, 0);
+        expect(lab.L).toBeGreaterThan(50);
+      });
+    });
+
+    describe('hexToLab', () => {
+      it('should convert hex to LAB (instance)', () => {
+        const lab = converter.hexToLab('#FF0000');
+        expect(lab.L).toBeGreaterThan(50);
+      });
+
+      it('should convert hex to LAB (static)', () => {
+        const lab = ColorConverter.hexToLab('#00FF00');
+        expect(lab.a).toBeLessThan(0);
+      });
+    });
+
+    describe('labToRgb', () => {
+      it('should convert LAB to RGB (instance)', () => {
+        const rgb = converter.labToRgb(53.23, 80.11, 67.22);
+        expect(rgb.r).toBeGreaterThan(200);
+        expect(rgb.g).toBeLessThan(50);
+        expect(rgb.b).toBeLessThan(50);
+      });
+
+      it('should convert LAB to RGB (static)', () => {
+        const rgb = ColorConverter.labToRgb(100, 0, 0);
+        expect(rgb).toEqual({ r: 255, g: 255, b: 255 });
+      });
+
+      it('should convert LAB black', () => {
+        const rgb = converter.labToRgb(0, 0, 0);
+        expect(rgb.r).toBe(0);
+        expect(rgb.g).toBe(0);
+        expect(rgb.b).toBe(0);
+      });
+
+      it('should clamp out-of-gamut colors', () => {
+        // Extreme LAB values that might be out of sRGB gamut
+        const rgb = converter.labToRgb(50, 100, 100);
+        expect(rgb.r).toBeGreaterThanOrEqual(0);
+        expect(rgb.r).toBeLessThanOrEqual(255);
+      });
+    });
+
+    describe('labToHex', () => {
+      it('should convert LAB to hex (instance)', () => {
+        const hex = converter.labToHex(100, 0, 0);
+        expect(hex).toBe('#FFFFFF');
+      });
+
+      it('should convert LAB to hex (static)', () => {
+        const hex = ColorConverter.labToHex(0, 0, 0);
+        expect(hex).toBe('#000000');
+      });
+    });
+  });
+
+  // ============================================================================
+  // DeltaE Color Difference Tests
+  // ============================================================================
+
+  describe('DeltaE Color Difference', () => {
+    const converter = new ColorConverter();
+
+    describe('getDeltaE76', () => {
+      it('should return 0 for identical LAB colors (instance)', () => {
+        const lab = { L: 50, a: 25, b: 25 };
+        expect(converter.getDeltaE76(lab, lab)).toBe(0);
+      });
+
+      it('should return 0 for identical LAB colors (static)', () => {
+        const lab = { L: 50, a: 25, b: 25 };
+        expect(ColorConverter.getDeltaE76(lab, lab)).toBe(0);
+      });
+
+      it('should calculate distance between different LAB colors', () => {
+        const lab1 = { L: 50, a: 0, b: 0 };
+        const lab2 = { L: 100, a: 0, b: 0 };
+        expect(converter.getDeltaE76(lab1, lab2)).toBeCloseTo(50, 1);
+      });
+    });
+
+    describe('getDeltaE2000', () => {
+      it('should return 0 for identical LAB colors (instance)', () => {
+        const lab = { L: 50, a: 25, b: 25 };
+        expect(converter.getDeltaE2000(lab, lab)).toBe(0);
+      });
+
+      it('should return 0 for identical LAB colors (static)', () => {
+        const lab = { L: 50, a: 25, b: 25 };
+        expect(ColorConverter.getDeltaE2000(lab, lab)).toBe(0);
+      });
+
+      it('should handle colors with zero chroma', () => {
+        const lab1 = { L: 50, a: 0, b: 0 };
+        const lab2 = { L: 80, a: 0, b: 0 };
+        const deltaE = converter.getDeltaE2000(lab1, lab2);
+        expect(deltaE).toBeGreaterThan(0);
+      });
+
+      it('should handle opposite hues', () => {
+        const lab1 = { L: 50, a: 50, b: 0 };
+        const lab2 = { L: 50, a: -50, b: 0 };
+        const deltaE = converter.getDeltaE2000(lab1, lab2);
+        expect(deltaE).toBeGreaterThan(30);
+      });
+    });
+
+    describe('getDeltaE', () => {
+      it('should use cie76 by default (instance)', () => {
+        const deltaE = converter.getDeltaE('#FF0000', '#FF0001');
+        expect(deltaE).toBeGreaterThanOrEqual(0);
+      });
+
+      it('should use cie76 by default (static)', () => {
+        const deltaE = ColorConverter.getDeltaE('#FF0000', '#FF0001');
+        expect(deltaE).toBeGreaterThanOrEqual(0);
+      });
+
+      it('should use cie2000 when specified (instance)', () => {
+        const deltaE = converter.getDeltaE('#FF0000', '#00FF00', 'cie2000');
+        expect(deltaE).toBeGreaterThan(50);
+      });
+
+      it('should use cie2000 when specified (static)', () => {
+        const deltaE = ColorConverter.getDeltaE('#FF0000', '#00FF00', 'cie2000');
+        expect(deltaE).toBeGreaterThan(50);
+      });
+
+      it('should return small deltaE for similar colors', () => {
+        const deltaE = ColorConverter.getDeltaE('#FF0000', '#FE0000');
+        expect(deltaE).toBeLessThan(5);
+      });
+    });
+  });
+
+  // ============================================================================
+  // OKLAB/OKLCH Color Space Tests
+  // ============================================================================
+
+  describe('OKLAB Color Space', () => {
+    const converter = new ColorConverter();
+
+    describe('rgbToOklab', () => {
+      it('should convert red RGB to OKLAB (instance)', () => {
+        const oklab = converter.rgbToOklab(255, 0, 0);
+        expect(oklab.L).toBeGreaterThan(0.5);
+        expect(oklab.L).toBeLessThan(1);
+        expect(oklab.a).toBeGreaterThan(0);
+      });
+
+      it('should convert red RGB to OKLAB (static)', () => {
+        const oklab = ColorConverter.rgbToOklab(255, 0, 0);
+        expect(oklab.L).toBeGreaterThan(0.5);
+      });
+
+      it('should convert black to OKLAB (L=0)', () => {
+        const oklab = converter.rgbToOklab(0, 0, 0);
+        expect(oklab.L).toBeCloseTo(0, 3);
+      });
+
+      it('should convert white to OKLAB (L=1)', () => {
+        const oklab = converter.rgbToOklab(255, 255, 255);
+        expect(oklab.L).toBeCloseTo(1, 3);
+      });
+
+      it('should throw AppError for invalid RGB', () => {
+        expect(() => converter.rgbToOklab(300, 0, 0)).toThrow(AppError);
+      });
+    });
+
+    describe('oklabToRgb', () => {
+      it('should convert OKLAB to RGB (instance)', () => {
+        const rgb = converter.oklabToRgb(0.628, 0.225, 0.126);
+        expect(rgb.r).toBeGreaterThan(200);
+      });
+
+      it('should convert OKLAB to RGB (static)', () => {
+        const rgb = ColorConverter.oklabToRgb(1, 0, 0);
+        expect(rgb).toEqual({ r: 255, g: 255, b: 255 });
+      });
+
+      it('should convert OKLAB black', () => {
+        const rgb = converter.oklabToRgb(0, 0, 0);
+        expect(rgb.r).toBe(0);
+        expect(rgb.g).toBe(0);
+        expect(rgb.b).toBe(0);
+      });
+    });
+
+    describe('hexToOklab', () => {
+      it('should convert hex to OKLAB (instance)', () => {
+        const oklab = converter.hexToOklab('#FF0000');
+        expect(oklab.L).toBeGreaterThan(0.5);
+      });
+
+      it('should convert hex to OKLAB (static)', () => {
+        const oklab = ColorConverter.hexToOklab('#0000FF');
+        expect(oklab.b).toBeLessThan(0);
+      });
+    });
+
+    describe('oklabToHex', () => {
+      it('should convert OKLAB to hex (instance)', () => {
+        const hex = converter.oklabToHex(1, 0, 0);
+        expect(hex).toBe('#FFFFFF');
+      });
+
+      it('should convert OKLAB to hex (static)', () => {
+        const hex = ColorConverter.oklabToHex(0, 0, 0);
+        expect(hex).toBe('#000000');
+      });
+    });
+  });
+
+  describe('OKLCH Color Space', () => {
+    const converter = new ColorConverter();
+
+    describe('rgbToOklch', () => {
+      it('should convert red RGB to OKLCH (instance)', () => {
+        const oklch = converter.rgbToOklch(255, 0, 0);
+        expect(oklch.L).toBeGreaterThan(0.5);
+        expect(oklch.C).toBeGreaterThan(0);
+        expect(oklch.h).toBeGreaterThanOrEqual(0);
+        expect(oklch.h).toBeLessThan(360);
+      });
+
+      it('should convert red RGB to OKLCH (static)', () => {
+        const oklch = ColorConverter.rgbToOklch(255, 0, 0);
+        expect(oklch.C).toBeGreaterThan(0);
+      });
+    });
+
+    describe('oklchToRgb', () => {
+      it('should convert OKLCH to RGB (instance)', () => {
+        const rgb = converter.oklchToRgb(0.628, 0.258, 29.23);
+        expect(rgb.r).toBeDefined();
+        expect(rgb.g).toBeDefined();
+        expect(rgb.b).toBeDefined();
+      });
+
+      it('should convert OKLCH to RGB (static)', () => {
+        const rgb = ColorConverter.oklchToRgb(0.5, 0.1, 180);
+        expect(rgb.r).toBeGreaterThanOrEqual(0);
+        expect(rgb.r).toBeLessThanOrEqual(255);
+      });
+    });
+
+    describe('hexToOklch', () => {
+      it('should convert hex to OKLCH (instance)', () => {
+        const oklch = converter.hexToOklch('#FF00FF');
+        expect(oklch.h).toBeGreaterThan(0);
+      });
+
+      it('should convert hex to OKLCH (static)', () => {
+        const oklch = ColorConverter.hexToOklch('#00FF00');
+        expect(oklch.C).toBeGreaterThan(0);
+      });
+    });
+
+    describe('oklchToHex', () => {
+      it('should convert OKLCH to hex (instance)', () => {
+        const hex = converter.oklchToHex(0.5, 0.1, 180);
+        expect(hex).toMatch(/^#[0-9A-F]{6}$/);
+      });
+
+      it('should convert OKLCH to hex (static)', () => {
+        const hex = ColorConverter.oklchToHex(0.8, 0.05, 90);
+        expect(hex).toMatch(/^#[0-9A-F]{6}$/);
+      });
+    });
+  });
+
+  // ============================================================================
+  // LCH Color Space Tests
+  // ============================================================================
+
+  describe('LCH Color Space', () => {
+    const converter = new ColorConverter();
+
+    describe('labToLch', () => {
+      it('should convert LAB to LCH (instance)', () => {
+        const lch = converter.labToLch(53, 80, 67);
+        expect(lch.L).toBeCloseTo(53, 0);
+        expect(lch.C).toBeGreaterThan(0);
+        expect(lch.h).toBeGreaterThanOrEqual(0);
+      });
+
+      it('should convert LAB to LCH (static)', () => {
+        const lch = ColorConverter.labToLch(50, 0, 50);
+        expect(lch.h).toBeCloseTo(90, 0);
+      });
+
+      it('should handle achromatic LAB (a=0, b=0)', () => {
+        const lch = converter.labToLch(50, 0, 0);
+        expect(lch.C).toBeCloseTo(0, 1);
+      });
+    });
+
+    describe('lchToLab', () => {
+      it('should convert LCH to LAB (instance)', () => {
+        const lab = converter.lchToLab(50, 50, 90);
+        expect(lab.L).toBeCloseTo(50, 0);
+        expect(lab.a).toBeCloseTo(0, 0);
+        expect(lab.b).toBeCloseTo(50, 0);
+      });
+
+      it('should convert LCH to LAB (static)', () => {
+        const lab = ColorConverter.lchToLab(50, 50, 0);
+        expect(lab.a).toBeCloseTo(50, 0);
+        expect(lab.b).toBeCloseTo(0, 0);
+      });
+    });
+
+    describe('rgbToLch', () => {
+      it('should convert RGB to LCH (instance)', () => {
+        const lch = converter.rgbToLch(255, 0, 0);
+        expect(lch.L).toBeGreaterThan(50);
+        expect(lch.C).toBeGreaterThan(0);
+      });
+
+      it('should convert RGB to LCH (static)', () => {
+        const lch = ColorConverter.rgbToLch(0, 255, 0);
+        expect(lch.h).toBeGreaterThan(0);
+      });
+    });
+
+    describe('lchToRgb', () => {
+      it('should convert LCH to RGB (instance)', () => {
+        const rgb = converter.lchToRgb(50, 50, 90);
+        expect(rgb.r).toBeGreaterThanOrEqual(0);
+        expect(rgb.r).toBeLessThanOrEqual(255);
+      });
+
+      it('should convert LCH to RGB (static)', () => {
+        const rgb = ColorConverter.lchToRgb(100, 0, 0);
+        expect(rgb).toEqual({ r: 255, g: 255, b: 255 });
+      });
+    });
+
+    describe('hexToLch', () => {
+      it('should convert hex to LCH (instance)', () => {
+        const lch = converter.hexToLch('#00FF00');
+        expect(lch.h).toBeGreaterThan(0);
+      });
+
+      it('should convert hex to LCH (static)', () => {
+        const lch = ColorConverter.hexToLch('#FF0000');
+        expect(lch.C).toBeGreaterThan(0);
+      });
+    });
+
+    describe('lchToHex', () => {
+      it('should convert LCH to hex (instance)', () => {
+        const hex = converter.lchToHex(50, 50, 180);
+        expect(hex).toMatch(/^#[0-9A-F]{6}$/);
+      });
+
+      it('should convert LCH to hex (static)', () => {
+        const hex = ColorConverter.lchToHex(100, 0, 0);
+        expect(hex).toBe('#FFFFFF');
+      });
+    });
+  });
+
+  // ============================================================================
+  // HSL Color Space Tests
+  // ============================================================================
+
+  describe('HSL Color Space', () => {
+    const converter = new ColorConverter();
+
+    describe('rgbToHsl', () => {
+      it('should convert red RGB to HSL (instance)', () => {
+        const hsl = converter.rgbToHsl(255, 0, 0);
+        expect(hsl.h).toBeCloseTo(0, 0);
+        expect(hsl.s).toBeCloseTo(100, 0);
+        expect(hsl.l).toBeCloseTo(50, 0);
+      });
+
+      it('should convert red RGB to HSL (static)', () => {
+        const hsl = ColorConverter.rgbToHsl(255, 0, 0);
+        expect(hsl.h).toBeCloseTo(0, 0);
+      });
+
+      it('should convert green RGB to HSL', () => {
+        const hsl = converter.rgbToHsl(0, 255, 0);
+        expect(hsl.h).toBeCloseTo(120, 0);
+        expect(hsl.s).toBe(100);
+        expect(hsl.l).toBe(50);
+      });
+
+      it('should convert blue RGB to HSL', () => {
+        const hsl = converter.rgbToHsl(0, 0, 255);
+        expect(hsl.h).toBeCloseTo(240, 0);
+      });
+
+      it('should handle achromatic (gray) colors', () => {
+        const hsl = converter.rgbToHsl(128, 128, 128);
+        expect(hsl.s).toBe(0);
+      });
+
+      it('should handle black', () => {
+        const hsl = converter.rgbToHsl(0, 0, 0);
+        expect(hsl.l).toBe(0);
+      });
+
+      it('should handle white', () => {
+        const hsl = converter.rgbToHsl(255, 255, 255);
+        expect(hsl.l).toBe(100);
+      });
+
+      it('should throw AppError for invalid RGB', () => {
+        expect(() => converter.rgbToHsl(300, 0, 0)).toThrow(AppError);
+      });
+    });
+
+    describe('hslToRgb', () => {
+      it('should convert HSL red to RGB (instance)', () => {
+        const rgb = converter.hslToRgb(0, 100, 50);
+        expect(rgb).toEqual({ r: 255, g: 0, b: 0 });
+      });
+
+      it('should convert HSL red to RGB (static)', () => {
+        const rgb = ColorConverter.hslToRgb(0, 100, 50);
+        expect(rgb).toEqual({ r: 255, g: 0, b: 0 });
+      });
+
+      it('should convert HSL green to RGB', () => {
+        const rgb = converter.hslToRgb(120, 100, 50);
+        expect(rgb).toEqual({ r: 0, g: 255, b: 0 });
+      });
+
+      it('should convert HSL blue to RGB', () => {
+        const rgb = converter.hslToRgb(240, 100, 50);
+        expect(rgb).toEqual({ r: 0, g: 0, b: 255 });
+      });
+
+      it('should handle achromatic (saturation=0)', () => {
+        const rgb = converter.hslToRgb(180, 0, 50);
+        expect(rgb.r).toBe(rgb.g);
+        expect(rgb.g).toBe(rgb.b);
+      });
+
+      it('should handle black (lightness=0)', () => {
+        const rgb = converter.hslToRgb(180, 100, 0);
+        expect(rgb).toEqual({ r: 0, g: 0, b: 0 });
+      });
+
+      it('should handle white (lightness=100)', () => {
+        const rgb = converter.hslToRgb(180, 100, 100);
+        expect(rgb).toEqual({ r: 255, g: 255, b: 255 });
+      });
+
+      it('should normalize hue >= 360', () => {
+        const rgb = converter.hslToRgb(360, 100, 50);
+        expect(rgb).toEqual({ r: 255, g: 0, b: 0 });
+      });
+
+      it('should clamp saturation and lightness', () => {
+        const rgb = converter.hslToRgb(0, 150, 150);
+        expect(rgb.r).toBeLessThanOrEqual(255);
+      });
+    });
+
+    describe('hexToHsl', () => {
+      it('should convert hex to HSL (instance)', () => {
+        const hsl = converter.hexToHsl('#FF0000');
+        expect(hsl.h).toBeCloseTo(0, 0);
+        expect(hsl.s).toBe(100);
+        expect(hsl.l).toBe(50);
+      });
+
+      it('should convert hex to HSL (static)', () => {
+        const hsl = ColorConverter.hexToHsl('#00FF00');
+        expect(hsl.h).toBeCloseTo(120, 0);
+      });
+    });
+
+    describe('hslToHex', () => {
+      it('should convert HSL to hex (instance)', () => {
+        const hex = converter.hslToHex(0, 100, 50);
+        expect(hex).toBe('#FF0000');
+      });
+
+      it('should convert HSL to hex (static)', () => {
+        const hex = ColorConverter.hslToHex(120, 100, 50);
+        expect(hex).toBe('#00FF00');
+      });
+
+      it('should convert HSL white to hex', () => {
+        const hex = converter.hslToHex(0, 0, 100);
+        expect(hex).toBe('#FFFFFF');
+      });
+
+      it('should convert HSL black to hex', () => {
+        const hex = converter.hslToHex(0, 0, 0);
+        expect(hex).toBe('#000000');
+      });
+    });
+  });
+
+  // ============================================================================
   // Roundtrip Conversion Tests
   // ============================================================================
 

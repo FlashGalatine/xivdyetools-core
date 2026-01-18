@@ -9,6 +9,8 @@ import type {
   VisionType,
   JobKey,
   GrandCompanyKey,
+  RaceKey,
+  ClanKey,
 } from '../../../types/index.js';
 
 describe('TranslationProvider', () => {
@@ -96,6 +98,34 @@ describe('TranslationProvider', () => {
       twinAdder: 'Order of the Twin Adder',
       immortalFlames: 'The Immortal Flames',
     },
+    races: {
+      hyur: 'Hyur',
+      elezen: 'Elezen',
+      lalafell: 'Lalafell',
+      miqote: "Miqo'te",
+      roegadyn: 'Roegadyn',
+      auRa: 'Au Ra',
+      viera: 'Viera',
+      hrothgar: 'Hrothgar',
+    },
+    clans: {
+      midlander: 'Midlander',
+      highlander: 'Highlander',
+      wildwood: 'Wildwood',
+      duskwight: 'Duskwight',
+      plainsfolk: 'Plainsfolk',
+      dunesfolk: 'Dunesfolk',
+      seekerOfTheSun: 'Seeker of the Sun',
+      keeperOfTheMoon: 'Keeper of the Moon',
+      seaWolf: 'Sea Wolf',
+      hellsguard: 'Hellsguard',
+      raen: 'Raen',
+      xaela: 'Xaela',
+      rava: 'Rava',
+      veena: 'Veena',
+      helions: 'Helions',
+      theLost: 'The Lost',
+    },
   };
 
   const mockJapaneseData: LocaleData = {
@@ -150,6 +180,20 @@ describe('TranslationProvider', () => {
       maelstrom: '黒渦団',
       twinAdder: '双蛇党',
       immortalFlames: '不滅隊',
+    },
+    races: {
+      ...mockEnglishData.races,
+      hyur: 'ヒューラン',
+      elezen: 'エレゼン',
+      lalafell: 'ララフェル',
+      miqote: 'ミコッテ',
+    },
+    clans: {
+      ...mockEnglishData.clans,
+      midlander: 'ミッドランダー',
+      highlander: 'ハイランダー',
+      seekerOfTheSun: 'サンシーカー',
+      keeperOfTheMoon: 'ムーンキーパー',
     },
   };
 
@@ -612,6 +656,149 @@ describe('TranslationProvider', () => {
     it('should handle vision type key formatting', () => {
       const formatted = provider.getVisionType('achromatopsia' as VisionType, 'de');
       expect(formatted).toBe('Achromatopsia');
+    });
+  });
+
+  describe('getRace', () => {
+    it('should return race name from requested locale', () => {
+      registry.registerLocale(mockEnglishData);
+
+      const race = provider.getRace('hyur' as RaceKey, 'en');
+      expect(race).toBe('Hyur');
+    });
+
+    it('should return Japanese race name when requested', () => {
+      registry.registerLocale(mockJapaneseData);
+
+      const race = provider.getRace('miqote' as RaceKey, 'ja');
+      expect(race).toBe('ミコッテ');
+    });
+
+    it('should fallback to English when requested locale not available', () => {
+      registry.registerLocale(mockEnglishData);
+
+      const race = provider.getRace('viera' as RaceKey, 'de');
+      expect(race).toBe('Viera');
+    });
+
+    it('should format key when not found in any locale', () => {
+      const race = provider.getRace('auRa' as RaceKey, 'fr');
+      expect(race).toBe('Au Ra');
+    });
+
+    it('should handle all race types', () => {
+      registry.registerLocale(mockEnglishData);
+
+      expect(provider.getRace('hyur' as RaceKey, 'en')).toBe('Hyur');
+      expect(provider.getRace('elezen' as RaceKey, 'en')).toBe('Elezen');
+      expect(provider.getRace('lalafell' as RaceKey, 'en')).toBe('Lalafell');
+      expect(provider.getRace('miqote' as RaceKey, 'en')).toBe("Miqo'te");
+      expect(provider.getRace('roegadyn' as RaceKey, 'en')).toBe('Roegadyn');
+      expect(provider.getRace('auRa' as RaceKey, 'en')).toBe('Au Ra');
+      expect(provider.getRace('viera' as RaceKey, 'en')).toBe('Viera');
+      expect(provider.getRace('hrothgar' as RaceKey, 'en')).toBe('Hrothgar');
+    });
+
+    it('should handle Japanese race names', () => {
+      registry.registerLocale(mockJapaneseData);
+
+      expect(provider.getRace('hyur' as RaceKey, 'ja')).toBe('ヒューラン');
+      expect(provider.getRace('elezen' as RaceKey, 'ja')).toBe('エレゼン');
+      expect(provider.getRace('lalafell' as RaceKey, 'ja')).toBe('ララフェル');
+      expect(provider.getRace('miqote' as RaceKey, 'ja')).toBe('ミコッテ');
+    });
+  });
+
+  describe('getClan', () => {
+    it('should return clan name from requested locale', () => {
+      registry.registerLocale(mockEnglishData);
+
+      const clan = provider.getClan('midlander' as ClanKey, 'en');
+      expect(clan).toBe('Midlander');
+    });
+
+    it('should return Japanese clan name when requested', () => {
+      registry.registerLocale(mockJapaneseData);
+
+      const clan = provider.getClan('seekerOfTheSun' as ClanKey, 'ja');
+      expect(clan).toBe('サンシーカー');
+    });
+
+    it('should fallback to English when requested locale not available', () => {
+      registry.registerLocale(mockEnglishData);
+
+      const clan = provider.getClan('highlander' as ClanKey, 'de');
+      expect(clan).toBe('Highlander');
+    });
+
+    it('should format key when not found in any locale', () => {
+      const clan = provider.getClan('keeperOfTheMoon' as ClanKey, 'fr');
+      expect(clan).toBe('Keeper Of The Moon');
+    });
+
+    it('should handle Hyur clans', () => {
+      registry.registerLocale(mockEnglishData);
+
+      expect(provider.getClan('midlander' as ClanKey, 'en')).toBe('Midlander');
+      expect(provider.getClan('highlander' as ClanKey, 'en')).toBe('Highlander');
+    });
+
+    it('should handle Elezen clans', () => {
+      registry.registerLocale(mockEnglishData);
+
+      expect(provider.getClan('wildwood' as ClanKey, 'en')).toBe('Wildwood');
+      expect(provider.getClan('duskwight' as ClanKey, 'en')).toBe('Duskwight');
+    });
+
+    it('should handle Lalafell clans', () => {
+      registry.registerLocale(mockEnglishData);
+
+      expect(provider.getClan('plainsfolk' as ClanKey, 'en')).toBe('Plainsfolk');
+      expect(provider.getClan('dunesfolk' as ClanKey, 'en')).toBe('Dunesfolk');
+    });
+
+    it("should handle Miqo'te clans", () => {
+      registry.registerLocale(mockEnglishData);
+
+      expect(provider.getClan('seekerOfTheSun' as ClanKey, 'en')).toBe('Seeker of the Sun');
+      expect(provider.getClan('keeperOfTheMoon' as ClanKey, 'en')).toBe('Keeper of the Moon');
+    });
+
+    it('should handle Roegadyn clans', () => {
+      registry.registerLocale(mockEnglishData);
+
+      expect(provider.getClan('seaWolf' as ClanKey, 'en')).toBe('Sea Wolf');
+      expect(provider.getClan('hellsguard' as ClanKey, 'en')).toBe('Hellsguard');
+    });
+
+    it('should handle Au Ra clans', () => {
+      registry.registerLocale(mockEnglishData);
+
+      expect(provider.getClan('raen' as ClanKey, 'en')).toBe('Raen');
+      expect(provider.getClan('xaela' as ClanKey, 'en')).toBe('Xaela');
+    });
+
+    it('should handle Viera clans', () => {
+      registry.registerLocale(mockEnglishData);
+
+      expect(provider.getClan('rava' as ClanKey, 'en')).toBe('Rava');
+      expect(provider.getClan('veena' as ClanKey, 'en')).toBe('Veena');
+    });
+
+    it('should handle Hrothgar clans', () => {
+      registry.registerLocale(mockEnglishData);
+
+      expect(provider.getClan('helions' as ClanKey, 'en')).toBe('Helions');
+      expect(provider.getClan('theLost' as ClanKey, 'en')).toBe('The Lost');
+    });
+
+    it('should handle Japanese clan names', () => {
+      registry.registerLocale(mockJapaneseData);
+
+      expect(provider.getClan('midlander' as ClanKey, 'ja')).toBe('ミッドランダー');
+      expect(provider.getClan('highlander' as ClanKey, 'ja')).toBe('ハイランダー');
+      expect(provider.getClan('seekerOfTheSun' as ClanKey, 'ja')).toBe('サンシーカー');
+      expect(provider.getClan('keeperOfTheMoon' as ClanKey, 'ja')).toBe('ムーンキーパー');
     });
   });
 });
