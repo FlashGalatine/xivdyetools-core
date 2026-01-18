@@ -28,6 +28,12 @@ npm test -- --grep "hexToRgb"                               # Pattern match
 npm run test:integration                                     # Integration tests
 ```
 
+### Pre-commit Checklist
+
+```bash
+npm run lint && npm test -- --run && npm run build
+```
+
 ## Architecture
 
 ### Service Layer (Facade Pattern)
@@ -124,7 +130,7 @@ interface ICacheBackend {
 
 ## Testing
 
-- Coverage threshold: 85% minimum (lines, functions, branches, statements)
+- Coverage threshold: 90% (lines, functions, statements), 88% branches
 - Test timeout: 10 seconds
 - Integration tests in `src/__tests__/integration/`
 
@@ -135,3 +141,23 @@ After changes:
 2. Build: `npm run build`
 3. Update version in package.json
 4. Publish: `npm publish` (triggers prepublishOnly build)
+
+## Related Projects
+
+**Dependencies:**
+- `@xivdyetools/types` - Shared type definitions
+- `@xivdyetools/logger` - Structured logging
+
+**Dependents (require npm publish after changes):**
+- xivdyetools-web-app - Main web application
+- xivdyetools-discord-worker - Discord bot
+- xivdyetools-maintainer - Dye database editor
+
+## Documentation
+
+| Document | Purpose |
+|----------|---------|
+| [docs/ALGORITHMS.md](docs/ALGORITHMS.md) | Color matching, K-means++, k-d tree algorithms |
+| [docs/TESTING.md](docs/TESTING.md) | Testing guidelines and patterns |
+| [docs/ERROR_HANDLING.md](docs/ERROR_HANDLING.md) | Error handling patterns |
+| [docs/LOCALIZATION_REFERENCE.md](docs/LOCALIZATION_REFERENCE.md) | i18n key reference |
