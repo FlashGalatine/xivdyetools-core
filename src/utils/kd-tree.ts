@@ -159,11 +159,13 @@ export class KDTree {
       best = this.searchNearest(nearChild, target, depth + 1, best, excludeData);
     }
 
-    // Check if we need to search far side
+    // CORE-BUG-003 FIX: Check if we need to search far side
+    // Search far side if:
+    // 1. best is null (no valid node found yet, far side might have one), OR
+    // 2. axis distance is within best.distance (far side might have closer match)
     // Use <= to handle edge case where target is exactly on splitting plane
-    if (farChild && best) {
-      const axisDistance = Math.abs(targetValue - nodeValue);
-      if (axisDistance <= best.distance) {
+    if (farChild) {
+      if (!best || Math.abs(targetValue - nodeValue) <= best.distance) {
         best = this.searchNearest(farChild, target, depth + 1, best, excludeData);
       }
     }

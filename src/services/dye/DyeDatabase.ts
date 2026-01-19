@@ -161,29 +161,39 @@ export class DyeDatabase {
       }
     }
 
-    // Validate HSV if present
-    if (dye.hsv !== undefined && dye.hsv !== null) {
-      const hsv = dye.hsv as Record<string, unknown>;
-      if (
-        typeof hsv.h !== 'number' ||
-        hsv.h < 0 ||
-        hsv.h > 360 ||
-        typeof hsv.s !== 'number' ||
-        hsv.s < 0 ||
-        hsv.s > 100 ||
-        typeof hsv.v !== 'number' ||
-        hsv.v < 0 ||
-        hsv.v > 100
-      ) {
-        const idForLog =
-          typeof dye.id === 'number'
-            ? String(dye.id)
-            : typeof dye.itemID === 'number'
-              ? String(dye.itemID)
-              : String(dye.name ?? 'unknown');
-        this.logger.warn(`Dye ${idForLog} has invalid HSV values`);
-        return false;
-      }
+    // CORE-BUG-004 FIX: HSV is required per Dye interface (used for hue bucket indexing)
+    // Must validate HSV is present and has valid values
+    if (dye.hsv === undefined || dye.hsv === null) {
+      const idForLog =
+        typeof dye.id === 'number'
+          ? String(dye.id)
+          : typeof dye.itemID === 'number'
+            ? String(dye.itemID)
+            : String(dye.name ?? 'unknown');
+      this.logger.warn(`Dye ${idForLog} missing required HSV values`);
+      return false;
+    }
+
+    const hsv = dye.hsv as Record<string, unknown>;
+    if (
+      typeof hsv.h !== 'number' ||
+      hsv.h < 0 ||
+      hsv.h > 360 ||
+      typeof hsv.s !== 'number' ||
+      hsv.s < 0 ||
+      hsv.s > 100 ||
+      typeof hsv.v !== 'number' ||
+      hsv.v < 0 ||
+      hsv.v > 100
+    ) {
+      const idForLog =
+        typeof dye.id === 'number'
+          ? String(dye.id)
+          : typeof dye.itemID === 'number'
+            ? String(dye.itemID)
+            : String(dye.name ?? 'unknown');
+      this.logger.warn(`Dye ${idForLog} has invalid HSV values`);
+      return false;
     }
 
     // Validate category if present
