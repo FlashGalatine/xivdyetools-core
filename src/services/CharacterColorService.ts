@@ -28,8 +28,21 @@ import type {
   SubRace,
   Gender,
 } from '@xivdyetools/types';
-import type { RGB } from '../types/index.js';
+import type { RGB, MatchingMethod, OklchWeights } from '../types/index.js';
 import type { DyeService } from './DyeService.js';
+import { ColorConverter } from './color/ColorConverter.js';
+
+/**
+ * Options for finding closest dye matches from character colors.
+ */
+export interface CharacterMatchOptions {
+  /** Number of matches to return (default: 3) */
+  count?: number;
+  /** Color matching algorithm (default: 'oklab') */
+  matchingMethod?: MatchingMethod;
+  /** Custom weights for oklch-weighted method */
+  weights?: OklchWeights;
+}
 
 // Import character color data
 import characterColorData from '../data/character_colors.json';
@@ -154,27 +167,75 @@ export class CharacterColorService {
   // ==========================================================================
 
   /**
-   * Find the closest matching dyes to a character color
+   * Calculate color distance using the specified matching method.
+   * Converts RGB to hex for perceptual methods that require it.
+   */
+  private calculateDistanceWithMethod(
+    rgb1: RGB,
+    rgb2: RGB,
+    method: MatchingMethod,
+    weights?: OklchWeights
+  ): number {
+    // For RGB method, use simple Euclidean distance
+    if (method === 'rgb') {
+      return this.calculateDistance(rgb1, rgb2);
+    }
+
+    // Convert RGB to hex for perceptual methods
+    const hex1 = ColorConverter.rgbToHex(rgb1.r, rgb1.g, rgb1.b);
+    const hex2 = ColorConverter.rgbToHex(rgb2.r, rgb2.g, rgb2.b);
+
+    switch (method) {
+      case 'cie76':
+        return ColorConverter.getDeltaE(hex1, hex2, 'cie76');
+      case 'ciede2000':
+        return ColorConverter.getDeltaE(hex1, hex2, 'cie2000');
+      case 'oklab':
+        return ColorConverter.getDeltaE_Oklab(hex1, hex2);
+      case 'hyab':
+        return ColorConverter.getDeltaE_HyAB(hex1, hex2);
+      case 'oklch-weighted':
+        return ColorConverter.getDeltaE_OklchWeighted(hex1, hex2, weights);
+      default:
+        return ColorConverter.getDeltaE_Oklab(hex1, hex2);
+    }
+  }
+
+  /**
+   * Find the closest matching dyes to a character color.
+   *
+   * Supports configurable matching algorithms via the options parameter.
    *
    * @param color - The character color to match
    * @param dyeService - DyeService instance for dye lookup
-   * @param count - Number of matches to return (default: 3)
+   * @param countOrOptions - Number of matches (legacy) or options object
    * @returns Array of matches sorted by distance (closest first)
    *
    * @example
    * ```typescript
    * const eyeColor = characterColors.getEyeColors()[47];
+   *
+   * // Legacy usage
    * const matches = characterColors.findClosestDyes(eyeColor, dyeService, 3);
    *
-   * console.log(matches[0].dye.name); // "Chestnut Brown"
-   * console.log(matches[0].distance); // 4.2
+   * // New usage with options
+   * const matches = characterColors.findClosestDyes(eyeColor, dyeService, {
+   *   count: 3,
+   *   matchingMethod: 'oklab'
+   * });
    * ```
    */
   findClosestDyes(
     color: CharacterColor,
     dyeService: DyeService,
-    count: number = 3
+    countOrOptions: number | CharacterMatchOptions = 3
   ): CharacterColorMatch[] {
+    // Support both legacy (count number) and new (options object) signatures
+    const options: CharacterMatchOptions =
+      typeof countOrOptions === 'number' ? { count: countOrOptions } : countOrOptions;
+
+    const { count = 3, matchingMethod = 'oklab', weights } = options;
+
     const allDyes = dyeService.getAllDyes();
     const results: CharacterColorMatch[] = [];
 
@@ -184,7 +245,12 @@ export class CharacterColorService {
         continue;
       }
 
-      const distance = this.calculateDistance(color.rgb, dye.rgb);
+      const distance = this.calculateDistanceWithMethod(
+        color.rgb,
+        dye.rgb,
+        matchingMethod,
+        weights
+      );
       results.push({
         characterColor: color,
         dye,

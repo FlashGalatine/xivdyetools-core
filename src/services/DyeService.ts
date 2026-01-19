@@ -28,6 +28,10 @@
 import type { Dye, LocalizedDye, Logger } from '../types/index.js';
 import { NoOpLogger } from '../types/index.js';
 import { DyeDatabase } from './dye/DyeDatabase.js';
+import type { FindClosestOptions, FindWithinDistanceOptions } from './dye/DyeSearch.js';
+
+// Re-export options types for consumers
+export type { FindClosestOptions, FindWithinDistanceOptions } from './dye/DyeSearch.js';
 import { DyeSearch } from './dye/DyeSearch.js';
 import { HarmonyGenerator, type HarmonyOptions } from './dye/HarmonyGenerator.js';
 import { LocalizationService } from './LocalizationService.js';
@@ -167,19 +171,36 @@ export class DyeService {
   }
 
   /**
-   * Find closest dye to a given hex color
-   * Per P-7: Uses k-d tree for O(log n) average case vs O(n) linear search
+   * Find closest dye to a given hex color.
+   *
+   * Per P-7: Uses k-d tree for O(log n) average case vs O(n) linear search.
+   * Supports configurable matching algorithms via options object.
+   *
+   * @param hex - Target color in hex format
+   * @param excludeIdsOrOptions - Either an array of IDs to exclude (legacy) or options object
+   * @returns Closest matching dye, or null if none found
    */
-  findClosestDye(hex: string, excludeIds: number[] = []): Dye | null {
-    return this.search.findClosestDye(hex, excludeIds);
+  findClosestDye(hex: string, excludeIdsOrOptions: number[] | FindClosestOptions = []): Dye | null {
+    return this.search.findClosestDye(hex, excludeIdsOrOptions);
   }
 
   /**
-   * Find dyes within a color distance threshold
-   * Per P-7: Uses k-d tree for efficient range queries
+   * Find dyes within a color distance threshold.
+   *
+   * Per P-7: Uses k-d tree for efficient range queries.
+   * Supports configurable matching algorithms via options object.
+   *
+   * @param hex - Target color in hex format
+   * @param maxDistanceOrOptions - Either maxDistance number (legacy) or options object
+   * @param limit - Maximum results (legacy parameter, use options.limit instead)
+   * @returns Array of dyes within the distance threshold
    */
-  findDyesWithinDistance(hex: string, maxDistance: number, limit?: number): Dye[] {
-    return this.search.findDyesWithinDistance(hex, maxDistance, limit);
+  findDyesWithinDistance(
+    hex: string,
+    maxDistanceOrOptions: number | FindWithinDistanceOptions,
+    limit?: number
+  ): Dye[] {
+    return this.search.findDyesWithinDistance(hex, maxDistanceOrOptions, limit);
   }
 
   /**

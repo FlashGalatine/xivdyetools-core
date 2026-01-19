@@ -1,5 +1,6 @@
 // Services
 export { ColorService } from './services/ColorService.js';
+export { ColorConverter } from './services/color/ColorConverter.js';
 export { DyeService } from './services/DyeService.js';
 export { APIService, MemoryCacheBackend } from './services/APIService.js';
 export type { ICacheBackend, APIServiceOptions } from './services/APIService.js';
@@ -12,7 +13,10 @@ export type {
   PaletteMatch,
   PaletteServiceOptions,
 } from './services/PaletteService.js';
-export { CharacterColorService } from './services/CharacterColorService.js';
+export {
+  CharacterColorService,
+  type CharacterMatchOptions,
+} from './services/CharacterColorService.js';
 
 // Types
 export type {
@@ -56,6 +60,10 @@ export type {
   SubRace,
   Gender,
   Race,
+  // Color matching types
+  MatchingMethod,
+  OklchWeights,
+  MatchingConfig,
 } from './types/index.js';
 
 // Harmony types
@@ -64,6 +72,9 @@ export type { HarmonyOptions, HarmonyMatchingAlgorithm } from './services/dye/Ha
 // Color converter types
 export type { DeltaEFormula } from './services/color/ColorConverter.js';
 export type { RYB } from './services/ColorService.js';
+
+// Dye search types
+export type { FindClosestOptions, FindWithinDistanceOptions } from './services/dye/DyeSearch.js';
 export {
   AppError,
   ErrorCode,
@@ -74,6 +85,8 @@ export {
   RACE_SUBRACES,
   SUBRACE_TO_RACE,
   COLOR_GRID_DIMENSIONS,
+  // Color matching presets
+  MATCHING_PRESETS,
 } from './types/index.js';
 
 // Constants

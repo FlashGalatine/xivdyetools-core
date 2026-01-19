@@ -5,6 +5,76 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.0] - 2026-01-18
+
+### Added
+
+- **Configurable Color Matching Algorithms** (COLOR-MATCH-001)
+  - New `MatchingMethod` type: `'rgb' | 'cie76' | 'ciede2000' | 'oklab' | 'hyab' | 'oklch-weighted'`
+  - `ColorConverter.getDeltaE_Oklab(hex1, hex2)` - OKLAB Euclidean distance (recommended default)
+  - `ColorConverter.getDeltaE_HyAB(hex1, hex2)` - HyAB hybrid algorithm (best for large color differences)
+  - `ColorConverter.getDeltaE_OklchWeighted(hex1, hex2, weights?)` - OKLCH with customizable L/C/H weights
+  - All algorithms accessible via unified `ColorConverter.getColorDistanceByMethod(hex1, hex2, method, weights?)`
+
+- **DyeSearch Matching Method Support**
+  - `findClosestDye(hex, options)` now accepts `matchingMethod` and `weights` options
+  - `findDyesWithinDistance(hex, options)` now accepts `matchingMethod` and `weights` options
+  - K-d tree used for candidate selection, then perceptual re-ranking for accurate results
+
+- **DyeService Matching Method Proxy**
+  - `findClosestDye(hex, options)` forwards matching method to DyeSearch
+  - Backwards compatible: existing code continues to work
+
+- **CharacterColorService Matching Method Support**
+  - `findClosestDyes(hex, options)` now accepts `matchingMethod` for perceptual matching
+
+- **New Types** (exported from `@xivdyetools/core`)
+  - `MatchingMethod` - Union type for all supported algorithms
+  - `OklchWeights` - Interface for custom L/C/H weight configuration
+  - `MatchingConfig` - Combined config interface
+  - `MATCHING_PRESETS` - Pre-configured weight presets for common use cases
+
+- **New i18n Keys** (all 6 languages: EN, JA, DE, FR, KO, ZH)
+  - `config.matchingMethod` - "Matching Algorithm"
+  - `config.matchingOklab` / `config.matchingOklabDesc` - OKLAB descriptions
+  - `config.matchingHyab` / `config.matchingHyabDesc` - HyAB descriptions
+  - `config.matchingCiede2000` / `config.matchingCiede2000Desc` - CIEDE2000 descriptions
+  - `config.matchingCie76` / `config.matchingCie76Desc` - CIE76 descriptions
+  - `config.matchingRgb` / `config.matchingRgbDesc` - RGB descriptions
+
+### Algorithm Comparison
+
+| Algorithm | Best For | Speed | Perceptual Accuracy |
+|-----------|----------|-------|---------------------|
+| `rgb` | K-d tree optimization | Fastest | Low |
+| `cie76` | Quick approximations | Fast | Fair |
+| `ciede2000` | Industry standard | Medium | High |
+| `oklab` | General use (recommended) | Fast | Very Good |
+| `hyab` | Palette matching | Fast | Excellent for large Δ |
+| `oklch-weighted` | Custom L/C/H priority | Fast | Configurable |
+
+### Usage Example
+
+```typescript
+import { DyeService, type MatchingMethod } from '@xivdyetools/core';
+
+const dyeService = new DyeService();
+
+// Find closest dye using OKLAB (recommended)
+const closest = dyeService.findClosestDye('#FF5733', { matchingMethod: 'oklab' });
+
+// Find closest using HyAB (best for palette matching)
+const paletteMatch = dyeService.findClosestDye('#FF5733', { matchingMethod: 'hyab' });
+
+// Find with custom OKLCH weights (prioritize hue matching)
+const hueMatch = dyeService.findClosestDye('#FF5733', {
+  matchingMethod: 'oklch-weighted',
+  weights: { lightness: 0.5, chroma: 1.0, hue: 2.0 }
+});
+```
+
+---
+
 ## [1.11.0] - 2026-01-17
 
 ### Added

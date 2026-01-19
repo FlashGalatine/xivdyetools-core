@@ -12,8 +12,10 @@ import { ErrorCode, AppError } from '../../types/index.js';
  * DeltaE formula for color difference calculations
  * - cie76: Simple Euclidean distance in LAB space (fast)
  * - cie2000: CIEDE2000 formula (perceptually accurate, industry standard)
+ * - oklab: OKLAB Euclidean distance (modern, simpler than cie2000, CSS standard)
+ * - hyab: HyAB hybrid distance (best for large color differences/palette matching)
  */
-export type DeltaEFormula = 'cie76' | 'cie2000';
+export type DeltaEFormula = 'cie76' | 'cie2000' | 'oklab' | 'hyab';
 import { RGB_MIN, RGB_MAX, HUE_MAX } from '../../constants/index.js';
 import {
   clamp,
@@ -779,16 +781,36 @@ export class ColorConverter {
 
   /**
    * Calculate DeltaE between two hex colors using specified formula
+   *
+   * Available formulas:
+   * - cie76: LAB Euclidean (fast, fair accuracy)
+   * - cie2000: CIEDE2000 (industry standard, accurate)
+   * - oklab: OKLAB Euclidean (modern, simpler than cie2000, CSS standard)
+   * - hyab: HyAB hybrid (best for large color differences/palette matching)
+   *
    * @param hex1 First hex color
    * @param hex2 Second hex color
-   * @param formula DeltaE formula to use ('cie76' or 'cie2000')
-   * @returns DeltaE value
+   * @param formula DeltaE formula to use (default: 'cie76')
+   * @returns DeltaE value (scale varies by formula)
    */
   getDeltaE(hex1: string, hex2: string, formula: DeltaEFormula = 'cie76'): number {
-    const lab1 = this.hexToLab(hex1);
-    const lab2 = this.hexToLab(hex2);
-
-    return formula === 'cie2000' ? this.getDeltaE2000(lab1, lab2) : this.getDeltaE76(lab1, lab2);
+    switch (formula) {
+      case 'cie2000': {
+        const lab1 = this.hexToLab(hex1);
+        const lab2 = this.hexToLab(hex2);
+        return this.getDeltaE2000(lab1, lab2);
+      }
+      case 'oklab':
+        return this.getDeltaE_Oklab(hex1, hex2);
+      case 'hyab':
+        return this.getDeltaE_HyAB(hex1, hex2);
+      case 'cie76':
+      default: {
+        const lab1 = this.hexToLab(hex1);
+        const lab2 = this.hexToLab(hex2);
+        return this.getDeltaE76(lab1, lab2);
+      }
+    }
   }
 
   /**
@@ -796,6 +818,143 @@ export class ColorConverter {
    */
   static getDeltaE(hex1: string, hex2: string, formula: DeltaEFormula = 'cie76'): number {
     return this.getDefault().getDeltaE(hex1, hex2, formula);
+  }
+
+  // ============================================================================
+  // OKLAB-based Color Difference Calculations
+  // ============================================================================
+
+  /**
+   * Calculate color difference using OKLAB Euclidean distance.
+   *
+   * OKLAB provides better perceptual uniformity than LAB with simpler math
+   * than CIEDE2000. It fixes LAB's blue→purple hue shift issue.
+   *
+   * Adopted by Safari, Photoshop, and CSS Color Level 4.
+   *
+   * Reference: Björn Ottosson (2020) - "A perceptual color space for image processing"
+   *
+   * @param hex1 First color in hex format
+   * @param hex2 Second color in hex format
+   * @returns Distance value (0 = identical, scale ~0-0.5 for typical colors)
+   *
+   * @example getDeltaE_Oklab("#FF0000", "#00FF00") -> ~0.39
+   */
+  getDeltaE_Oklab(hex1: string, hex2: string): number {
+    const lab1 = this.hexToOklab(hex1);
+    const lab2 = this.hexToOklab(hex2);
+
+    const dL = lab2.L - lab1.L;
+    const da = lab2.a - lab1.a;
+    const db = lab2.b - lab1.b;
+
+    return Math.sqrt(dL * dL + da * da + db * db);
+  }
+
+  /**
+   * Static method: Calculate OKLAB Euclidean distance using default instance
+   */
+  static getDeltaE_Oklab(hex1: string, hex2: string): number {
+    return this.getDefault().getDeltaE_Oklab(hex1, hex2);
+  }
+
+  /**
+   * Calculate color difference using HyAB (Hybrid) algorithm.
+   *
+   * HyAB uses taxicab distance for lightness and Euclidean for chroma.
+   * Research shows it outperforms both Euclidean AND CIEDE2000 for large
+   * color differences (>10 units), making it ideal for palette matching.
+   *
+   * Formula: ΔE_HyAB = |L₂ - L₁| + √[(a₂-a₁)² + (b₂-b₁)²]
+   *
+   * Reference: Abasi, Tehran & Fairchild (2019) -
+   * "Distance metrics for very large color differences"
+   *
+   * @param hex1 First color in hex format
+   * @param hex2 Second color in hex format
+   * @param kL Lightness weight (default 1.0). Higher = prioritize lightness matching.
+   *           Use kL > 1 for visibility-critical matching (armor, UI).
+   *           Use kL < 1 to tolerate brightness differences (find vibrant alternatives).
+   * @returns Distance value (0 = identical, scale ~0-1.5 for typical colors)
+   *
+   * @example getDeltaE_HyAB("#FF0000", "#800000") -> ~0.32
+   * @example getDeltaE_HyAB("#FF0000", "#800000", 2.0) -> higher (emphasize brightness)
+   */
+  getDeltaE_HyAB(hex1: string, hex2: string, kL: number = 1.0): number {
+    const lab1 = this.hexToOklab(hex1);
+    const lab2 = this.hexToOklab(hex2);
+
+    // Taxicab distance for lightness (weighted)
+    const dL = Math.abs(lab2.L - lab1.L) * kL;
+
+    // Euclidean distance for chroma plane
+    const da = lab2.a - lab1.a;
+    const db = lab2.b - lab1.b;
+    const dChroma = Math.sqrt(da * da + db * db);
+
+    return dL + dChroma;
+  }
+
+  /**
+   * Static method: Calculate HyAB distance using default instance
+   */
+  static getDeltaE_HyAB(hex1: string, hex2: string, kL: number = 1.0): number {
+    return this.getDefault().getDeltaE_HyAB(hex1, hex2, kL);
+  }
+
+  /**
+   * Calculate color difference using OKLCH with customizable L/C/H weights.
+   *
+   * Allows users to prioritize different color attributes:
+   * - Lightness (L): Brightness/darkness
+   * - Chroma (C): Saturation/vividness
+   * - Hue (H): The actual color (red, blue, green, etc.)
+   *
+   * @param hex1 First color in hex format
+   * @param hex2 Second color in hex format
+   * @param weights Object with kL, kC, kH weights (default 1.0 each)
+   * @returns Distance value (0 = identical, higher = more different)
+   *
+   * @example getDeltaE_OklchWeighted("#FF0000", "#FF8000", { kH: 2.0 }) -> prioritizes hue match
+   */
+  getDeltaE_OklchWeighted(
+    hex1: string,
+    hex2: string,
+    weights: { kL?: number; kC?: number; kH?: number } = {}
+  ): number {
+    const { kL = 1.0, kC = 1.0, kH = 1.0 } = weights;
+
+    const lch1 = this.hexToOklch(hex1);
+    const lch2 = this.hexToOklch(hex2);
+
+    // Lightness difference
+    const dL = (lch2.L - lch1.L) * kL;
+
+    // Chroma difference
+    const dC = (lch2.C - lch1.C) * kC;
+
+    // Hue difference with wraparound (circular)
+    let dH = lch2.h - lch1.h;
+    if (dH > 180) dH -= 360;
+    if (dH < -180) dH += 360;
+
+    // Scale hue by average chroma for perceptual accuracy
+    // (hue differences matter less for desaturated colors)
+    const avgC = (lch1.C + lch2.C) / 2;
+    const dHScaled = (dH / 180) * avgC * kH;
+
+    return Math.sqrt(dL * dL + dC * dC + dHScaled * dHScaled);
+  }
+
+  /**
+   * Static method: Calculate OKLCH weighted distance using default instance
+   */
+  static getDeltaE_OklchWeighted(
+    hex1: string,
+    hex2: string,
+    weights: { kL?: number; kC?: number; kH?: number } = {}
+  ): number {
+    return this.getDefault().getDeltaE_OklchWeighted(hex1, hex2, weights);
   }
 
   // ============================================================================
