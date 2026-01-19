@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.0] - 2026-01-19
+
+### Fixed
+
+- **CORE-BUG-001/002**: Fixed race condition in APIService request deduplication using deferred promise pattern to ensure map entry exists before any async operations
+- **CORE-BUG-003**: Fixed KDTree `nearestNeighbor` skipping far side search when `best` was null (all nodes excluded). Now searches far side when no valid candidate found yet
+- **CORE-BUG-004**: Made HSV validation required in DyeDatabase - previously optional validation allowed dyes without HSV to pass, causing crashes when accessing `dye.hsv.h` for hue bucket indexing
+
+### Improved
+
+- **CORE-REF-001**: Added `console.warn` logging for complete search failures in DyeSearch while documenting intentional silent handling for per-dye errors
+
+### Refactored
+
+- **CORE-REF-002**: Extracted duplicated price parsing logic (~65 lines) into shared `extractPriceFromApiItem()` helper function. Added `UniversalisItemResult` type for consistency. Price extraction priority (NQ only: DC → World → Region) now documented in single source of truth
+
+---
+
 ## [1.13.0] - 2026-01-18
 
 ### Added
