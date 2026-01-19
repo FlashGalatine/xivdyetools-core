@@ -156,6 +156,105 @@ export class MemoryCacheBackend implements ICacheBackend {
 }
 
 // ============================================================================
+// Price Extraction Types and Helpers
+// ============================================================================
+
+/**
+ * Structure for price listing from a specific scope (DC, world, or region)
+ */
+interface PriceListing {
+  price: number;
+  worldId?: number;
+}
+
+/**
+ * Structure for min listing data from Universalis API
+ * Contains optional price listings at different scope levels
+ */
+interface MinListingData {
+  dc?: PriceListing;
+  world?: PriceListing;
+  region?: PriceListing;
+}
+
+/**
+ * Structure for quality-specific data (NQ or HQ)
+ */
+interface QualityData {
+  minListing?: MinListingData;
+}
+
+/**
+ * Structure for a single item result from Universalis API
+ * CORE-REF-002 FIX: Extracted type to avoid duplication in parseApiResponse/parseBatchApiResponse
+ */
+export interface UniversalisItemResult {
+  itemId: number;
+  nq?: QualityData;
+  hq?: QualityData;
+}
+
+/**
+ * Result of extracting price from an API item
+ */
+interface ExtractedPriceInfo {
+  price: number | null;
+  worldId: number | undefined;
+}
+
+/**
+ * Extract price and worldId from a Universalis API item result
+ * CORE-REF-002 FIX: Centralized price extraction logic used by both single and batch parsing.
+ *
+ * Priority order:
+ * 1. NQ (Normal Quality) prices - most dyes are NQ
+ *    - Data Center price (preferred for cross-world comparison)
+ *    - World price (fallback)
+ *    - Region price (last resort)
+ * 2. HQ (High Quality) prices - fallback if no NQ available
+ *    - Same priority: DC → World → Region
+ *
+ * @param result - The item result from Universalis API
+ * @returns Object containing price (or null) and optional worldId
+ */
+function extractPriceFromApiItem(result: UniversalisItemResult): ExtractedPriceInfo {
+  let price: number | null = null;
+  let worldId: number | undefined = undefined;
+
+  // Try NQ prices first (prefer DC, then world, then region)
+  if (result.nq?.minListing) {
+    const nqListing = result.nq.minListing;
+    if (nqListing.dc?.price) {
+      price = nqListing.dc.price;
+      worldId = nqListing.dc.worldId;
+    } else if (nqListing.world?.price) {
+      price = nqListing.world.price;
+      worldId = nqListing.world.worldId;
+    } else if (nqListing.region?.price) {
+      price = nqListing.region.price;
+      worldId = nqListing.region.worldId;
+    }
+  }
+
+  // If no NQ price, try HQ prices
+  if (!price && result.hq?.minListing) {
+    const hqListing = result.hq.minListing;
+    if (hqListing.dc?.price) {
+      price = hqListing.dc.price;
+      worldId = hqListing.dc.worldId;
+    } else if (hqListing.world?.price) {
+      price = hqListing.world.price;
+      worldId = hqListing.world.worldId;
+    } else if (hqListing.region?.price) {
+      price = hqListing.region.price;
+      worldId = hqListing.region.worldId;
+    }
+  }
+
+  return { price, worldId };
+}
+
+// ============================================================================
 // API Service Class
 // ============================================================================
 
@@ -535,29 +634,12 @@ export class APIService {
   /**
    * Fetch with timeout and size limits
    * Uses injected fetch client for better testability
+   * CORE-REF-002 FIX: Return type now uses UniversalisItemResult for consistency
    */
   private async fetchWithTimeout(
     url: string,
     timeoutMs: number
-  ): Promise<{
-    results?: Array<{
-      itemId: number;
-      nq?: {
-        minListing?: {
-          dc?: { price: number; worldId?: number };
-          world?: { price: number; worldId?: number };
-          region?: { price: number; worldId?: number };
-        };
-      };
-      hq?: {
-        minListing?: {
-          dc?: { price: number; worldId?: number };
-          world?: { price: number; worldId?: number };
-          region?: { price: number; worldId?: number };
-        };
-      };
-    }>;
-  }> {
+  ): Promise<{ results?: UniversalisItemResult[] }> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -594,25 +676,7 @@ export class APIService {
 
       // Parse JSON with error handling
       try {
-        return JSON.parse(text) as {
-          results?: Array<{
-            itemId: number;
-            nq?: {
-              minListing?: {
-                dc?: { price: number; worldId?: number };
-                world?: { price: number; worldId?: number };
-                region?: { price: number; worldId?: number };
-              };
-            };
-            hq?: {
-              minListing?: {
-                dc?: { price: number; worldId?: number };
-                world?: { price: number; worldId?: number };
-                region?: { price: number; worldId?: number };
-              };
-            };
-          }>;
-        };
+        return JSON.parse(text) as { results?: UniversalisItemResult[] };
       } catch (parseError) {
         throw new Error(
           `Invalid JSON response: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`
@@ -625,27 +689,10 @@ export class APIService {
 
   /**
    * Parse and validate API response
+   * CORE-REF-002 FIX: Now uses shared extractPriceFromApiItem() helper
    */
   private parseApiResponse(
-    data: {
-      results?: Array<{
-        itemId: number;
-        nq?: {
-          minListing?: {
-            dc?: { price: number; worldId?: number };
-            world?: { price: number; worldId?: number };
-            region?: { price: number; worldId?: number };
-          };
-        };
-        hq?: {
-          minListing?: {
-            dc?: { price: number; worldId?: number };
-            world?: { price: number; worldId?: number };
-            region?: { price: number; worldId?: number };
-          };
-        };
-      }>;
-    },
+    data: { results?: UniversalisItemResult[] },
     itemID: number
   ): PriceData | null {
     try {
@@ -673,41 +720,8 @@ export class APIService {
         return null;
       }
 
-      // Try to get price and worldId from nq.minListing (prefer DC, then world, then region)
-      let price: number | null = null;
-      let worldId: number | undefined = undefined;
-
-      if (result.nq?.minListing) {
-        // Prefer data center price
-        if (result.nq.minListing.dc?.price) {
-          price = result.nq.minListing.dc.price;
-          worldId = result.nq.minListing.dc.worldId;
-        }
-        // Fall back to world price
-        else if (result.nq.minListing.world?.price) {
-          price = result.nq.minListing.world.price;
-          worldId = result.nq.minListing.world.worldId;
-        }
-        // Fall back to region price
-        else if (result.nq.minListing.region?.price) {
-          price = result.nq.minListing.region.price;
-          worldId = result.nq.minListing.region.worldId;
-        }
-      }
-
-      // If no NQ price, try HQ
-      if (!price && result.hq?.minListing) {
-        if (result.hq.minListing.dc?.price) {
-          price = result.hq.minListing.dc.price;
-          worldId = result.hq.minListing.dc.worldId;
-        } else if (result.hq.minListing.world?.price) {
-          price = result.hq.minListing.world.price;
-          worldId = result.hq.minListing.world.worldId;
-        } else if (result.hq.minListing.region?.price) {
-          price = result.hq.minListing.region.price;
-          worldId = result.hq.minListing.region.worldId;
-        }
-      }
+      // CORE-REF-002 FIX: Use shared price extraction helper
+      const { price, worldId } = extractPriceFromApiItem(result);
 
       if (!price) {
         this.logger.warn(`No price data available for item ${itemID}`);
@@ -731,25 +745,10 @@ export class APIService {
   /**
    * Parse batch API response containing multiple items
    * Returns a Map of itemID -> PriceData for all successfully parsed items
+   * CORE-REF-002 FIX: Now uses shared extractPriceFromApiItem() helper
    */
   private parseBatchApiResponse(data: {
-    results?: Array<{
-      itemId: number;
-      nq?: {
-        minListing?: {
-          dc?: { price: number; worldId?: number };
-          world?: { price: number; worldId?: number };
-          region?: { price: number; worldId?: number };
-        };
-      };
-      hq?: {
-        minListing?: {
-          dc?: { price: number; worldId?: number };
-          world?: { price: number; worldId?: number };
-          region?: { price: number; worldId?: number };
-        };
-      };
-    }>;
+    results?: UniversalisItemResult[];
     failedItems?: number[];
   }): Map<number, PriceData> {
     const results = new Map<number, PriceData>();
@@ -774,36 +773,8 @@ export class APIService {
 
         const itemID = result.itemId;
 
-        // Try to get price and worldId from nq.minListing (prefer DC, then world, then region)
-        let price: number | null = null;
-        let worldId: number | undefined = undefined;
-
-        if (result.nq?.minListing) {
-          if (result.nq.minListing.dc?.price) {
-            price = result.nq.minListing.dc.price;
-            worldId = result.nq.minListing.dc.worldId;
-          } else if (result.nq.minListing.world?.price) {
-            price = result.nq.minListing.world.price;
-            worldId = result.nq.minListing.world.worldId;
-          } else if (result.nq.minListing.region?.price) {
-            price = result.nq.minListing.region.price;
-            worldId = result.nq.minListing.region.worldId;
-          }
-        }
-
-        // If no NQ price, try HQ
-        if (!price && result.hq?.minListing) {
-          if (result.hq.minListing.dc?.price) {
-            price = result.hq.minListing.dc.price;
-            worldId = result.hq.minListing.dc.worldId;
-          } else if (result.hq.minListing.world?.price) {
-            price = result.hq.minListing.world.price;
-            worldId = result.hq.minListing.world.worldId;
-          } else if (result.hq.minListing.region?.price) {
-            price = result.hq.minListing.region.price;
-            worldId = result.hq.minListing.region.worldId;
-          }
-        }
+        // CORE-REF-002 FIX: Use shared price extraction helper
+        const { price, worldId } = extractPriceFromApiItem(result);
 
         if (price) {
           results.set(itemID, {
