@@ -187,6 +187,9 @@ interface QualityData {
 /**
  * Structure for a single item result from Universalis API
  * CORE-REF-002 FIX: Extracted type to avoid duplication in parseApiResponse/parseBatchApiResponse
+ *
+ * Note: The `hq` field is retained for API compatibility with Universalis responses,
+ * but is not used for dye price extraction since dyes are always NQ in FFXIV.
  */
 export interface UniversalisItemResult {
   itemId: number;
@@ -206,13 +209,12 @@ interface ExtractedPriceInfo {
  * Extract price and worldId from a Universalis API item result
  * CORE-REF-002 FIX: Centralized price extraction logic used by both single and batch parsing.
  *
- * Priority order:
- * 1. NQ (Normal Quality) prices - most dyes are NQ
- *    - Data Center price (preferred for cross-world comparison)
- *    - World price (fallback)
- *    - Region price (last resort)
- * 2. HQ (High Quality) prices - fallback if no NQ available
- *    - Same priority: DC → World → Region
+ * Priority order (NQ only - dyes in FFXIV are always Normal Quality):
+ * 1. Data Center price (preferred for cross-world comparison)
+ * 2. World price (fallback)
+ * 3. Region price (last resort)
+ *
+ * Note: HQ prices are intentionally not checked because dyes do not have HQ variants in FFXIV.
  *
  * @param result - The item result from Universalis API
  * @returns Object containing price (or null) and optional worldId
@@ -221,33 +223,19 @@ function extractPriceFromApiItem(result: UniversalisItemResult): ExtractedPriceI
   let price: number | null = null;
   let worldId: number | undefined = undefined;
 
-  // Try NQ prices first (prefer DC, then world, then region)
+  // Extract NQ prices only (dyes in FFXIV are always NQ - no HQ variants exist)
+  // Priority: DC → World → Region
   if (result.nq?.minListing) {
-    const nqListing = result.nq.minListing;
-    if (nqListing.dc?.price) {
-      price = nqListing.dc.price;
-      worldId = nqListing.dc.worldId;
-    } else if (nqListing.world?.price) {
-      price = nqListing.world.price;
-      worldId = nqListing.world.worldId;
-    } else if (nqListing.region?.price) {
-      price = nqListing.region.price;
-      worldId = nqListing.region.worldId;
-    }
-  }
-
-  // If no NQ price, try HQ prices
-  if (!price && result.hq?.minListing) {
-    const hqListing = result.hq.minListing;
-    if (hqListing.dc?.price) {
-      price = hqListing.dc.price;
-      worldId = hqListing.dc.worldId;
-    } else if (hqListing.world?.price) {
-      price = hqListing.world.price;
-      worldId = hqListing.world.worldId;
-    } else if (hqListing.region?.price) {
-      price = hqListing.region.price;
-      worldId = hqListing.region.worldId;
+    const listing = result.nq.minListing;
+    if (listing.dc?.price) {
+      price = listing.dc.price;
+      worldId = listing.dc.worldId;
+    } else if (listing.world?.price) {
+      price = listing.world.price;
+      worldId = listing.world.worldId;
+    } else if (listing.region?.price) {
+      price = listing.region.price;
+      worldId = listing.region.worldId;
     }
   }
 
