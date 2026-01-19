@@ -374,48 +374,74 @@ export class APIService {
   /**
    * Fetch price data for a dye from Universalis API
    * Implements caching, debouncing, and retry logic
+   *
+   * CORE-BUG-001/002 FIX: Uses atomic deduplication pattern to prevent race conditions.
+   * The promise is stored in the map BEFORE the async operation begins, ensuring that
+   * concurrent calls will always see the pending request even if they arrive during
+   * the cache check phase.
    */
   async getPriceData(
     itemID: number,
     worldID?: number,
     dataCenterID?: string
   ): Promise<PriceData | null> {
-    try {
-      // Build cache key
-      const cacheKey = this.buildCacheKey(itemID, worldID, dataCenterID);
+    // Build cache key first (synchronous)
+    const cacheKey = this.buildCacheKey(itemID, worldID, dataCenterID);
 
-      // Check cache first
+    // CORE-BUG-001 FIX: Check pending requests BEFORE any async operations
+    // This prevents the race condition where two calls both pass the pending check
+    // before either sets their promise in the map
+    const existingRequest = this.pendingRequests.get(cacheKey);
+    if (existingRequest) {
+      this.logger.info(`Using pending request for item ${itemID}`);
+      return existingRequest;
+    }
+
+    // CORE-BUG-001 FIX: Create and store the promise SYNCHRONOUSLY before starting
+    // any async work. We use a deferred promise pattern to ensure the map entry
+    // exists before we await anything.
+    let resolvePromise: (value: PriceData | null) => void;
+
+    const promise = new Promise<PriceData | null>((resolve) => {
+      resolvePromise = resolve;
+      // Note: We don't use reject because getPriceData returns null on error
+      // to maintain existing API behavior (non-throwing)
+    });
+
+    // Store immediately - this is synchronous and happens before any await
+    this.pendingRequests.set(cacheKey, promise);
+
+    try {
+      // Now we can safely do async operations
       const cached = await this.getCachedPrice(cacheKey);
       if (cached) {
         this.logger.info(`Price cache hit for item ${itemID}`);
+        this.pendingRequests.delete(cacheKey);
+        resolvePromise!(cached);
         return cached;
       }
 
-      // Check if request is already pending (deduplication)
-      if (this.pendingRequests.has(cacheKey)) {
-        this.logger.info(`Using pending request for item ${itemID}`);
-        return await this.pendingRequests.get(cacheKey)!;
+      // Fetch from API
+      const data = await this.fetchPriceData(itemID, worldID, dataCenterID);
+
+      // CORE-BUG-002 FIX: Always delete from pending map before resolving/rejecting
+      // This ensures cleanup happens in a predictable order
+      this.pendingRequests.delete(cacheKey);
+
+      if (data) {
+        await this.setCachedPrice(cacheKey, data);
       }
 
-      // Create pending request
-      const promise = this.fetchPriceData(itemID, worldID, dataCenterID).then(
-        async (data) => {
-          this.pendingRequests.delete(cacheKey);
-          if (data) {
-            await this.setCachedPrice(cacheKey, data);
-          }
-          return data;
-        },
-        (error) => {
-          this.pendingRequests.delete(cacheKey);
-          throw error;
-        }
-      );
-
-      this.pendingRequests.set(cacheKey, promise);
-      return await promise;
+      resolvePromise!(data);
+      return data;
     } catch (error) {
+      // CORE-BUG-002 FIX: Clean up on error path as well
+      this.pendingRequests.delete(cacheKey);
       this.logger.error('Failed to fetch price data', error);
+
+      // Resolve with null instead of rejecting to maintain existing behavior
+      // where errors return null rather than throwing
+      resolvePromise!(null);
       return null;
     }
   }

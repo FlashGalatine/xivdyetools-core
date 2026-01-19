@@ -225,6 +225,9 @@ export class DyeSearch {
                   bestDye = dye;
                 }
               } catch {
+                // CORE-REF-001: Silently skip individual dyes with invalid color data
+                // This is intentional - logging per-dye errors would be too noisy for large datasets
+                // The dye data is pre-validated at load time, so this rarely occurs
                 continue;
               }
             }
@@ -264,12 +267,20 @@ export class DyeSearch {
             closest = dye;
           }
         } catch {
+          // CORE-REF-001: Silently skip individual dyes with invalid color data
+          // See comment above for rationale
           continue;
         }
       }
 
       return closest;
-    } catch {
+    } catch (error) {
+      // CORE-REF-001 FIX: Log complete search failures (e.g., invalid input hex)
+      // These are unexpected and indicate caller provided bad input
+      console.warn(
+        `[DyeSearch.findClosestDye] Search failed for hex "${hex}":`,
+        error instanceof Error ? error.message : 'Unknown error'
+      );
       return null;
     }
   }
@@ -342,6 +353,8 @@ export class DyeSearch {
               results.push({ dye, distance });
             }
           } catch {
+            // CORE-REF-001: Silently skip individual dyes with invalid color data
+            // Logging per-dye errors would be too noisy for large datasets
             continue;
           }
         }
@@ -370,6 +383,8 @@ export class DyeSearch {
             results.push({ dye, distance });
           }
         } catch {
+          // CORE-REF-001: Silently skip individual dyes with invalid color data
+          // See comment above for rationale
           continue;
         }
       }
@@ -381,7 +396,13 @@ export class DyeSearch {
       }
 
       return results.map((item) => item.dye);
-    } catch {
+    } catch (error) {
+      // CORE-REF-001 FIX: Log complete search failures (e.g., invalid input hex)
+      // These are unexpected and indicate caller provided bad input
+      console.warn(
+        `[DyeSearch.findDyesWithinDistance] Search failed for hex "${hex}":`,
+        error instanceof Error ? error.message : 'Unknown error'
+      );
       return [];
     }
   }
