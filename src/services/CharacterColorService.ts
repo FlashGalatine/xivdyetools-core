@@ -4,6 +4,9 @@
  * Service for accessing FFXIV character customization colors and
  * finding matching dyes for hair, eye, skin tones etc.
  *
+ * Uses hybrid loading: shared colors are loaded eagerly (sync),
+ * race-specific colors are loaded lazily on demand (async).
+ *
  * @module services/CharacterColorService
  * @example
  * ```typescript
@@ -12,8 +15,11 @@
  * const characterColors = new CharacterColorService();
  * const dyeService = new DyeService(dyeDatabase);
  *
- * // Get all eye colors
+ * // Get all eye colors (sync)
  * const eyeColors = characterColors.getEyeColors();
+ *
+ * // Get hair colors for a specific race (async)
+ * const hairColors = await characterColors.getHairColors('Midlander', 'Male');
  *
  * // Find closest dyes to an eye color
  * const matches = characterColors.findClosestDyes(eyeColors[47], dyeService, 3);
@@ -44,122 +50,212 @@ export interface CharacterMatchOptions {
   weights?: OklchWeights;
 }
 
-// Import character color data
-import characterColorData from '../data/character_colors.json';
+// =============================================================================
+// Eager imports for shared colors (always needed, loaded at build time)
+// =============================================================================
+import colorMeta from '../data/character_colors/index.json';
+import eyeColorsData from '../data/character_colors/shared/eye_colors.json';
+import highlightColorsData from '../data/character_colors/shared/highlight_colors.json';
+import lipColorsDarkData from '../data/character_colors/shared/lip_colors_dark.json';
+import lipColorsLightData from '../data/character_colors/shared/lip_colors_light.json';
+import tattooColorsData from '../data/character_colors/shared/tattoo_colors.json';
+import facePaintDarkData from '../data/character_colors/shared/face_paint_dark.json';
+import facePaintLightData from '../data/character_colors/shared/face_paint_light.json';
 
 /**
- * Internal data structure for the JSON file
+ * Internal type for race-specific color data structure
  */
-interface CharacterColorData {
-  meta: {
-    version: string;
-    description: string;
-    gridColumns: number;
-  };
-  shared: Record<string, CharacterColor[]>;
-  raceSpecific: {
-    hairColors: Record<string, Record<string, CharacterColor[]>>;
-    skinColors: Record<string, Record<string, CharacterColor[]>>;
-  };
-}
+type RaceColorData = Record<string, Record<string, CharacterColor[]>>;
 
 /**
  * Service for accessing FFXIV character customization colors
+ *
+ * Shared colors (eye, lip, tattoo, etc.) are loaded synchronously at import time.
+ * Race-specific colors (hair, skin) are loaded lazily on first access.
  */
 export class CharacterColorService {
-  private data: CharacterColorData;
+  // Shared data loaded eagerly (sync access)
+  private sharedData: Record<string, CharacterColor[]> = {
+    eyeColors: eyeColorsData as CharacterColor[],
+    highlightColors: highlightColorsData as CharacterColor[],
+    lipColorsDark: lipColorsDarkData as CharacterColor[],
+    lipColorsLight: lipColorsLightData as CharacterColor[],
+    tattooColors: tattooColorsData as CharacterColor[],
+    facePaintColorsDark: facePaintDarkData as CharacterColor[],
+    facePaintColorsLight: facePaintLightData as CharacterColor[],
+  };
+
+  // Race-specific data loaded lazily (async access)
+  private hairColorsData: RaceColorData | null = null;
+  private skinColorsData: RaceColorData | null = null;
+
+  // Loading promises for deduplication
+  private hairColorsLoading: Promise<RaceColorData> | null = null;
+  private skinColorsLoading: Promise<RaceColorData> | null = null;
 
   constructor() {
-    this.data = characterColorData as CharacterColorData;
+    // No initialization needed - shared data is already imported
   }
 
   // ==========================================================================
-  // Shared Colors (Race-Agnostic)
+  // Shared Colors (Race-Agnostic) - Synchronous API
   // ==========================================================================
 
   /**
    * Get all eye colors (192 colors)
    */
   getEyeColors(): CharacterColor[] {
-    return this.data.shared.eyeColors || [];
+    return this.sharedData.eyeColors || [];
   }
 
   /**
    * Get all hair highlight colors (192 colors)
    */
   getHighlightColors(): CharacterColor[] {
-    return this.data.shared.highlightColors || [];
+    return this.sharedData.highlightColors || [];
   }
 
   /**
    * Get all dark lip colors (96 colors)
    */
   getLipColorsDark(): CharacterColor[] {
-    return this.data.shared.lipColorsDark || [];
+    return this.sharedData.lipColorsDark || [];
   }
 
   /**
    * Get all light lip colors (96 colors)
    */
   getLipColorsLight(): CharacterColor[] {
-    return this.data.shared.lipColorsLight || [];
+    return this.sharedData.lipColorsLight || [];
   }
 
   /**
    * Get all tattoo/limbal ring colors (192 colors)
    */
   getTattooColors(): CharacterColor[] {
-    return this.data.shared.tattooColors || [];
+    return this.sharedData.tattooColors || [];
   }
 
   /**
    * Get all dark face paint colors (96 colors)
    */
   getFacePaintColorsDark(): CharacterColor[] {
-    return this.data.shared.facePaintColorsDark || [];
+    return this.sharedData.facePaintColorsDark || [];
   }
 
   /**
    * Get all light face paint colors (96 colors)
    */
   getFacePaintColorsLight(): CharacterColor[] {
-    return this.data.shared.facePaintColorsLight || [];
+    return this.sharedData.facePaintColorsLight || [];
   }
 
   /**
    * Get shared colors by category
    */
   getSharedColors(category: SharedColorCategory): CharacterColor[] {
-    return this.data.shared[category] || [];
+    return this.sharedData[category] || [];
   }
 
   // ==========================================================================
-  // Race-Specific Colors
+  // Race-Specific Colors - Asynchronous API (lazy loaded)
   // ==========================================================================
 
   /**
-   * Get hair colors for a specific subrace and gender (192 colors each)
+   * Load hair colors data lazily
    */
-  getHairColors(subrace: SubRace, gender: Gender): CharacterColor[] {
-    return this.data.raceSpecific.hairColors?.[subrace]?.[gender] || [];
+  private async loadHairColors(): Promise<RaceColorData> {
+    if (this.hairColorsData) {
+      return this.hairColorsData;
+    }
+
+    // Deduplicate concurrent loads
+    if (!this.hairColorsLoading) {
+      this.hairColorsLoading = import(
+        '../data/character_colors/race_specific/hair_colors.json'
+      ).then((module) => {
+        this.hairColorsData = module.default as RaceColorData;
+        this.hairColorsLoading = null;
+        return this.hairColorsData;
+      });
+    }
+
+    return this.hairColorsLoading;
+  }
+
+  /**
+   * Load skin colors data lazily
+   */
+  private async loadSkinColors(): Promise<RaceColorData> {
+    if (this.skinColorsData) {
+      return this.skinColorsData;
+    }
+
+    // Deduplicate concurrent loads
+    if (!this.skinColorsLoading) {
+      this.skinColorsLoading = import(
+        '../data/character_colors/race_specific/skin_colors.json'
+      ).then((module) => {
+        this.skinColorsData = module.default as RaceColorData;
+        this.skinColorsLoading = null;
+        return this.skinColorsData;
+      });
+    }
+
+    return this.skinColorsLoading;
+  }
+
+  /**
+   * Get hair colors for a specific subrace and gender (192 colors each)
+   *
+   * @param subrace - The character subrace (e.g., 'Midlander', 'Highlander')
+   * @param gender - The character gender ('Male' or 'Female')
+   * @returns Promise resolving to array of hair colors
+   */
+  async getHairColors(subrace: SubRace, gender: Gender): Promise<CharacterColor[]> {
+    const data = await this.loadHairColors();
+    return data?.[subrace]?.[gender] || [];
   }
 
   /**
    * Get skin colors for a specific subrace and gender (192 colors each)
+   *
+   * @param subrace - The character subrace (e.g., 'Midlander', 'Highlander')
+   * @param gender - The character gender ('Male' or 'Female')
+   * @returns Promise resolving to array of skin colors
    */
-  getSkinColors(subrace: SubRace, gender: Gender): CharacterColor[] {
-    return this.data.raceSpecific.skinColors?.[subrace]?.[gender] || [];
+  async getSkinColors(subrace: SubRace, gender: Gender): Promise<CharacterColor[]> {
+    const data = await this.loadSkinColors();
+    return data?.[subrace]?.[gender] || [];
   }
 
   /**
    * Get race-specific colors by category
+   *
+   * @param category - 'hairColors' or 'skinColors'
+   * @param subrace - The character subrace
+   * @param gender - The character gender
+   * @returns Promise resolving to array of colors
    */
-  getRaceSpecificColors(
+  async getRaceSpecificColors(
     category: RaceSpecificColorCategory,
     subrace: SubRace,
     gender: Gender
-  ): CharacterColor[] {
-    return this.data.raceSpecific[category]?.[subrace]?.[gender] || [];
+  ): Promise<CharacterColor[]> {
+    if (category === 'hairColors') {
+      return this.getHairColors(subrace, gender);
+    } else {
+      return this.getSkinColors(subrace, gender);
+    }
+  }
+
+  /**
+   * Preload all race-specific data for faster subsequent access.
+   * Call this early (e.g., on app init) to avoid latency when
+   * the user first selects a race.
+   */
+  async preloadRaceData(): Promise<void> {
+    await Promise.all([this.loadHairColors(), this.loadSkinColors()]);
   }
 
   // ==========================================================================
@@ -316,13 +412,13 @@ export class CharacterColorService {
   /**
    * Get a specific color by index from a race-specific category
    */
-  getRaceSpecificColorByIndex(
+  async getRaceSpecificColorByIndex(
     category: RaceSpecificColorCategory,
     subrace: SubRace,
     gender: Gender,
     index: number
-  ): CharacterColor | null {
-    const colors = this.getRaceSpecificColors(category, subrace, gender);
+  ): Promise<CharacterColor | null> {
+    const colors = await this.getRaceSpecificColors(category, subrace, gender);
     return colors.find((c) => c.index === index) || null;
   }
 
@@ -334,22 +430,21 @@ export class CharacterColorService {
    * Get all available subraces
    */
   getAvailableSubraces(): SubRace[] {
-    const hairColors = this.data.raceSpecific.hairColors || {};
-    return Object.keys(hairColors) as SubRace[];
+    return colorMeta.subraces as SubRace[];
   }
 
   /**
    * Get the data version
    */
   getVersion(): string {
-    return this.data.meta.version;
+    return colorMeta.meta.version;
   }
 
   /**
    * Get grid column count (always 8)
    */
   getGridColumns(): number {
-    return this.data.meta.gridColumns;
+    return colorMeta.meta.gridColumns;
   }
 
   // ==========================================================================

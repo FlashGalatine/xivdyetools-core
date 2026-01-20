@@ -5,6 +5,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.0] - 2026-01-20
+
+### Changed
+
+- **Character Color Data Refactoring**: Split `character_colors.json` (779KB) into granular files for better performance
+  - **New file structure**: `src/data/character_colors/` with organized subdirectories
+    - `index.json` - Metadata and subrace manifest
+    - `shared/` - 7 race-agnostic color files (eye, highlight, lip, tattoo, face paint)
+    - `race_specific/` - 2 lazy-loaded files (hair_colors.json, skin_colors.json)
+  - **Hybrid loading strategy**: Shared colors load synchronously, race-specific colors load on-demand
+  - **Bundle size optimization**: Initial load reduced by ~87% (shared colors only ~108KB vs full 779KB)
+
+### Breaking Changes
+
+- **CharacterColorService API changes** - Race-specific methods are now async:
+  - `getHairColors(subrace, gender)` → returns `Promise<CharacterColor[]>`
+  - `getSkinColors(subrace, gender)` → returns `Promise<CharacterColor[]>`
+  - `getRaceSpecificColors(category, subrace, gender)` → returns `Promise<CharacterColor[]>`
+  - `getRaceSpecificColorByIndex(category, subrace, gender, index)` → returns `Promise<CharacterColor | null>`
+  - All shared color methods remain synchronous (unchanged API)
+
+### Added
+
+- **New exports for tree-shaking**: Individual color data exports
+  - `characterColorMeta`, `eyeColorsData`, `highlightColorsData`, `lipColorsDarkData`, `lipColorsLightData`
+  - `tattooColorsData`, `facePaintDarkData`, `facePaintLightData`, `hairColorsData`, `skinColorsData`
+- **`preloadRaceData()` method**: Preload race-specific data to avoid latency on first access
+- **Promise deduplication**: Concurrent calls to lazy-loaded data share the same Promise
+
+### Deprecated
+
+- **`characterColorData` export**: Use `CharacterColorService` or individual exports instead
+
+### Migration Guide
+
+```typescript
+// Before (sync)
+const hairColors = characterColors.getHairColors('Midlander', 'Male');
+
+// After (async)
+const hairColors = await characterColors.getHairColors('Midlander', 'Male');
+
+// Optional: Preload on app init to avoid first-access latency
+await characterColors.preloadRaceData();
+```
+
+---
+
 ## [1.14.0] - 2026-01-19
 
 ### Fixed

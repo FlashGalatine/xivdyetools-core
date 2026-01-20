@@ -85,22 +85,22 @@ describe('CharacterColorService', () => {
     const testSubrace: SubRace = 'Midlander';
     const testGender: Gender = 'Male';
 
-    it('should return hair colors for a specific subrace and gender', () => {
-      const colors = service.getHairColors(testSubrace, testGender);
+    it('should return hair colors for a specific subrace and gender', async () => {
+      const colors = await service.getHairColors(testSubrace, testGender);
       expect(colors).toBeDefined();
       expect(Array.isArray(colors)).toBe(true);
       expect(colors.length).toBeGreaterThan(0);
     });
 
-    it('should return skin colors for a specific subrace and gender', () => {
-      const colors = service.getSkinColors(testSubrace, testGender);
+    it('should return skin colors for a specific subrace and gender', async () => {
+      const colors = await service.getSkinColors(testSubrace, testGender);
       expect(colors).toBeDefined();
       expect(Array.isArray(colors)).toBe(true);
       expect(colors.length).toBeGreaterThan(0);
     });
 
-    it('should return race-specific color by index', () => {
-      const hairColor = service.getRaceSpecificColorByIndex(
+    it('should return race-specific color by index', async () => {
+      const hairColor = await service.getRaceSpecificColorByIndex(
         'hairColors',
         testSubrace,
         testGender,
@@ -110,8 +110,8 @@ describe('CharacterColorService', () => {
       expect(hairColor?.index).toBe(0);
     });
 
-    it('should return null for invalid race-specific color index', () => {
-      const color = service.getRaceSpecificColorByIndex(
+    it('should return null for invalid race-specific color index', async () => {
+      const color = await service.getRaceSpecificColorByIndex(
         'hairColors',
         testSubrace,
         testGender,
@@ -130,18 +130,26 @@ describe('CharacterColorService', () => {
       expect(subraces).toContain('Rava');
     });
 
-    it('should work with all subraces and genders', () => {
+    it('should work with all subraces and genders', async () => {
       const subraces = service.getAvailableSubraces();
       const genders: Gender[] = ['Male', 'Female'];
 
       for (const subrace of subraces) {
         for (const gender of genders) {
-          const hairColors = service.getHairColors(subrace, gender);
-          const skinColors = service.getSkinColors(subrace, gender);
+          const hairColors = await service.getHairColors(subrace, gender);
+          const skinColors = await service.getSkinColors(subrace, gender);
           expect(hairColors.length).toBeGreaterThan(0);
           expect(skinColors.length).toBeGreaterThan(0);
         }
       }
+    });
+
+    it('should preload race data', async () => {
+      const newService = new CharacterColorService();
+      await newService.preloadRaceData();
+      // After preloading, subsequent calls should use cached data
+      const colors = await newService.getHairColors('Midlander', 'Male');
+      expect(colors.length).toBeGreaterThan(0);
     });
   });
 

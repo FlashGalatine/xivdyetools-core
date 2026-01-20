@@ -142,6 +142,23 @@ export {
 // Data (for browser environments - to be injected)
 export { default as dyeDatabase } from './data/colors_xiv.json' with { type: 'json' };
 export { default as presetData } from './data/presets.json' with { type: 'json' };
+
+// Character color data - individual exports for tree-shaking
+export { default as characterColorMeta } from './data/character_colors/index.json' with { type: 'json' };
+export { default as eyeColorsData } from './data/character_colors/shared/eye_colors.json' with { type: 'json' };
+export { default as highlightColorsData } from './data/character_colors/shared/highlight_colors.json' with { type: 'json' };
+export { default as lipColorsDarkData } from './data/character_colors/shared/lip_colors_dark.json' with { type: 'json' };
+export { default as lipColorsLightData } from './data/character_colors/shared/lip_colors_light.json' with { type: 'json' };
+export { default as tattooColorsData } from './data/character_colors/shared/tattoo_colors.json' with { type: 'json' };
+export { default as facePaintDarkData } from './data/character_colors/shared/face_paint_dark.json' with { type: 'json' };
+export { default as facePaintLightData } from './data/character_colors/shared/face_paint_light.json' with { type: 'json' };
+export { default as hairColorsData } from './data/character_colors/race_specific/hair_colors.json' with { type: 'json' };
+export { default as skinColorsData } from './data/character_colors/race_specific/skin_colors.json' with { type: 'json' };
+
+/**
+ * @deprecated Use the CharacterColorService instead, or import individual
+ * color data exports (eyeColorsData, hairColorsData, etc.) for tree-shaking.
+ */
 export { default as characterColorData } from './data/character_colors.json' with { type: 'json' };
 
 // Version (auto-generated from package.json during build)
