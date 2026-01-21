@@ -999,7 +999,7 @@ describe('DyeDatabase', () => {
       expect(() => database.initialize([dyeWithNullRgb])).toThrow(AppError);
     });
 
-    it('should fail to initialize dyes with null HSV value (required for hue bucketing)', () => {
+    it('should filter out dyes with null HSV value (required for hue bucketing)', () => {
       const dyeWithNullHsv = {
         itemID: 8003,
         name: 'Null HSV',
@@ -1011,9 +1011,26 @@ describe('DyeDatabase', () => {
         cost: 0,
       };
 
-      // Dye with null HSV will fail during hue bucket indexing
-      // This verifies the error is handled gracefully
-      expect(() => database.initialize([dyeWithNullHsv])).toThrow(AppError);
+      const validDye = {
+        itemID: 8004,
+        name: 'Valid Dye',
+        hex: '#00FF00',
+        rgb: { r: 0, g: 255, b: 0 },
+        hsv: { h: 120, s: 100, v: 100 },
+        category: 'Greens',
+        acquisition: 'Test',
+        cost: 0,
+      };
+
+      // Dyes with null HSV are silently filtered out during validation
+      // The database should initialize successfully with only valid dyes
+      database.initialize([dyeWithNullHsv, validDye]);
+
+      // The null HSV dye should be filtered out
+      expect(database.getDyeById(8003)).toBeNull();
+      // The valid dye should be present
+      expect(database.getDyeById(8004)).not.toBeNull();
+      expect(database.getDyeCount()).toBe(1);
     });
 
     it('should accept dyes with null category', () => {

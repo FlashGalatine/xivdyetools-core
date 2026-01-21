@@ -696,7 +696,8 @@ describe('APIService', () => {
       expect(result?.currentAverage).toBe(800);
     });
 
-    it('should fall back to HQ DC price when no NQ', async () => {
+    it('should return null when only HQ prices available (dyes are always NQ)', async () => {
+      // Note: FFXIV dyes are always Normal Quality, so HQ prices are intentionally not used
       const itemID = 5729;
       mockFetch.setResponse(`https://universalis.app/api/v2/aggregated/universal/${itemID}`, {
         status: 200,
@@ -710,11 +711,15 @@ describe('APIService', () => {
         },
       });
 
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const result = await apiService.getPriceData(itemID);
-      expect(result?.currentAverage).toBe(1100);
+      warnSpy.mockRestore();
+
+      // Should return null since dyes don't have HQ variants
+      expect(result).toBeNull();
     });
 
-    it('should fall back to HQ world price', async () => {
+    it('should return null when only HQ world price available', async () => {
       const itemID = 5729;
       mockFetch.setResponse(`https://universalis.app/api/v2/aggregated/universal/${itemID}`, {
         status: 200,
@@ -728,11 +733,14 @@ describe('APIService', () => {
         },
       });
 
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const result = await apiService.getPriceData(itemID);
-      expect(result?.currentAverage).toBe(950);
+      warnSpy.mockRestore();
+
+      expect(result).toBeNull();
     });
 
-    it('should fall back to HQ region price', async () => {
+    it('should return null when only HQ region price available', async () => {
       const itemID = 5729;
       mockFetch.setResponse(`https://universalis.app/api/v2/aggregated/universal/${itemID}`, {
         status: 200,
@@ -746,8 +754,11 @@ describe('APIService', () => {
         },
       });
 
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const result = await apiService.getPriceData(itemID);
-      expect(result?.currentAverage).toBe(850);
+      warnSpy.mockRestore();
+
+      expect(result).toBeNull();
     });
 
     it('should return null for empty results array', async () => {
@@ -940,6 +951,94 @@ describe('APIService', () => {
 
       const results = await apiService.getPricesForDataCenter(itemIDs, dataCenterID);
       expect(results.size).toBe(2);
+    });
+
+    it('should return cached results when all items are cached (getPricesForItems)', async () => {
+      const itemIDs = [5729, 5730];
+
+      // First, populate the cache by fetching
+      mockFetch.setResponse(`https://universalis.app/api/v2/aggregated/universal/5729,5730`, {
+        status: 200,
+        body: {
+          results: [
+            { itemId: 5729, nq: { minListing: { dc: { price: 10000 } } } },
+            { itemId: 5730, nq: { minListing: { dc: { price: 20000 } } } },
+          ],
+          failedItems: [],
+        },
+      });
+
+      // First call to populate cache
+      await apiService.getPricesForItems(itemIDs);
+      const initialCallCount = mockFetch.callHistory.length;
+
+      // Second call should use cache (no additional fetch)
+      const results = await apiService.getPricesForItems(itemIDs);
+
+      expect(results.size).toBe(2);
+      expect(results.get(5729)?.currentAverage).toBe(10000);
+      expect(results.get(5730)?.currentAverage).toBe(20000);
+      // No additional fetch calls should be made
+      expect(mockFetch.callHistory.length).toBe(initialCallCount);
+    });
+
+    it('should return cached results when all items are cached (getPricesForDataCenter)', async () => {
+      const itemIDs = [5729, 5730];
+      const dataCenterID = 'Aether';
+
+      // First, populate the cache by fetching
+      mockFetch.setResponse(`https://universalis.app/api/v2/aggregated/${dataCenterID}/5729,5730`, {
+        status: 200,
+        body: {
+          results: [
+            { itemId: 5729, nq: { minListing: { dc: { price: 30000 } } } },
+            { itemId: 5730, nq: { minListing: { dc: { price: 40000 } } } },
+          ],
+          failedItems: [],
+        },
+      });
+
+      // First call to populate cache
+      await apiService.getPricesForDataCenter(itemIDs, dataCenterID);
+      const initialCallCount = mockFetch.callHistory.length;
+
+      // Second call should use cache (no additional fetch)
+      const results = await apiService.getPricesForDataCenter(itemIDs, dataCenterID);
+
+      expect(results.size).toBe(2);
+      expect(results.get(5729)?.currentAverage).toBe(30000);
+      expect(results.get(5730)?.currentAverage).toBe(40000);
+      // No additional fetch calls should be made
+      expect(mockFetch.callHistory.length).toBe(initialCallCount);
+    });
+
+    it('should fetch only uncached items when some are cached (getPricesForDataCenter)', async () => {
+      const dataCenterID = 'Primal';
+
+      // First, cache item 5729 only
+      mockFetch.setResponse(`https://universalis.app/api/v2/aggregated/${dataCenterID}/5729`, {
+        status: 200,
+        body: {
+          results: [{ itemId: 5729, nq: { minListing: { dc: { price: 50000 } } } }],
+          failedItems: [],
+        },
+      });
+      await apiService.getPricesForDataCenter([5729], dataCenterID);
+
+      // Now request both 5729 and 5730
+      mockFetch.setResponse(`https://universalis.app/api/v2/aggregated/${dataCenterID}/5730`, {
+        status: 200,
+        body: {
+          results: [{ itemId: 5730, nq: { minListing: { dc: { price: 60000 } } } }],
+          failedItems: [],
+        },
+      });
+
+      const results = await apiService.getPricesForDataCenter([5729, 5730], dataCenterID);
+
+      expect(results.size).toBe(2);
+      expect(results.get(5729)?.currentAverage).toBe(50000); // From cache
+      expect(results.get(5730)?.currentAverage).toBe(60000); // Freshly fetched
     });
   });
 

@@ -528,4 +528,174 @@ describe('DyeSearch', () => {
       });
     });
   });
+
+  // ============================================================================
+  // Perceptual Matching Methods - Branch Coverage
+  // ============================================================================
+
+  describe('perceptual matching methods', () => {
+    describe('findClosestDye with perceptual methods', () => {
+      it('should find closest dye using rgb method', () => {
+        const closest = search.findClosestDye('#FF0000', undefined, { matchingMethod: 'rgb' });
+        expect(closest).not.toBeNull();
+      });
+
+      it('should find closest dye using cie76 method', () => {
+        const closest = search.findClosestDye('#FF0000', undefined, { matchingMethod: 'cie76' });
+        expect(closest).not.toBeNull();
+      });
+
+      it('should find closest dye using ciede2000 method', () => {
+        const closest = search.findClosestDye('#FF0000', undefined, {
+          matchingMethod: 'ciede2000',
+        });
+        expect(closest).not.toBeNull();
+      });
+
+      it('should find closest dye using oklab method', () => {
+        const closest = search.findClosestDye('#FF0000', undefined, { matchingMethod: 'oklab' });
+        expect(closest).not.toBeNull();
+      });
+
+      it('should find closest dye using hyab method', () => {
+        const closest = search.findClosestDye('#FF0000', undefined, { matchingMethod: 'hyab' });
+        expect(closest).not.toBeNull();
+      });
+
+      it('should find closest dye using oklch-weighted method', () => {
+        const closest = search.findClosestDye('#FF0000', undefined, {
+          matchingMethod: 'oklch-weighted',
+        });
+        expect(closest).not.toBeNull();
+      });
+
+      it('should find closest dye using oklch-weighted with custom weights', () => {
+        const closest = search.findClosestDye('#FF0000', undefined, {
+          matchingMethod: 'oklch-weighted',
+          weights: { L: 1, C: 1.5, h: 2 },
+        });
+        expect(closest).not.toBeNull();
+      });
+    });
+
+    describe('findDyesWithinDistance with perceptual methods (k-d tree path)', () => {
+      it('should find dyes within distance using cie76 method', () => {
+        // Using k-d tree path (perceptual matching with candidates)
+        const results = search.findDyesWithinDistance('#FF0000', {
+          maxDistance: 100,
+          matchingMethod: 'cie76',
+        });
+        expect(Array.isArray(results)).toBe(true);
+      });
+
+      it('should find dyes within distance using ciede2000 method', () => {
+        const results = search.findDyesWithinDistance('#FF0000', {
+          maxDistance: 100,
+          matchingMethod: 'ciede2000',
+        });
+        expect(Array.isArray(results)).toBe(true);
+      });
+
+      it('should find dyes within distance using oklab method', () => {
+        const results = search.findDyesWithinDistance('#FF0000', {
+          maxDistance: 100,
+          matchingMethod: 'oklab',
+        });
+        expect(Array.isArray(results)).toBe(true);
+      });
+
+      it('should find dyes within distance using hyab method', () => {
+        const results = search.findDyesWithinDistance('#FF0000', {
+          maxDistance: 100,
+          matchingMethod: 'hyab',
+        });
+        expect(Array.isArray(results)).toBe(true);
+      });
+
+      it('should find dyes within distance using oklch-weighted method', () => {
+        const results = search.findDyesWithinDistance('#FF0000', {
+          maxDistance: 100,
+          matchingMethod: 'oklch-weighted',
+        });
+        expect(Array.isArray(results)).toBe(true);
+      });
+
+      it('should find dyes within distance using oklch-weighted with custom weights', () => {
+        const results = search.findDyesWithinDistance('#FF0000', {
+          maxDistance: 100,
+          matchingMethod: 'oklch-weighted',
+          weights: { L: 1, C: 1.5, h: 2 },
+        });
+        expect(Array.isArray(results)).toBe(true);
+      });
+
+      it('should apply limit with perceptual methods', () => {
+        const results = search.findDyesWithinDistance('#FFFFFF', {
+          maxDistance: 200,
+          matchingMethod: 'oklab',
+          limit: 2,
+        });
+        expect(results.length).toBeLessThanOrEqual(2);
+      });
+
+      it('should sort results by perceptual distance', () => {
+        const results = search.findDyesWithinDistance('#FFFFFF', {
+          maxDistance: 300,
+          matchingMethod: 'oklab',
+        });
+        // Results should be sorted (closest first)
+        if (results.length > 1) {
+          // First result should be Snow White (exact match)
+          expect(results[0].name).toBe('Snow White');
+        }
+      });
+
+      it('should handle perceptual methods with small maxDistance', () => {
+        // Very small distance - may not find anything
+        const results = search.findDyesWithinDistance('#123456', {
+          maxDistance: 1,
+          matchingMethod: 'ciede2000',
+        });
+        expect(Array.isArray(results)).toBe(true);
+      });
+    });
+
+    describe('perceptual methods with linear search fallback', () => {
+      let fallbackSearch: DyeSearch;
+
+      beforeEach(() => {
+        // Create database without k-d tree by mocking getKdTree to return null
+        const fallbackDatabase = new DyeDatabase();
+        fallbackDatabase.initialize(mockDyes);
+        // Override getKdTree to return null
+        vi.spyOn(fallbackDatabase, 'getKdTree').mockReturnValue(null);
+        fallbackSearch = new DyeSearch(fallbackDatabase);
+      });
+
+      it('should find dyes using cie76 method with linear search', () => {
+        const results = fallbackSearch.findDyesWithinDistance('#FF0000', {
+          maxDistance: 100,
+          matchingMethod: 'cie76',
+        });
+        expect(Array.isArray(results)).toBe(true);
+      });
+
+      it('should find dyes using oklab method with linear search', () => {
+        const results = fallbackSearch.findDyesWithinDistance('#FF0000', {
+          maxDistance: 100,
+          matchingMethod: 'oklab',
+        });
+        expect(Array.isArray(results)).toBe(true);
+      });
+
+      it('should apply limit with linear search perceptual methods', () => {
+        const results = fallbackSearch.findDyesWithinDistance('#FFFFFF', {
+          maxDistance: 200,
+          matchingMethod: 'oklab',
+          limit: 2,
+        });
+        expect(results.length).toBeLessThanOrEqual(2);
+      });
+    });
+  });
 });

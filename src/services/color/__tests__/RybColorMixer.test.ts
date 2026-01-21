@@ -228,4 +228,130 @@ describe('RybColorMixer', () => {
       expect(Math.abs(rtRgb.b - origRgb.b)).toBeLessThan(30);
     });
   });
+
+  // ============================================================================
+  // Jacobian and Linear System Edge Cases (Branch Coverage)
+  // ============================================================================
+
+  describe('rgbToRyb edge cases - Jacobian computation', () => {
+    // These tests target the denominator edge cases in computeJacobian
+    // where rDenom, yDenom, or bDenom could be 0 at boundary values
+
+    it('should handle RGB values at extreme corners (white)', () => {
+      // White tests the r=0, y=0, b=0 corner
+      const ryb = RybColorMixer.rgbToRyb(255, 255, 255);
+      expect(ryb.r).toBeCloseTo(0, -1);
+      expect(ryb.y).toBeCloseTo(0, -1);
+      expect(ryb.b).toBeCloseTo(0, -1);
+    });
+
+    it('should handle RGB values at primary red corner', () => {
+      // Pure red tests the r=1 boundary
+      const ryb = RybColorMixer.rgbToRyb(255, 0, 0);
+      expect(ryb.r).toBeGreaterThan(200);
+      expect(typeof ryb.y).toBe('number');
+      expect(typeof ryb.b).toBe('number');
+    });
+
+    it('should handle RGB values at primary blue corner', () => {
+      // Pure blue tests the b=1 boundary in the inverse
+      const ryb = RybColorMixer.rgbToRyb(0, 0, 255);
+      expect(typeof ryb.r).toBe('number');
+      expect(typeof ryb.y).toBe('number');
+      expect(ryb.b).toBeGreaterThan(100);
+    });
+
+    it('should handle RGB values close to boundaries', () => {
+      // Values very close to corners stress the Jacobian computation
+      const testCases = [
+        { r: 254, g: 254, b: 254 }, // Near white
+        { r: 1, g: 1, b: 1 }, // Near black
+        { r: 254, g: 1, b: 1 }, // Near pure red
+        { r: 1, g: 254, b: 1 }, // Near pure green
+        { r: 1, g: 1, b: 254 }, // Near pure blue
+        { r: 254, g: 254, b: 1 }, // Near yellow
+        { r: 254, g: 1, b: 254 }, // Near magenta
+        { r: 1, g: 254, b: 254 }, // Near cyan
+      ];
+
+      for (const color of testCases) {
+        const ryb = RybColorMixer.rgbToRyb(color.r, color.g, color.b);
+        // All results should be valid numbers in range
+        expect(ryb.r).toBeGreaterThanOrEqual(0);
+        expect(ryb.r).toBeLessThanOrEqual(255);
+        expect(ryb.y).toBeGreaterThanOrEqual(0);
+        expect(ryb.y).toBeLessThanOrEqual(255);
+        expect(ryb.b).toBeGreaterThanOrEqual(0);
+        expect(ryb.b).toBeLessThanOrEqual(255);
+      }
+    });
+
+    it('should handle RGB sludge color (all pigments mixed)', () => {
+      // The sludge color (51, 23, 0) should produce high RYB values
+      const ryb = RybColorMixer.rgbToRyb(51, 23, 0);
+      expect(ryb.r).toBeGreaterThan(200);
+      expect(ryb.y).toBeGreaterThan(200);
+      expect(ryb.b).toBeGreaterThan(200);
+    });
+
+    it('should handle colors that may produce near-singular Jacobian matrices', () => {
+      // Colors near the center of the cube can produce near-singular Jacobians
+      const testColors = [
+        { r: 128, g: 128, b: 128 }, // Gray (center)
+        { r: 64, g: 64, b: 64 }, // Dark gray
+        { r: 192, g: 192, b: 192 }, // Light gray
+        { r: 100, g: 100, b: 100 }, // Another gray
+      ];
+
+      for (const color of testColors) {
+        const ryb = RybColorMixer.rgbToRyb(color.r, color.g, color.b);
+        // Should still produce valid results
+        expect(Number.isFinite(ryb.r)).toBe(true);
+        expect(Number.isFinite(ryb.y)).toBe(true);
+        expect(Number.isFinite(ryb.b)).toBe(true);
+      }
+    });
+
+    it('should handle mid-value colors (tests all Jacobian branches)', () => {
+      // Mid-value colors test the main path of Jacobian computation
+      const ryb = RybColorMixer.rgbToRyb(127, 127, 127);
+      expect(Number.isFinite(ryb.r)).toBe(true);
+      expect(Number.isFinite(ryb.y)).toBe(true);
+      expect(Number.isFinite(ryb.b)).toBe(true);
+    });
+  });
+
+  describe('additional mixColors edge cases', () => {
+    it('should mix colors at 0% ratio (first color)', () => {
+      const result = RybColorMixer.mixColors('#FF0000', '#0000FF', 0);
+      expect(result).toBe('#FF0000');
+    });
+
+    it('should mix colors at 100% ratio (second color)', () => {
+      const result = RybColorMixer.mixColors('#FF0000', '#0000FF', 1);
+      // At 100% ratio, we get the second color in RYB space
+      expect(result).toMatch(/^#[0-9A-Fa-f]{6}$/);
+    });
+
+    it('should mix colors at 25% ratio', () => {
+      const result = RybColorMixer.mixColors('#FF0000', '#0000FF', 0.25);
+      expect(result).toMatch(/^#[0-9A-Fa-f]{6}$/);
+    });
+
+    it('should mix colors at 75% ratio', () => {
+      const result = RybColorMixer.mixColors('#FF0000', '#0000FF', 0.75);
+      expect(result).toMatch(/^#[0-9A-Fa-f]{6}$/);
+    });
+
+    it('should mix white with color', () => {
+      const result = RybColorMixer.mixColors('#FFFFFF', '#FF0000', 0.5);
+      expect(result).toMatch(/^#[0-9A-Fa-f]{6}$/);
+    });
+
+    it('should mix black-ish (sludge) colors', () => {
+      // The RYB sludge color
+      const result = RybColorMixer.mixColors('#331700', '#FF0000', 0.5);
+      expect(result).toMatch(/^#[0-9A-Fa-f]{6}$/);
+    });
+  });
 });

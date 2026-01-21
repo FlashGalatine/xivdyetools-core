@@ -398,6 +398,116 @@ describe('CharacterColorService', () => {
     });
   });
 
+  describe('Matching Methods - Branch Coverage', () => {
+    const mockDyeService = {
+      getAllDyes: vi.fn().mockReturnValue([
+        {
+          id: 1,
+          name: 'Red Dye',
+          hex: '#FF0000',
+          rgb: { r: 255, g: 0, b: 0 },
+          hsv: { h: 0, s: 100, v: 100 },
+          category: 'Red Dyes',
+        },
+        {
+          id: 2,
+          name: 'Blue Dye',
+          hex: '#0000FF',
+          rgb: { r: 0, g: 0, b: 255 },
+          hsv: { h: 240, s: 100, v: 100 },
+          category: 'Blue Dyes',
+        },
+      ]),
+    } as unknown as DyeService;
+
+    const testColor: CharacterColor = {
+      index: 0,
+      hex: '#FF0000',
+      rgb: { r: 255, g: 0, b: 0 },
+    };
+
+    it('should support rgb matching method', () => {
+      const matches = service.findClosestDyes(testColor, mockDyeService, {
+        count: 2,
+        matchingMethod: 'rgb',
+      });
+      expect(matches).toBeDefined();
+      expect(matches.length).toBe(2);
+      expect(matches[0].dye.name).toBe('Red Dye');
+      expect(matches[0].distance).toBe(0);
+    });
+
+    it('should support cie76 matching method', () => {
+      const matches = service.findClosestDyes(testColor, mockDyeService, {
+        count: 2,
+        matchingMethod: 'cie76',
+      });
+      expect(matches).toBeDefined();
+      expect(matches.length).toBe(2);
+      expect(matches[0].dye.name).toBe('Red Dye');
+    });
+
+    it('should support ciede2000 matching method', () => {
+      const matches = service.findClosestDyes(testColor, mockDyeService, {
+        count: 2,
+        matchingMethod: 'ciede2000',
+      });
+      expect(matches).toBeDefined();
+      expect(matches.length).toBe(2);
+      expect(matches[0].dye.name).toBe('Red Dye');
+    });
+
+    it('should support oklab matching method (default)', () => {
+      const matches = service.findClosestDyes(testColor, mockDyeService, {
+        count: 2,
+        matchingMethod: 'oklab',
+      });
+      expect(matches).toBeDefined();
+      expect(matches.length).toBe(2);
+      expect(matches[0].dye.name).toBe('Red Dye');
+    });
+
+    it('should support hyab matching method', () => {
+      const matches = service.findClosestDyes(testColor, mockDyeService, {
+        count: 2,
+        matchingMethod: 'hyab',
+      });
+      expect(matches).toBeDefined();
+      expect(matches.length).toBe(2);
+      expect(matches[0].dye.name).toBe('Red Dye');
+    });
+
+    it('should support oklch-weighted matching method', () => {
+      const matches = service.findClosestDyes(testColor, mockDyeService, {
+        count: 2,
+        matchingMethod: 'oklch-weighted',
+      });
+      expect(matches).toBeDefined();
+      expect(matches.length).toBe(2);
+      expect(matches[0].dye.name).toBe('Red Dye');
+    });
+
+    it('should support oklch-weighted with custom weights', () => {
+      const matches = service.findClosestDyes(testColor, mockDyeService, {
+        count: 2,
+        matchingMethod: 'oklch-weighted',
+        weights: { L: 1, C: 1, h: 1 },
+      });
+      expect(matches).toBeDefined();
+      expect(matches.length).toBe(2);
+    });
+
+    it('should use default method (oklab) for unknown method', () => {
+      // Testing the default case of the switch statement
+      const matches = service.findClosestDyes(testColor, mockDyeService, {
+        count: 2,
+        matchingMethod: 'unknown-method' as unknown as 'oklab',
+      });
+      expect(matches).toBeDefined();
+      expect(matches.length).toBe(2);
+    });
+  });
+
   describe('Metadata', () => {
     it('should return version', () => {
       const version = service.getVersion();
