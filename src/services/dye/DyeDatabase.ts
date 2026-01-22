@@ -466,6 +466,14 @@ export class DyeDatabase {
   }
 
   /**
+   * Get logger instance (for delegating logging to dependent services)
+   * @internal
+   */
+  getLogger(): Logger {
+    return this.logger;
+  }
+
+  /**
    * Get hue bucket index for a given hue (0-35 for 10° buckets)
    * Per P-2: Maps hue to bucket for indexed lookups
    */

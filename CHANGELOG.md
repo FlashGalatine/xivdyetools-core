@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.15.1] - 2026-01-22
 
+### Fixed
+
+- **AUDIT-FINDING-001**: Replaced `console.warn()` calls with logger interface (Security)
+  - **Issue**: Direct console output bypassed logger abstraction, leaked implementation details
+  - **Severity**: LOW (CWE-532: Information Disclosure)
+  - **Changes**:
+    - `retry()` utility now accepts optional `logger` parameter
+    - `DyeSearch` now uses injected logger from `DyeDatabase` instead of `console.warn()`
+    - `APIService` passes logger to `retry()` function
+    - Added `getLogger()` getter to `DyeDatabase` for service delegation
+  - **Impact**: Consistent logging, configurable output, no information leakage in production
+  - **Files Modified**:
+    - `src/utils/index.ts` (retry function)
+    - `src/services/dye/DyeDatabase.ts` (added logger getter)
+    - `src/services/dye/DyeSearch.ts` (replaced 2 console.warn calls)
+    - `src/services/APIService.ts` (pass logger to retry)
+  - **Reference**: Security audit FINDING-001 (2026-01-22)
+
 ### Documentation
 
 - **AUDIT-BUG-001**: Added concurrency limitation warning to `LRUCache` class
@@ -19,7 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Updated inline comment to reference concurrency warning
   - **Impact**: No code changes, documentation-only update
   - **Rationale**: Current implementation is adequate for synchronous color conversion use case, but future async-heavy scenarios should be aware of limitations
-  - **Reference**: Comprehensive security audit and deep-dive analysis (2026-01-22)
+  - **Reference**: Deep-dive analysis BUG-001 (2026-01-22)
 
 ---
 

@@ -40,7 +40,11 @@ export interface FindWithinDistanceOptions {
  * Per R-4: Single Responsibility - search operations only
  */
 export class DyeSearch {
-  constructor(private database: DyeDatabase) {}
+  private readonly logger;
+
+  constructor(private database: DyeDatabase) {
+    this.logger = database.getLogger();
+  }
 
   /**
    * Calculate color distance using the specified matching method.
@@ -277,9 +281,8 @@ export class DyeSearch {
     } catch (error) {
       // CORE-REF-001 FIX: Log complete search failures (e.g., invalid input hex)
       // These are unexpected and indicate caller provided bad input
-      console.warn(
-        `[DyeSearch.findClosestDye] Search failed for hex "${hex}":`,
-        error instanceof Error ? error.message : 'Unknown error'
+      this.logger.warn(
+        `[DyeSearch.findClosestDye] Search failed for hex "${hex}": ${error instanceof Error ? error.message : 'Unknown error'}`
       );
       return null;
     }
@@ -399,9 +402,8 @@ export class DyeSearch {
     } catch (error) {
       // CORE-REF-001 FIX: Log complete search failures (e.g., invalid input hex)
       // These are unexpected and indicate caller provided bad input
-      console.warn(
-        `[DyeSearch.findDyesWithinDistance] Search failed for hex "${hex}":`,
-        error instanceof Error ? error.message : 'Unknown error'
+      this.logger.warn(
+        `[DyeSearch.findDyesWithinDistance] Search failed for hex "${hex}": ${error instanceof Error ? error.message : 'Unknown error'}`
       );
       return [];
     }

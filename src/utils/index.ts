@@ -17,6 +17,7 @@ import {
   VALUE_MAX,
   PATTERNS,
 } from '../constants/index.js';
+import type { Logger } from '../types/index.js';
 
 // ============================================================================
 // Cache Utilities
@@ -629,6 +630,7 @@ export function isAbortError(error: unknown): boolean {
  * @param fn - Async function to retry
  * @param maxAttempts - Maximum number of attempts (default: 3, min: 1)
  * @param delayMs - Initial delay in milliseconds (default: 1000, doubles each retry)
+ * @param logger - Optional logger for timeout warnings (default: none)
  * @returns Promise resolving to function result
  * @throws Last error if all attempts fail
  *
@@ -642,7 +644,7 @@ export function isAbortError(error: unknown): boolean {
  * );
  * // Delays: 0ms (try 1), 1000ms (try 2), 2000ms (try 3)
  *
- * // Custom retry logic
+ * // Custom retry logic with logger
  * const result = await retry(
  *   async () => {
  *     const response = await riskyOperation();
@@ -650,7 +652,8 @@ export function isAbortError(error: unknown): boolean {
  *     return response;
  *   },
  *   5,
- *   500
+ *   500,
+ *   myLogger
  * );
  * ```
  *
@@ -668,7 +671,8 @@ export function isAbortError(error: unknown): boolean {
 export async function retry<T>(
   fn: () => Promise<T>,
   maxAttempts: number = 3,
-  delayMs: number = 1000
+  delayMs: number = 1000,
+  logger?: Logger
 ): Promise<T> {
   const attempts = Math.max(1, Math.floor(maxAttempts)); // Ensure at least 1 attempt
   let lastError: Error | null = null;
@@ -681,7 +685,7 @@ export async function retry<T>(
 
       // Log timeout errors specifically for debugging
       if (isAbortError(error)) {
-        console.warn(`Request timed out (attempt ${i + 1}/${attempts})`);
+        logger?.warn(`Request timed out (attempt ${i + 1}/${attempts})`);
       }
 
       if (i < attempts - 1) {

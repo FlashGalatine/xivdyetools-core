@@ -552,7 +552,8 @@ export class APIService {
       const data = await retry(
         () => this.fetchWithTimeout(url, UNIVERSALIS_API_TIMEOUT),
         UNIVERSALIS_API_RETRY_COUNT,
-        UNIVERSALIS_API_RETRY_DELAY
+        UNIVERSALIS_API_RETRY_DELAY,
+        this.logger
       );
 
       if (!data) {
@@ -602,7 +603,8 @@ export class APIService {
       const data = await retry(
         () => this.fetchWithTimeout(url, UNIVERSALIS_API_TIMEOUT),
         UNIVERSALIS_API_RETRY_COUNT,
-        UNIVERSALIS_API_RETRY_DELAY
+        UNIVERSALIS_API_RETRY_DELAY,
+        this.logger
       );
 
       if (!data) {
