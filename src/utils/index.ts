@@ -39,6 +39,20 @@ import {
  * - Uses Map for O(1) operations
  * - Move-to-end on access for LRU ordering
  * - Evicts least recently used when at capacity
+ *
+ * ⚠️ CONCURRENCY LIMITATION:
+ * This cache is designed for synchronous access patterns.
+ * When used in async contexts, concurrent operations may cause:
+ * - Cache stampede (duplicate expensive computations)
+ * - Incorrect LRU ordering
+ *
+ * For async contexts with high concurrency, consider:
+ * - Using a library like `lru-cache` with async lock support
+ * - Implementing request deduplication at the calling layer
+ *   (see APIService.getPriceData for example pattern)
+ *
+ * This limitation is acceptable for the current use case (one-time
+ * color conversions) but should be considered for future enhancements.
  */
 export class LRUCache<K, V> {
   private cache: Map<K, V>;
@@ -60,7 +74,8 @@ export class LRUCache<K, V> {
     // and ensure atomic move-to-end operation for LRU ordering
     if (!this.cache.has(key)) return undefined;
     const value = this.cache.get(key)!;
-    // Move to end (most recently used) - delete + set is atomic in synchronous JS
+    // Move to end (most recently used)
+    // Note: Atomic in synchronous contexts, but see concurrency warning above
     this.cache.delete(key);
     this.cache.set(key, value);
     return value;

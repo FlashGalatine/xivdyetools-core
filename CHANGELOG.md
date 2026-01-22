@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.1] - 2026-01-22
+
+### Documentation
+
+- **AUDIT-BUG-001**: Added concurrency limitation warning to `LRUCache` class
+  - Documented potential race conditions when used in async contexts
+  - Added warning about cache stampede (duplicate expensive computations)
+  - Added warning about incorrect LRU ordering under concurrent access
+  - Recommended mitigation strategies:
+    - Use `lru-cache` npm package for high-concurrency scenarios
+    - Implement request deduplication pattern (see `APIService.getPriceData`)
+  - Updated inline comment to reference concurrency warning
+  - **Impact**: No code changes, documentation-only update
+  - **Rationale**: Current implementation is adequate for synchronous color conversion use case, but future async-heavy scenarios should be aware of limitations
+  - **Reference**: Comprehensive security audit and deep-dive analysis (2026-01-22)
+
+---
+
 ## [1.15.0] - 2026-01-20
 
 ### Changed
