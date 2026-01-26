@@ -9,10 +9,12 @@ describe('HarmonyGenerator', () => {
   let search: DyeSearch;
   let harmony: HarmonyGenerator;
 
+  // BUG-006 FIX: Added missing required Dye fields (stainID, isMetallic, isPastel, isDark, isCosmic)
   const mockDyes: Dye[] = [
     // Red (H=0)
     {
       itemID: 5740,
+      stainID: 10,
       id: 5740,
       name: 'Wine Red',
       hex: '#4D1818',
@@ -21,10 +23,15 @@ describe('HarmonyGenerator', () => {
       category: 'Reds',
       acquisition: 'Crafting',
       cost: 0,
+      isMetallic: false,
+      isPastel: false,
+      isDark: true,
+      isCosmic: false,
     },
     // Orange (H=30)
     {
       itemID: 5746,
+      stainID: 16,
       id: 5746,
       name: 'Canary Yellow',
       hex: '#FFFF00',
@@ -33,10 +40,15 @@ describe('HarmonyGenerator', () => {
       category: 'Yellows',
       acquisition: 'Dye Vendor',
       cost: 200,
+      isMetallic: false,
+      isPastel: false,
+      isDark: false,
+      isCosmic: false,
     },
     // Green (H=120)
     {
       itemID: 5743,
+      stainID: 13,
       id: 5743,
       name: 'Forest Green',
       hex: '#228B22',
@@ -45,10 +57,15 @@ describe('HarmonyGenerator', () => {
       category: 'Greens',
       acquisition: 'Crafting',
       cost: 0,
+      isMetallic: false,
+      isPastel: false,
+      isDark: false,
+      isCosmic: false,
     },
     // Cyan (H=180)
     {
       itemID: 5750,
+      stainID: 20,
       id: 5750,
       name: 'Turquoise',
       hex: '#00CED1',
@@ -57,10 +74,15 @@ describe('HarmonyGenerator', () => {
       category: 'Cyans',
       acquisition: 'Dye Vendor',
       cost: 200,
+      isMetallic: false,
+      isPastel: false,
+      isDark: false,
+      isCosmic: false,
     },
     // Blue (H=240)
     {
       itemID: 5742,
+      stainID: 12,
       id: 5742,
       name: 'Royal Blue',
       hex: '#4169E1',
@@ -69,10 +91,15 @@ describe('HarmonyGenerator', () => {
       category: 'Blues',
       acquisition: 'Dye Vendor',
       cost: 200,
+      isMetallic: false,
+      isPastel: false,
+      isDark: false,
+      isCosmic: false,
     },
     // Purple (H=270)
     {
       itemID: 5755,
+      stainID: 25,
       id: 5755,
       name: 'Grape Purple',
       hex: '#8B008B',
@@ -81,10 +108,15 @@ describe('HarmonyGenerator', () => {
       category: 'Purples',
       acquisition: 'Crafting',
       cost: 0,
+      isMetallic: false,
+      isPastel: false,
+      isDark: false,
+      isCosmic: false,
     },
     // Another Red (monochromatic variant)
     {
       itemID: 5741,
+      stainID: 11,
       id: 5741,
       name: 'Light Red',
       hex: '#FF6B6B',
@@ -93,10 +125,15 @@ describe('HarmonyGenerator', () => {
       category: 'Reds',
       acquisition: 'Dye Vendor',
       cost: 200,
+      isMetallic: false,
+      isPastel: true,
+      isDark: false,
+      isCosmic: false,
     },
-    // Facewear (should be excluded)
+    // Facewear (should be excluded) - Note: Facewear dyes have null stainID
     {
       itemID: 9999,
+      stainID: null,
       id: 9999,
       name: 'Facewear Red',
       hex: '#FF0000',
@@ -105,6 +142,10 @@ describe('HarmonyGenerator', () => {
       category: 'Facewear',
       acquisition: 'Special',
       cost: 50000,
+      isMetallic: false,
+      isPastel: false,
+      isDark: false,
+      isCosmic: false,
     },
   ];
 
