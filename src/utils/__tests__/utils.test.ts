@@ -25,6 +25,8 @@ import {
   sleep,
   retry,
   generateChecksum,
+  LRUCache,
+  AsyncLRUCache,
 } from '../index.js';
 
 describe('Utils', () => {
@@ -643,6 +645,237 @@ describe('Utils', () => {
       const obj: Record<string, unknown> = { a: 1 };
       obj.self = obj;
       expect(() => generateChecksum(obj)).toThrow();
+    });
+  });
+
+  // ============================================================================
+  // LRUCache Tests
+  // ============================================================================
+
+  describe('LRUCache', () => {
+    it('should store and retrieve values', () => {
+      const cache = new LRUCache<string, number>(3);
+      cache.set('a', 1);
+      cache.set('b', 2);
+      expect(cache.get('a')).toBe(1);
+      expect(cache.get('b')).toBe(2);
+    });
+
+    it('should return undefined for missing keys', () => {
+      const cache = new LRUCache<string, number>(3);
+      expect(cache.get('missing')).toBeUndefined();
+    });
+
+    it('should evict least recently used when full', () => {
+      const cache = new LRUCache<string, number>(2);
+      cache.set('a', 1);
+      cache.set('b', 2);
+      cache.set('c', 3); // Should evict 'a'
+      expect(cache.get('a')).toBeUndefined();
+      expect(cache.get('b')).toBe(2);
+      expect(cache.get('c')).toBe(3);
+    });
+
+    it('should update LRU order on get', () => {
+      const cache = new LRUCache<string, number>(2);
+      cache.set('a', 1);
+      cache.set('b', 2);
+      cache.get('a'); // Touch 'a', making 'b' the LRU
+      cache.set('c', 3); // Should evict 'b'
+      expect(cache.get('a')).toBe(1);
+      expect(cache.get('b')).toBeUndefined();
+      expect(cache.get('c')).toBe(3);
+    });
+
+    it('should update LRU order on set of existing key', () => {
+      const cache = new LRUCache<string, number>(2);
+      cache.set('a', 1);
+      cache.set('b', 2);
+      cache.set('a', 10); // Update 'a', making 'b' the LRU
+      cache.set('c', 3); // Should evict 'b'
+      expect(cache.get('a')).toBe(10);
+      expect(cache.get('b')).toBeUndefined();
+      expect(cache.get('c')).toBe(3);
+    });
+
+    it('should track size correctly', () => {
+      const cache = new LRUCache<string, number>(3);
+      expect(cache.size).toBe(0);
+      cache.set('a', 1);
+      expect(cache.size).toBe(1);
+      cache.set('b', 2);
+      expect(cache.size).toBe(2);
+      cache.set('a', 10); // Update, not new
+      expect(cache.size).toBe(2);
+    });
+
+    it('should clear all entries', () => {
+      const cache = new LRUCache<string, number>(3);
+      cache.set('a', 1);
+      cache.set('b', 2);
+      cache.clear();
+      expect(cache.size).toBe(0);
+      expect(cache.get('a')).toBeUndefined();
+    });
+
+    it('should use default maxSize of 1000', () => {
+      const cache = new LRUCache<number, number>();
+      // Fill beyond default size
+      for (let i = 0; i < 1005; i++) {
+        cache.set(i, i);
+      }
+      expect(cache.size).toBe(1000);
+      // First 5 should be evicted
+      expect(cache.get(0)).toBeUndefined();
+      expect(cache.get(4)).toBeUndefined();
+      expect(cache.get(5)).toBe(5);
+    });
+  });
+
+  // ============================================================================
+  // AsyncLRUCache Tests
+  // ============================================================================
+
+  describe('AsyncLRUCache', () => {
+    it('should store and retrieve values', () => {
+      const cache = new AsyncLRUCache<string, number>(3);
+      cache.set('a', 1);
+      cache.set('b', 2);
+      expect(cache.get('a')).toBe(1);
+      expect(cache.get('b')).toBe(2);
+    });
+
+    it('should return undefined for missing keys', () => {
+      const cache = new AsyncLRUCache<string, number>(3);
+      expect(cache.get('missing')).toBeUndefined();
+    });
+
+    it('should evict least recently used when full', () => {
+      const cache = new AsyncLRUCache<string, number>(2);
+      cache.set('a', 1);
+      cache.set('b', 2);
+      cache.set('c', 3); // Should evict 'a'
+      expect(cache.get('a')).toBeUndefined();
+      expect(cache.get('b')).toBe(2);
+      expect(cache.get('c')).toBe(3);
+    });
+
+    it('should update LRU order on get', () => {
+      const cache = new AsyncLRUCache<string, number>(2);
+      cache.set('a', 1);
+      cache.set('b', 2);
+      cache.get('a'); // Touch 'a', making 'b' the LRU
+      cache.set('c', 3); // Should evict 'b'
+      expect(cache.get('a')).toBe(1);
+      expect(cache.get('b')).toBeUndefined();
+      expect(cache.get('c')).toBe(3);
+    });
+
+    it('should update LRU order on set of existing key', () => {
+      const cache = new AsyncLRUCache<string, number>(2);
+      cache.set('a', 1);
+      cache.set('b', 2);
+      cache.set('a', 10); // Update 'a', making 'b' the LRU
+      cache.set('c', 3); // Should evict 'b'
+      expect(cache.get('a')).toBe(10);
+      expect(cache.get('b')).toBeUndefined();
+      expect(cache.get('c')).toBe(3);
+    });
+
+    it('should track size and pendingSize correctly', () => {
+      const cache = new AsyncLRUCache<string, number>(3);
+      expect(cache.size).toBe(0);
+      expect(cache.pendingSize).toBe(0);
+      cache.set('a', 1);
+      expect(cache.size).toBe(1);
+    });
+
+    it('should clear cache and pending operations', () => {
+      const cache = new AsyncLRUCache<string, number>(3);
+      cache.set('a', 1);
+      cache.set('b', 2);
+      cache.clear();
+      expect(cache.size).toBe(0);
+      expect(cache.pendingSize).toBe(0);
+      expect(cache.get('a')).toBeUndefined();
+    });
+
+    it('should use default maxSize of 1000', () => {
+      const cache = new AsyncLRUCache<number, number>();
+      // Fill beyond default size
+      for (let i = 0; i < 1005; i++) {
+        cache.set(i, i);
+      }
+      expect(cache.size).toBe(1000);
+    });
+
+    describe('getOrCompute', () => {
+      it('should compute and cache value for missing key', async () => {
+        const cache = new AsyncLRUCache<string, number>(3);
+        const compute = vi.fn().mockResolvedValue(42);
+        const result = await cache.getOrCompute('a', compute);
+        expect(result).toBe(42);
+        expect(compute).toHaveBeenCalledTimes(1);
+        expect(cache.get('a')).toBe(42);
+      });
+
+      it('should return cached value without computing', async () => {
+        const cache = new AsyncLRUCache<string, number>(3);
+        cache.set('a', 1);
+        const compute = vi.fn().mockResolvedValue(99);
+        const result = await cache.getOrCompute('a', compute);
+        expect(result).toBe(1);
+        expect(compute).not.toHaveBeenCalled();
+      });
+
+      it('should deduplicate concurrent requests for same key', async () => {
+        const cache = new AsyncLRUCache<string, number>(3);
+        let resolveCompute: (value: number) => void;
+        const compute = vi.fn().mockImplementation(
+          () =>
+            new Promise<number>((resolve) => {
+              resolveCompute = resolve;
+            })
+        );
+
+        // Start two concurrent requests
+        const promise1 = cache.getOrCompute('a', compute);
+        const promise2 = cache.getOrCompute('a', compute);
+
+        expect(cache.pendingSize).toBe(1);
+        expect(compute).toHaveBeenCalledTimes(1);
+
+        // Resolve the computation
+        resolveCompute!(42);
+
+        const [result1, result2] = await Promise.all([promise1, promise2]);
+        expect(result1).toBe(42);
+        expect(result2).toBe(42);
+        expect(cache.pendingSize).toBe(0);
+        expect(cache.get('a')).toBe(42);
+      });
+
+      it('should handle computation errors without caching', async () => {
+        const cache = new AsyncLRUCache<string, number>(3);
+        const error = new Error('Computation failed');
+        const compute = vi.fn().mockRejectedValue(error);
+
+        await expect(cache.getOrCompute('a', compute)).rejects.toThrow('Computation failed');
+        expect(cache.get('a')).toBeUndefined();
+        expect(cache.pendingSize).toBe(0);
+      });
+
+      it('should update LRU order on cache hit', async () => {
+        const cache = new AsyncLRUCache<string, number>(2);
+        cache.set('a', 1);
+        cache.set('b', 2);
+        // Access 'a' via getOrCompute to make 'b' the LRU
+        await cache.getOrCompute('a', async () => 99);
+        cache.set('c', 3); // Should evict 'b'
+        expect(cache.get('a')).toBe(1);
+        expect(cache.get('b')).toBeUndefined();
+        expect(cache.get('c')).toBe(3);
+      });
     });
   });
 });
