@@ -117,6 +117,155 @@ export class LRUCache<K, V> {
   }
 }
 
+/**
+ * Async-safe LRU cache with built-in request deduplication
+ *
+ * Unlike the synchronous LRUCache, this class is designed for async operations
+ * where multiple concurrent requests for the same key should share a single
+ * computation rather than triggering duplicate work.
+ *
+ * @example
+ * ```typescript
+ * const cache = new AsyncLRUCache<string, ApiResponse>(100);
+ *
+ * // Multiple concurrent calls with same key share one fetch
+ * const [result1, result2] = await Promise.all([
+ *   cache.getOrCompute('user:123', () => fetchUser('123')),
+ *   cache.getOrCompute('user:123', () => fetchUser('123')), // Reuses first call
+ * ]);
+ * // fetchUser was only called once!
+ * ```
+ *
+ * Implementation notes:
+ * - Uses separate Map for pending promises (request deduplication)
+ * - Promise is stored SYNCHRONOUSLY before any await (critical for race safety)
+ * - Handles errors gracefully - removes from pending but doesn't cache failures
+ * - LRU eviction when cache is full
+ *
+ * Per OPT-001: This addresses the concurrency limitation of the synchronous
+ * LRUCache for async contexts.
+ */
+export class AsyncLRUCache<K, V> {
+  private cache: Map<K, V>;
+  private pending: Map<K, Promise<V>>;
+  private maxSize: number;
+
+  constructor(maxSize: number = 1000) {
+    this.cache = new Map();
+    this.pending = new Map();
+    this.maxSize = maxSize;
+  }
+
+  /**
+   * Get a value from cache, or compute it if not present
+   *
+   * This method handles request deduplication: if a computation for the same
+   * key is already in progress, subsequent calls will wait for that computation
+   * rather than starting a new one.
+   *
+   * @param key - The cache key
+   * @param compute - Async function to compute the value if not cached
+   * @returns Promise resolving to the cached or computed value
+   *
+   * @example
+   * ```typescript
+   * const value = await cache.getOrCompute(
+   *   'expensive-key',
+   *   async () => await expensiveAsyncOperation()
+   * );
+   * ```
+   */
+  async getOrCompute(key: K, compute: () => Promise<V>): Promise<V> {
+    // Check cache first (fast path)
+    if (this.cache.has(key)) {
+      const value = this.cache.get(key)!;
+      // Move to end for LRU ordering
+      this.cache.delete(key);
+      this.cache.set(key, value);
+      return value;
+    }
+
+    // Check if computation is already in progress (deduplication)
+    const pendingPromise = this.pending.get(key);
+    if (pendingPromise) {
+      return pendingPromise;
+    }
+
+    // CRITICAL: Store promise SYNCHRONOUSLY before any await
+    // This ensures concurrent calls see the pending promise
+    const promise = compute()
+      .then((value) => {
+        this.pending.delete(key);
+        this.set(key, value);
+        return value;
+      })
+      .catch((error) => {
+        this.pending.delete(key);
+        throw error;
+      });
+
+    this.pending.set(key, promise);
+    return promise;
+  }
+
+  /**
+   * Get a value from the cache (sync check only)
+   *
+   * @param key - The key to look up
+   * @returns The cached value or undefined if not found
+   */
+  get(key: K): V | undefined {
+    if (!this.cache.has(key)) return undefined;
+    const value = this.cache.get(key)!;
+    // Move to end (most recently used)
+    this.cache.delete(key);
+    this.cache.set(key, value);
+    return value;
+  }
+
+  /**
+   * Set a value in the cache
+   *
+   * @param key - The key to store
+   * @param value - The value to cache
+   */
+  set(key: K, value: V): void {
+    if (this.cache.has(key)) {
+      // Update existing - move to end
+      this.cache.delete(key);
+    } else if (this.cache.size >= this.maxSize) {
+      // Remove least recently used (first item)
+      const firstKey = this.cache.keys().next().value;
+      if (firstKey !== undefined) {
+        this.cache.delete(firstKey);
+      }
+    }
+    this.cache.set(key, value);
+  }
+
+  /**
+   * Clear all entries from the cache and pending operations
+   */
+  clear(): void {
+    this.cache.clear();
+    this.pending.clear();
+  }
+
+  /**
+   * Get the current number of cached entries
+   */
+  get size(): number {
+    return this.cache.size;
+  }
+
+  /**
+   * Get the current number of pending operations
+   */
+  get pendingSize(): number {
+    return this.pending.size;
+  }
+}
+
 // ============================================================================
 // Math Utilities
 // ============================================================================

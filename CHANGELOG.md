@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.2] - 2026-01-25
+
+### Added
+
+- **OPT-001**: New `AsyncLRUCache` class for async-safe caching with request deduplication
+  - Addresses the concurrency limitation documented in `LRUCache` warning
+  - Uses pending promises Map pattern for request deduplication
+  - Critical: Promise is stored synchronously before any await (race-safe)
+  - Handles errors gracefully - removes from pending but doesn't cache failures
+  - Includes `getOrCompute(key, compute)` method for async value computation
+  - Includes `pendingSize` getter for monitoring in-flight operations
+  - **Reference**: Security audit OPT-001 (2026-01-25)
+
+---
+
 ## [1.15.1] - 2026-01-22
 
 ### Fixed
