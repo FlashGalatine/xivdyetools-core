@@ -1,5 +1,4 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
+#!/bin/sh
 
 # Secret detection (requires: pip install detect-secrets)
 # Scans staged files and fails if new secrets are detected
