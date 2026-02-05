@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.16.0] - 2026-02-05
+
+### Added
+
+- **HARMONY-CS-001**: Color space selection for harmony generation
+  - New `colorSpace` option in `HarmonyOptions`: `'hsv'` (default), `'oklch'`, `'lch'`, `'hsl'`
+  - New `HarmonyColorSpace` exported type
+  - Hue rotation is performed in the selected color space, producing perceptually different harmony results
+  - Non-HSV spaces use k-d tree matching (O(log n)) instead of HSV-specific hue buckets
+  - Complementary harmony uses 180° hue rotation in the selected space (instead of RGB inversion) for non-HSV modes
+  - **OKLCH** (recommended): Perceptually uniform hue - equal angles produce equal perceptual differences
+  - **LCH**: CIELCHab cylindrical perceptual space - traditional color science standard
+  - **HSL**: Similar to HSV with different lightness mapping
+  - Fully backward compatible: default behavior unchanged (`'hsv'`)
+  - **Usage**: `dyeService.findTriadicDyes('#FF6B6B', { colorSpace: 'oklch' })`
+
+---
+
+## [1.15.4] - 2026-02-04
+
+### Fixed
+
+- **I18N-001**: Populated Korean and Chinese locale files with actual translated dye names
+  - **Issue**: `ko.json` and `zh.json` contained English dye names due to XIVAPI v2 not serving Korean/Chinese item data
+  - `build-locales.ts` silently fell back to English when locale columns were missing from CSV
+  - **Korean (ko.json)**: All 125 dye names now use official Korean translations (e.g., "Snow White" → "하얀 눈색")
+  - **Chinese (zh.json)**: All 125 dye names now use official Chinese translations (e.g., "Snow White" → "素雪白")
+  - UI labels, categories, acquisitions, and other sections were already correctly translated
+  - **Impact**: `/gradient`, `/dye info`, and all other commands now display localized dye names for Korean and Chinese users
+
+---
+
 ## [1.15.3] - 2026-01-26
 
 ### Fixed

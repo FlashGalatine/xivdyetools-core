@@ -67,7 +67,11 @@ export type {
 } from './types/index.js';
 
 // Harmony types
-export type { HarmonyOptions, HarmonyMatchingAlgorithm } from './services/dye/HarmonyGenerator.js';
+export type {
+  HarmonyOptions,
+  HarmonyMatchingAlgorithm,
+  HarmonyColorSpace,
+} from './services/dye/HarmonyGenerator.js';
 
 // Color converter types
 export type { DeltaEFormula } from './services/color/ColorConverter.js';

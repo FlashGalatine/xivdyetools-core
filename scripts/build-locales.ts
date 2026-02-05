@@ -28,6 +28,8 @@ interface CsvRow {
   'Japanese Name': string;
   'German Name': string;
   'French Name': string;
+  'Korean Name': string;
+  'Chinese Name': string;
 }
 
 interface Dye {
@@ -187,7 +189,7 @@ function buildLabels(
 
 function buildDyeNames(locale: LocaleCode, csvRows: CsvRow[]): Record<string, string> {
   const nameColumn = `${LOCALE_NAMES[locale]} Name` as keyof CsvRow;
-  // Fallback to English for locales not in CSV (ko, zh)
+  // Fallback to English if a locale column is missing or empty
   const fallbackColumn = 'English Name' as keyof CsvRow;
   const dyeNames: Record<string, string> = {};
 

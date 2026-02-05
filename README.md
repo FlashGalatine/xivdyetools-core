@@ -159,6 +159,12 @@ const triadicDeltaE = dyeService.findTriadicDyes('#FF6B6B', {
   deltaEFormula: 'cie2000', // or 'cie76' (faster, default)
 });
 
+// Color space selection for hue rotation (v1.16.0+)
+// OKLCH produces more perceptually balanced harmonies
+const triadicOklch = dyeService.findTriadicDyes('#FF6B6B', { colorSpace: 'oklch' });
+const compLch = dyeService.findComplementaryPair('#FF6B6B', { colorSpace: 'lch' });
+// Available spaces: 'hsv' (default), 'oklch', 'lch', 'hsl'
+
 // Filtering
 const redDyes = dyeService.searchByCategory('Red');
 const searchResults = dyeService.searchByName('black');
@@ -295,6 +301,7 @@ import type {
   ICacheBackend,
   HarmonyOptions,
   HarmonyMatchingAlgorithm,
+  HarmonyColorSpace,
   DeltaEFormula
 } from 'xivdyetools-core';
 ```
