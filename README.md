@@ -1,3 +1,5 @@
+# NOTICE! This repo has been DEPRECATED! For the latest updates to the XIV Dye Tools app, see the mono-repo here: https://github.com/FlashGalatine/xivdyetools
+
 # xivdyetools-core
 
 > Core color algorithms and dye database for XIV Dye Tools - Environment-agnostic TypeScript library for FFXIV dye color matching, harmony generation, and accessibility checking.
